@@ -9,8 +9,8 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 800,
-    minWidth: 1024,
-    minHeight: 700,
+    minWidth: 380,
+    minHeight: 500,
     title: 'KRUNCHY POS - Restaurant Billing & Loyalty',
     backgroundColor: '#09090b',
     autoHideMenuBar: true,

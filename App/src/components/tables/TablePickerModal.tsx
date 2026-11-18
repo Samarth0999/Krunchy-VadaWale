@@ -46,8 +46,8 @@ export const TablePickerModal: React.FC<TablePickerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[85vh] shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[92dvh] shadow-2xl">
         
         {/* Header */}
         <div className="px-5 py-3.5 border-b border-zinc-800 flex items-center justify-between">

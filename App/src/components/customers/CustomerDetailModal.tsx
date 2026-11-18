@@ -87,8 +87,8 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh] shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[92dvh] shadow-2xl">
         
         {/* Header */}
         <div className="p-5 border-b border-zinc-800 flex items-center justify-between">
@@ -138,7 +138,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
         </div>
 
         {/* Modal Tabs */}
-        <div className="flex items-center gap-2 px-5 pt-2 bg-zinc-950/60 border-b border-zinc-800 text-xs">
+        <div className="flex items-center gap-2 px-5 pt-2 bg-zinc-950/60 border-b border-zinc-800 text-xs overflow-x-auto scrollbar-none">
           <button
             onClick={() => setActiveTabLocal('overview')}
             className={`pb-2 px-2.5 font-medium border-b-2 transition-colors ${

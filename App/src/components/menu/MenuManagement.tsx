@@ -185,9 +185,10 @@ export const MenuManagement: React.FC = () => {
 
       </div>
 
-      {/* Catalog Table */}
+      {/* Catalog Table & Mobile Cards */}
       <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-zinc-900/80 border-b border-zinc-800 text-zinc-400 text-[11px] font-medium">
@@ -311,6 +312,62 @@ export const MenuManagement: React.FC = () => {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Catalog Cards */}
+        <div className="md:hidden divide-y divide-zinc-800/80">
+          {filteredProducts.length === 0 ? (
+            <div className="py-10 text-center text-zinc-500 text-xs">
+              No catalog items found.
+            </div>
+          ) : (
+            filteredProducts.map(product => (
+              <div key={product.id} className="p-3 flex items-center justify-between gap-3 hover:bg-zinc-900/40 transition-colors">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-11 h-11 rounded-lg object-cover border border-zinc-800 shrink-0 bg-zinc-950"
+                  />
+                  <div className="min-w-0">
+                    <div className="font-medium text-xs text-zinc-100 flex items-center gap-1 truncate">
+                      <span>{product.name}</span>
+                      {product.isSpicy && <Flame className="w-3 h-3 text-rose-500 shrink-0 inline" />}
+                    </div>
+                    <div className="flex items-center gap-2 text-[10px] text-zinc-400 mt-0.5">
+                      <span className="font-mono font-bold text-zinc-200">{currency}{product.price}</span>
+                      <span>•</span>
+                      <span>{product.category}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => handleToggleStock(product)}
+                    className={`px-2 py-1 rounded text-[10px] font-medium border transition-colors ${
+                      product.inStock 
+                        ? 'bg-zinc-800 text-zinc-200 border-zinc-700/60' 
+                        : 'bg-zinc-900 text-zinc-500 border-zinc-800'
+                    }`}
+                  >
+                    {product.inStock ? 'In Stock' : 'Sold Out'}
+                  </button>
+
+                  {canEdit && (
+                    <button
+                      type="button"
+                      onClick={() => handleOpenEdit(product)}
+                      className="p-1.5 text-zinc-400 hover:text-zinc-200 bg-zinc-800/80 rounded-lg"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 

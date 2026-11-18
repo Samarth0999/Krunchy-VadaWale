@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { authService } from '../../services/authService';
-import { 
-  Flame, 
-  Lock, 
-  Mail, 
-  ShieldCheck, 
-  AlertCircle, 
-  ArrowRight, 
+import {
+  Flame,
+  Lock,
+  Mail,
+  ShieldCheck,
+  AlertCircle,
+  ArrowRight,
   RefreshCw
 } from 'lucide-react';
 
@@ -54,14 +54,14 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen w-screen flex flex-col items-center justify-center bg-zinc-950 p-4 relative overflow-hidden select-none">
-      
+    <div className="min-h-[100dvh] w-full flex flex-col items-center justify-center bg-zinc-950 p-4 relative overflow-hidden select-none">
+
       {/* Background Ambient Glow */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-orange-500/5 blur-[120px] rounded-full pointer-events-none"></div>
 
       {/* Main Login Card */}
       <div className="w-full max-w-md bg-zinc-900/90 border border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative z-10 backdrop-blur-md">
-        
+
         {/* Brand Header */}
         <div className="flex flex-col items-center text-center mb-7">
           <div className="w-14 h-14 rounded-2xl bg-zinc-800/80 border border-zinc-700/80 flex items-center justify-center text-orange-500 mb-3.5 shadow-xs">
@@ -215,10 +215,10 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
 
       {/* Footer Meta */}
       <div className="mt-6 text-center text-zinc-500 text-[11px] font-mono">
-        Krunchy POS • Secured by Supabase Auth (OAuth 2.0 / PostgreSQL)
+        Krunchy POS
       </div>
 
     </div>
   );
-};
+}
 

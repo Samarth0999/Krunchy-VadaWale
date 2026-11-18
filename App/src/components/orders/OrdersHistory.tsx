@@ -120,9 +120,10 @@ export const OrdersHistory: React.FC = () => {
 
       </div>
 
-      {/* Orders Table */}
+      {/* Orders Table & Mobile Cards */}
       <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Desktop View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-zinc-900/80 border-b border-zinc-800 text-zinc-400 text-[11px] font-medium">
@@ -213,6 +214,62 @@ export const OrdersHistory: React.FC = () => {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Cards View */}
+        <div className="md:hidden divide-y divide-zinc-800/80">
+          {filteredOrders.length === 0 ? (
+            <div className="py-10 text-center text-zinc-500 text-xs font-sans">
+              No orders found.
+            </div>
+          ) : (
+            filteredOrders.map(order => (
+              <div key={order.id} className="p-3.5 space-y-2 hover:bg-zinc-900/40 transition-colors">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-sm text-zinc-100 font-mono">{order.orderNumber}</span>
+                      <span className="text-[9px] uppercase px-1.5 py-0.2 rounded bg-zinc-800 text-zinc-400 border border-zinc-700/60 font-mono">
+                        {order.diningType}
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-zinc-500 font-mono mt-0.5 block">
+                      {new Date(order.createdAt).toLocaleDateString()} {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-sm font-bold font-mono text-zinc-100 block">
+                      {currency}{order.totalAmount.toFixed(2)}
+                    </span>
+                    <span className="text-[10px] text-zinc-400 font-mono block">
+                      {order.payments.map(p => p.mode).join(' + ')}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Customer & Item details */}
+                <div className="text-xs text-zinc-400">
+                  <div className="text-zinc-300 font-medium truncate">
+                    {order.customerName || 'Walk-in'} {order.customerPhone ? `(${order.customerPhone})` : ''}
+                  </div>
+                  <div className="text-[11px] text-zinc-500 truncate mt-0.5">
+                    {order.items.map(i => `${i.name} × ${i.quantity}`).join(', ')}
+                  </div>
+                </div>
+
+                <div className="pt-1 flex items-center justify-end">
+                  <button
+                    type="button"
+                    onClick={() => openReceiptModal(order)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-lg text-xs font-medium transition-colors border border-zinc-700/60"
+                  >
+                    <Printer className="w-3.5 h-3.5" />
+                    <span>View / Print Receipt</span>
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 

@@ -199,9 +199,10 @@ export const CustomerDirectory: React.FC = () => {
 
       </div>
 
-      {/* Customers Table */}
+      {/* Customers Table & Mobile Cards */}
       <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-zinc-900/80 border-b border-zinc-800 text-zinc-400 text-[11px] font-medium">
@@ -303,6 +304,72 @@ export const CustomerDirectory: React.FC = () => {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Cards List */}
+        <div className="md:hidden divide-y divide-zinc-800/80">
+          {filteredCustomers.length === 0 ? (
+            <div className="py-10 text-center text-zinc-500 text-xs font-sans">
+              No customers found.
+            </div>
+          ) : (
+            filteredCustomers.map(customer => (
+              <div 
+                key={customer.id} 
+                onClick={() => handleOpenCustomer(customer)}
+                className="p-3.5 space-y-2 hover:bg-zinc-900/40 transition-colors cursor-pointer"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-zinc-800 border border-zinc-700/60 text-zinc-300 font-semibold flex items-center justify-center shrink-0 text-xs">
+                      {customer.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <span className="font-semibold text-xs text-zinc-100 block">{customer.name}</span>
+                      <span className="text-[11px] text-zinc-400 font-mono block">{customer.phone}</span>
+                    </div>
+                  </div>
+                  <span className={`text-[10px] font-medium px-2 py-0.5 rounded border font-mono ${getTierBadge(customer.tier)}`}>
+                    {customer.tier}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between text-xs pt-1 border-t border-zinc-800/40">
+                  <div className="flex items-center gap-3 font-mono text-[11px]">
+                    <span className="text-amber-400 font-bold">{customer.currentPoints} pts</span>
+                    <span className="text-zinc-500">•</span>
+                    <span className="text-zinc-400">{customer.totalVisits} visits</span>
+                    <span className="text-zinc-500">•</span>
+                    <span className="text-zinc-300">{currency}{customer.lifetimeSpend}</span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                    {customer.currentPoints > 0 && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          sendWhatsAppLoyaltyReminder(customer);
+                        }}
+                        title="Send WhatsApp Reminder"
+                        className="p-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 rounded-lg text-xs border border-emerald-500/20"
+                      >
+                        <Smartphone className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={(e) => handleStartOrderForCustomer(e, customer)}
+                      className="px-2.5 py-1 bg-zinc-100 hover:bg-white text-zinc-950 font-semibold rounded-lg text-xs flex items-center gap-1 shadow-xs"
+                    >
+                      <ShoppingBag className="w-3 h-3" />
+                      <span>Bill</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 

@@ -248,28 +248,6 @@ export const Header: React.FC = () => {
         </div>
 
       </div>
-
-      {/* Mobile Navigation bar */}
-      <div className="flex lg:hidden overflow-x-auto px-2 py-1 gap-1 bg-zinc-950 border-t border-zinc-800/80 scrollbar-none">
-        {allowedNavItems.map(item => {
-          const isActive = activeTab === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs whitespace-nowrap transition-colors ${
-                isActive ? 'bg-zinc-800 text-white font-medium' : 'text-zinc-400 hover:bg-zinc-900'
-              }`}
-            >
-              {item.icon}
-              <span>{item.label}</span>
-              {item.badge !== undefined && (
-                <span className="text-[10px] px-1 bg-zinc-900 rounded font-mono text-zinc-300">{item.badge}</span>
-              )}
-            </button>
-          );
-        })}
-      </div>
     </header>
   );
 };
