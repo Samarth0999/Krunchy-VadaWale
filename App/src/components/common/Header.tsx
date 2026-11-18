@@ -17,7 +17,9 @@ import {
   Sparkles,
   Search,
   Command,
-  UtensilsCrossed
+  UtensilsCrossed,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { usePOS } from '../../context/POSContext';
 import { ActiveTab } from '../../types';
@@ -27,6 +29,8 @@ export const Header: React.FC = () => {
   const { 
     activeTab, 
     setActiveTab, 
+    theme,
+    toggleTheme,
     cartTotalQuantity, 
     settings, 
     isCloudConnected,
@@ -222,6 +226,26 @@ export const Header: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* Theme Toggle Button (Light / Dark) */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              title={theme === 'dark' ? "Switch to Clean White Mode" : "Switch to Obsidian Dark Mode"}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all duration-200 active:scale-95 text-xs font-semibold bg-dark-900 hover:bg-dark-850 border-white/[0.08] hover:border-orange-500/40 text-slate-300 hover:text-white shadow-sm"
+            >
+              {theme === 'dark' ? (
+                <>
+                  <Sun className="w-4 h-4 text-amber-400" />
+                  <span className="hidden sm:inline text-amber-300 font-bold">White</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="w-4 h-4 text-orange-500" />
+                  <span className="hidden sm:inline text-slate-700 dark:text-slate-300 font-bold">Dark</span>
+                </>
+              )}
+            </button>
 
             {/* Quick Demo Seed */}
             <button

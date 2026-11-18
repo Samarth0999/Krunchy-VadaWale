@@ -32,7 +32,7 @@ import {
 } from 'lucide-react';
 
 export const ReportsDashboard: React.FC = () => {
-  const { orders, customers, ledger, settings } = usePOS();
+  const { orders, customers, ledger, settings, theme } = usePOS();
 
   const [period, setPeriod] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('daily');
   const [selectedDate, setSelectedDate] = useState<string>(
@@ -302,11 +302,11 @@ export const ReportsDashboard: React.FC = () => {
   };
 
   const customTooltipStyle = {
-    backgroundColor: '#0B0F17',
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: theme === 'dark' ? '#0B0F17' : '#FFFFFF',
+    borderColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : '#E2E8F0',
     borderRadius: '12px',
-    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)',
-    color: '#ffffff',
+    boxShadow: theme === 'dark' ? '0 10px 25px -5px rgba(0, 0, 0, 0.5)' : '0 10px 25px -5px rgba(0, 0, 0, 0.08)',
+    color: theme === 'dark' ? '#ffffff' : '#0F172A',
     fontSize: '12px',
     fontFamily: 'monospace'
   };

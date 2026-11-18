@@ -369,3 +369,4 @@ export const CustomerShowcaseView: React.FC = () => {
     </div>
   );
 };
+

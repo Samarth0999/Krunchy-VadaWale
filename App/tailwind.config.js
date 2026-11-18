@@ -4,16 +4,17 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
         dark: {
-          950: '#0B0F17', // deepest obsidian background
-          900: '#111827', // card background
-          850: '#161F32', // elevated surface
-          800: '#1F293D', // borders & hover state
-          700: '#334155',
-          600: '#475569',
+          950: 'rgb(var(--color-bg-base) / <alpha-value>)',
+          900: 'rgb(var(--color-bg-card) / <alpha-value>)',
+          850: 'rgb(var(--color-bg-elevated) / <alpha-value>)',
+          800: 'rgb(var(--color-bg-hover) / <alpha-value>)',
+          700: 'rgb(var(--color-border) / <alpha-value>)',
+          600: 'rgb(var(--color-text-muted) / <alpha-value>)',
         },
         krunchy: {
           50: '#fff7ed',
@@ -36,7 +37,7 @@ export default {
         'glow-orange': '0 0 25px -4px rgba(249, 115, 22, 0.35)',
         'glow-emerald': '0 0 25px -4px rgba(16, 185, 129, 0.35)',
         'glow-amber': '0 0 25px -4px rgba(245, 158, 11, 0.35)',
-        'surface': '0 8px 30px rgba(0, 0, 0, 0.35)',
+        'surface': 'var(--shadow-surface)',
       },
     },
   },
