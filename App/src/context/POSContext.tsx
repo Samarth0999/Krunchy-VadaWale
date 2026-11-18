@@ -96,7 +96,6 @@ interface POSContextType {
   saveCustomer: (customer: Customer) => Promise<Customer>;
   adjustCustomerPoints: (customerId: string, pointsDelta: number, reason: string) => Promise<void>;
   updateSettings: (settings: RestaurantSettings) => Promise<void>;
-  resetAndSeedDemoData: () => void;
   refreshData: () => void;
 
   // Notifications
@@ -623,19 +622,6 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     addToast('Settings Updated', 'Restaurant and billing configurations saved.', 'success');
   }, [addToast]);
 
-  const resetAndSeedDemoData = useCallback(() => {
-    const data = storageService.seedInitialData();
-    setProducts(data.products);
-    setCustomers(data.customers);
-    setOrders(data.orders);
-    setLedger(data.ledger);
-    setTables(data.tables);
-    setSettings(data.settings);
-    setActiveTableId(null);
-    clearCart();
-    addToast('Demo Data Reset', 'Menu, tables, sample customers, and reports populated.', 'info');
-  }, [clearCart, addToast]);
-
   return (
     <POSContext.Provider
       value={{
@@ -697,7 +683,6 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         saveCustomer,
         adjustCustomerPoints,
         updateSettings,
-        resetAndSeedDemoData,
         refreshData,
         toasts,
         addToast,

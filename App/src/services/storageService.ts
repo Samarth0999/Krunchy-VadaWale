@@ -20,13 +20,13 @@ import {
 } from '../data/seedData';
 
 const LOCAL_STORAGE_KEYS = {
-  SETTINGS: 'krunchy_settings_v1',
-  PRODUCTS: 'krunchy_products_v1',
-  CUSTOMERS: 'krunchy_customers_v1',
-  ORDERS: 'krunchy_orders_v1',
-  LEDGER: 'krunchy_ledger_v1',
-  TABLES: 'krunchy_tables_v1',
-  SEEDED: 'krunchy_seeded_v1'
+  SETTINGS: 'krunchy_settings_v2',
+  PRODUCTS: 'krunchy_products_v2',
+  CUSTOMERS: 'krunchy_customers_v2',
+  ORDERS: 'krunchy_orders_v2',
+  LEDGER: 'krunchy_ledger_v2',
+  TABLES: 'krunchy_tables_v2',
+  SEEDED: 'krunchy_seeded_v2'
 };
 
 // Helper to determine loyalty tier
@@ -263,6 +263,22 @@ class StorageService {
   }
 
   private ensureInitialized() {
+    // Proactively clear any legacy demo cache from earlier versions
+    const legacyKeys = [
+      'krunchy_settings_v1',
+      'krunchy_products_v1',
+      'krunchy_customers_v1',
+      'krunchy_orders_v1',
+      'krunchy_ledger_v1',
+      'krunchy_tables_v1',
+      'krunchy_seeded_v1'
+    ];
+    legacyKeys.forEach(k => {
+      try {
+        localStorage.removeItem(k);
+      } catch (e) {}
+    });
+
     const isSeeded = localStorage.getItem(LOCAL_STORAGE_KEYS.SEEDED);
     if (!isSeeded) {
       this.seedInitialData();

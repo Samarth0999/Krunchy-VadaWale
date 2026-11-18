@@ -9,7 +9,6 @@ import {
   Maximize2, 
   Minimize2, 
   Flame, 
-  RotateCcw,
   LayoutGrid,
   BookOpen,
   Sun,
@@ -28,7 +27,6 @@ export const Header: React.FC = () => {
     orders,
     tables,
     occupiedTablesCount,
-    resetAndSeedDemoData,
     theme,
     toggleTheme
   } = usePOS();
@@ -184,18 +182,6 @@ export const Header: React.FC = () => {
               ) : (
                 <Moon className="w-3.5 h-3.5 text-zinc-300" />
               )}
-            </button>
-
-            <button
-              onClick={() => {
-                if (window.confirm("Reload demo menu, sample orders and customers?")) {
-                  resetAndSeedDemoData();
-                }
-              }}
-              title="Reset Demo Data"
-              className="p-1.5 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 rounded-md transition-colors"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
             </button>
 
             <button

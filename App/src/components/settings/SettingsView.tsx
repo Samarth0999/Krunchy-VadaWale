@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { usePOS } from '../../context/POSContext';
 import { RestaurantSettings } from '../../types';
 import { 
@@ -7,34 +7,16 @@ import {
   Receipt, 
   Award, 
   Printer, 
-  RotateCcw, 
   Download, 
   Check, 
-  CloudCheck,
-  Database,
-  CheckCircle2,
-  AlertCircle,
-  ExternalLink,
   ShieldCheck
 } from 'lucide-react';
-import { getStoredSupabaseConfig, saveSupabaseConfig, testSupabaseConnection } from '../../config/supabase';
 
 export const SettingsView: React.FC = () => {
-  const { settings, updateSettings, resetAndSeedDemoData, isCloudConnected } = usePOS();
+  const { settings, updateSettings, isCloudConnected } = usePOS();
   
   const [formData, setFormData] = useState<RestaurantSettings>({ ...settings });
   const [isSaved, setIsSaved] = useState(false);
-
-  // Supabase Configuration State
-  const [supabaseUrl, setSupabaseUrl] = useState('');
-  const [supabaseAnonKey, setSupabaseAnonKey] = useState('');
-  const [testStatus, setTestStatus] = useState<{ loading: boolean; success?: boolean; message?: string }>({ loading: false });
-
-  useEffect(() => {
-    const config = getStoredSupabaseConfig();
-    setSupabaseUrl(config.url);
-    setSupabaseAnonKey(config.anonKey);
-  }, []);
 
   const handleChange = (field: keyof RestaurantSettings, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -43,28 +25,13 @@ export const SettingsView: React.FC = () => {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     await updateSettings(formData);
-    saveSupabaseConfig(supabaseUrl, supabaseAnonKey);
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 2500);
-  };
-
-  const handleTestSupabase = async () => {
-    setTestStatus({ loading: true });
-    const result = await testSupabaseConnection(supabaseUrl, supabaseAnonKey);
-    setTestStatus({
-      loading: false,
-      success: result.success,
-      message: result.message
-    });
   };
 
   const handleBackupJSON = () => {
     const data = {
       settings: formData,
-      supabaseConfig: {
-        url: supabaseUrl,
-        configured: Boolean(supabaseUrl && supabaseAnonKey)
-      },
       exportedAt: new Date().toISOString()
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -84,93 +51,21 @@ export const SettingsView: React.FC = () => {
         <div>
           <h2 className="text-xl font-semibold text-zinc-100 tracking-tight">System Settings</h2>
           <p className="text-xs text-zinc-400 mt-0.5">
-            Store identity, GST tax slabs, Supabase PostgreSQL credentials, loyalty rates, and thermal printers.
+            Store identity, GST tax slabs, merchant UPI, loyalty rates, and thermal printers.
           </p>
         </div>
 
         <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-lg text-xs">
-          <Database className="w-3.5 h-3.5 text-emerald-400" />
+          <ShieldCheck className="w-3.5 h-3.5 text-zinc-400" />
           <span className="text-zinc-300 font-mono text-[11px]">
-            {isCloudConnected ? 'Supabase Connected' : 'Local Storage Mode'}
+            {isCloudConnected ? 'Cloud Active' : 'Local Storage Mode'}
           </span>
         </div>
       </div>
 
       <form onSubmit={handleSave} className="space-y-4 max-w-5xl">
 
-        {/* SECTION 1: Supabase (PostgreSQL) Cloud Backend */}
-        <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-4 sm:p-5 space-y-4">
-          <div className="flex items-center justify-between pb-2.5 border-b border-zinc-800/60">
-            <div className="flex items-center gap-2">
-              <Database className="w-4 h-4 text-emerald-400" />
-              <h3 className="font-semibold text-xs text-zinc-200 uppercase tracking-wider">
-                Supabase Backend (PostgreSQL)
-              </h3>
-            </div>
-            <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">
-              Relational PostgreSQL + Realtime
-            </span>
-          </div>
-
-          <p className="text-xs text-zinc-400">
-            All food orders, itemized lines, customers, loyalty ledgers, and table statuses synchronize with your self-hosted or cloud Supabase PostgreSQL database.
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
-            <div>
-              <label className="text-[11px] text-zinc-400 font-medium block mb-1">
-                Supabase Project URL
-              </label>
-              <input
-                type="url"
-                value={supabaseUrl}
-                onChange={(e) => setSupabaseUrl(e.target.value)}
-                placeholder="https://your-project.supabase.co"
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-zinc-100 font-mono focus:outline-none focus:border-zinc-700 transition-colors"
-              />
-            </div>
-
-            <div>
-              <label className="text-[11px] text-zinc-400 font-medium block mb-1">
-                Supabase Public Anon Key
-              </label>
-              <input
-                type="password"
-                value={supabaseAnonKey}
-                onChange={(e) => setSupabaseAnonKey(e.target.value)}
-                placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-zinc-100 font-mono focus:outline-none focus:border-zinc-700 transition-colors"
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2">
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handleTestSupabase}
-                disabled={testStatus.loading}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium rounded-lg border border-zinc-700 transition-colors"
-              >
-                <Database className="w-3.5 h-3.5 text-emerald-400" />
-                <span>{testStatus.loading ? 'Testing Connection...' : 'Test Connection'}</span>
-              </button>
-
-              {testStatus.message && (
-                <div className={`flex items-center gap-1.5 text-xs ${testStatus.success ? 'text-emerald-400' : 'text-rose-400'}`}>
-                  {testStatus.success ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
-                  <span>{testStatus.message}</span>
-                </div>
-              )}
-            </div>
-
-            <span className="text-[10px] text-zinc-500 font-mono">
-              Schema: public (7 tables + 3 reporting views)
-            </span>
-          </div>
-        </div>
-        
-        {/* SECTION 2: Restaurant Identity */}
+        {/* SECTION 1: Restaurant Identity */}
         <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-4 sm:p-5 space-y-4">
           <div className="flex items-center gap-2 pb-2.5 border-b border-zinc-800/60">
             <Store className="w-4 h-4 text-zinc-400" />
@@ -253,7 +148,7 @@ export const SettingsView: React.FC = () => {
           </div>
         </div>
 
-        {/* SECTION 3: Billing & Tax Settings */}
+        {/* SECTION 2: Billing & Tax Settings */}
         <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-4 sm:p-5 space-y-4">
           <div className="flex items-center gap-2 pb-2.5 border-b border-zinc-800/60">
             <Receipt className="w-4 h-4 text-zinc-400" />
@@ -308,7 +203,7 @@ export const SettingsView: React.FC = () => {
           </div>
         </div>
 
-        {/* SECTION 4: Automated Loyalty Rules */}
+        {/* SECTION 3: Automated Loyalty Rules */}
         <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-4 sm:p-5 space-y-4">
           <div className="flex items-center gap-2 pb-2.5 border-b border-zinc-800/60">
             <Award className="w-4 h-4 text-zinc-400" />
@@ -372,7 +267,7 @@ export const SettingsView: React.FC = () => {
           </div>
         </div>
 
-        {/* SECTION 5: Thermal Printer Settings */}
+        {/* SECTION 4: Thermal Printer Settings */}
         <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-4 sm:p-5 space-y-4">
           <div className="flex items-center gap-2 pb-2.5 border-b border-zinc-800/60">
             <Printer className="w-4 h-4 text-zinc-400" />
@@ -420,19 +315,6 @@ export const SettingsView: React.FC = () => {
             >
               <Download className="w-3.5 h-3.5" />
               <span>Export Config</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                if (window.confirm("Reload demo menu, sample orders and customers?")) {
-                  resetAndSeedDemoData();
-                }
-              }}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-medium rounded-lg border border-zinc-800 transition-colors"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Reset Demo Data</span>
             </button>
           </div>
 
