@@ -149,4 +149,4 @@ export interface RestaurantSettings {
   cashierName: string;
 }
 
-export type ActiveTab = 'pos' | 'tables' | 'orders' | 'menu' | 'customers' | 'loyalty' | 'reports' | 'settings';
+export type ActiveTab = 'pos' | 'tables' | 'orders' | 'menu' | 'customers' | 'loyalty' | 'reports' | 'settings' | 'showcase';
