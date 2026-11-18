@@ -1,12 +1,4 @@
-export type Category = 
-  | 'All'
-  | 'Fried Chicken'
-  | 'Burgers'
-  | 'Starters & Snacks'
-  | 'Sides & Dips'
-  | 'Beverages'
-  | 'Desserts'
-  | 'Combos & Buckets';
+export type Category = string;
 
 export interface Product {
   id: string;

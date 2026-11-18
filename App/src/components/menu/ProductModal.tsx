@@ -14,10 +14,10 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   onClose,
   productToEdit
 }) => {
-  const { saveProduct, settings } = usePOS();
+  const { saveProduct, categories, addCategory, settings } = usePOS();
 
   const [name, setName] = useState('');
-  const [category, setCategory] = useState('Fried Chicken');
+  const [category, setCategory] = useState('');
   const [customCategory, setCustomCategory] = useState('');
   const [price, setPrice] = useState<number>(199);
   const [description, setDescription] = useState('');
@@ -28,21 +28,16 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   const [inStock, setInStock] = useState(true);
   const [sku, setSku] = useState('');
 
-  const defaultCategories = [
-    'Fried Chicken',
-    'Burgers',
-    'Combos & Buckets',
-    'Starters & Snacks',
-    'Sides & Dips',
-    'Beverages',
-    'Desserts',
-    'Custom'
-  ];
+  const categoryOptions = React.useMemo(() => {
+    const list = [...categories];
+    if (!list.includes('Custom')) list.push('Custom');
+    return list;
+  }, [categories]);
 
   useEffect(() => {
     if (productToEdit) {
       setName(productToEdit.name);
-      if (defaultCategories.includes(productToEdit.category)) {
+      if (categories.includes(productToEdit.category)) {
         setCategory(productToEdit.category);
         setCustomCategory('');
       } else {
@@ -59,7 +54,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
       setSku(productToEdit.sku || '');
     } else {
       setName('');
-      setCategory('Fried Chicken');
+      setCategory(categories[0] || 'General');
       setCustomCategory('');
       setPrice(199);
       setDescription('');
@@ -70,7 +65,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
       setInStock(true);
       setSku(`KRN-${Math.floor(100 + Math.random() * 900)}`);
     }
-  }, [productToEdit, isOpen]);
+  }, [productToEdit, isOpen, categories]);
 
   if (!isOpen) return null;
 
@@ -78,7 +73,13 @@ export const ProductModal: React.FC<ProductModalProps> = ({
     e.preventDefault();
     if (!name.trim()) return;
 
-    const finalCategory = category === 'Custom' ? (customCategory.trim() || 'General') : category;
+    let finalCategory = category;
+    if (category === 'Custom') {
+      finalCategory = customCategory.trim() || 'General';
+      if (finalCategory && !categories.includes(finalCategory)) {
+        await addCategory(finalCategory);
+      }
+    }
 
     const product: Product = {
       id: productToEdit ? productToEdit.id : `prod_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
@@ -138,11 +139,27 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 onChange={(e) => setCategory(e.target.value)}
                 className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-zinc-100 focus:outline-none focus:border-zinc-700"
               >
-                {defaultCategories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
+                {categoryOptions.map(cat => (
+                  <option key={cat} value={cat}>
+                    {cat === 'Custom' ? '+ Add New Category...' : cat}
+                  </option>
                 ))}
               </select>
             </div>
+
+            {category === 'Custom' && (
+              <div className="sm:col-span-2">
+                <label className="text-orange-400 block mb-1 font-medium">New Category Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={customCategory}
+                  onChange={(e) => setCustomCategory(e.target.value)}
+                  placeholder="e.g. Shakes, Pizzas, Wraps"
+                  className="w-full bg-zinc-950 border border-orange-500/60 rounded-lg px-2.5 py-1.5 text-zinc-100 focus:outline-none focus:border-orange-500"
+                />
+              </div>
+            )}
 
             <div>
               <label className="text-zinc-400 block mb-1">Price ({currency}) *</label>

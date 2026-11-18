@@ -90,7 +90,10 @@ interface POSContextType {
   openReceiptModal: (order: Order) => void;
   closeReceiptModal: () => void;
 
-  // CRM / Products / Settings
+  // CRM / Products / Categories / Settings
+  categories: string[];
+  addCategory: (name: string) => Promise<boolean>;
+  deleteCategory: (name: string, reassignTo?: string) => Promise<boolean>;
   saveProduct: (product: Product) => Promise<void>;
   deleteProduct: (productId: string) => Promise<void>;
   saveCustomer: (customer: Customer) => Promise<Customer>;
@@ -119,6 +122,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   
   // Data state
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<string[]>(() => storageService.getCategories());
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [ledger, setLedger] = useState<LoyaltyLedgerEntry[]>([]);
@@ -200,6 +204,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Sync fresh data from storage service
   const refreshData = useCallback(() => {
     setProducts(storageService.getProducts());
+    setCategories(storageService.getCategories());
     setCustomers(storageService.getCustomers());
     setOrders(storageService.getOrders());
     setLedger(storageService.getLedger());
@@ -568,6 +573,31 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   // CRUD helpers
+  const addCategory = useCallback(async (name: string): Promise<boolean> => {
+    const result = await storageService.addCategory(name);
+    if (result.success) {
+      setCategories(result.categories);
+      addToast('Category Added', result.message, 'success');
+      return true;
+    } else {
+      addToast('Failed to Add', result.message, 'warning');
+      return false;
+    }
+  }, [addToast]);
+
+  const deleteCategory = useCallback(async (name: string, reassignTo: string = 'General'): Promise<boolean> => {
+    const result = await storageService.deleteCategory(name, reassignTo);
+    if (result.success) {
+      setCategories(result.categories);
+      setProducts(storageService.getProducts());
+      addToast('Category Removed', result.message, 'info');
+      return true;
+    } else {
+      addToast('Failed to Remove', result.message, 'error');
+      return false;
+    }
+  }, [addToast]);
+
   const saveProduct = useCallback(async (product: Product) => {
     await storageService.saveProduct(product);
     addToast('Product Saved', `${product.name} updated successfully.`, 'success');
@@ -678,6 +708,9 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isReceiptModalOpen,
         openReceiptModal,
         closeReceiptModal,
+        categories,
+        addCategory,
+        deleteCategory,
         saveProduct,
         deleteProduct,
         saveCustomer,

@@ -21,6 +21,17 @@ export const defaultSettings: RestaurantSettings = {
   cashierName: "Counter 1"
 };
 
+// Default categories list for menu & POS
+export const defaultCategories: string[] = [
+  'Burgers',
+  'Fried Chicken',
+  'Starters & Snacks',
+  'Sides & Dips',
+  'Beverages',
+  'Desserts',
+  'Combos & Buckets'
+];
+
 // Clean production catalog - start fresh with 0 demo entries
 export const defaultProducts: Product[] = [];
 

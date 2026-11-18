@@ -16,7 +16,8 @@ import {
   defaultProducts, 
   defaultCustomers, 
   generateSeedOrdersAndLedger,
-  defaultTables
+  defaultTables,
+  defaultCategories
 } from '../data/seedData';
 
 const LOCAL_STORAGE_KEYS = {
@@ -26,6 +27,7 @@ const LOCAL_STORAGE_KEYS = {
   ORDERS: 'krunchy_orders_v2',
   LEDGER: 'krunchy_ledger_v2',
   TABLES: 'krunchy_tables_v2',
+  CATEGORIES: 'krunchy_categories_v2',
   SEEDED: 'krunchy_seeded_v2'
 };
 
@@ -331,6 +333,7 @@ class StorageService {
     localStorage.setItem(LOCAL_STORAGE_KEYS.ORDERS, JSON.stringify(orders));
     localStorage.setItem(LOCAL_STORAGE_KEYS.LEDGER, JSON.stringify(ledger));
     localStorage.setItem(LOCAL_STORAGE_KEYS.TABLES, JSON.stringify(defaultTables));
+    localStorage.setItem(LOCAL_STORAGE_KEYS.CATEGORIES, JSON.stringify(defaultCategories));
     localStorage.setItem(LOCAL_STORAGE_KEYS.SEEDED, 'true');
 
     this.syncAllToSupabase(defaultProducts, defaultCustomers, orders, ledger, defaultSettings, defaultTables).catch(() => {});
@@ -493,6 +496,88 @@ class StorageService {
     try {
       await supabase.from('products').delete().eq('id', productId);
     } catch (e) {}
+  }
+
+  // --- CATEGORIES ---
+  public getCategories(): string[] {
+    const raw = localStorage.getItem(LOCAL_STORAGE_KEYS.CATEGORIES);
+    let list: string[] = raw ? JSON.parse(raw) : [...defaultCategories];
+
+    // Ensure all categories on current products are also represented
+    const products = this.getProducts();
+    products.forEach(p => {
+      if (p.category && !list.some(c => c.toLowerCase() === p.category.toLowerCase())) {
+        list.push(p.category);
+      }
+    });
+
+    // Deduplicate preserving case
+    const seen = new Set<string>();
+    const unique = list.filter(item => {
+      const lower = item.toLowerCase();
+      if (seen.has(lower)) return false;
+      seen.add(lower);
+      return true;
+    });
+
+    return unique.length > 0 ? unique : [...defaultCategories];
+  }
+
+  public async saveCategories(categories: string[]): Promise<void> {
+    localStorage.setItem(LOCAL_STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
+    this.notify();
+  }
+
+  public async addCategory(name: string): Promise<{ success: boolean; message: string; categories: string[] }> {
+    const cleanName = name.trim();
+    if (!cleanName) {
+      return { success: false, message: 'Category name cannot be empty', categories: this.getCategories() };
+    }
+    if (cleanName.toLowerCase() === 'all') {
+      return { success: false, message: '"All" is a reserved category filter', categories: this.getCategories() };
+    }
+
+    const current = this.getCategories();
+    if (current.some(c => c.toLowerCase() === cleanName.toLowerCase())) {
+      return { success: false, message: `Category "${cleanName}" already exists`, categories: current };
+    }
+
+    const updated = [...current, cleanName];
+    await this.saveCategories(updated);
+    return { success: true, message: `Category "${cleanName}" added successfully`, categories: updated };
+  }
+
+  public async deleteCategory(name: string, reassignTo: string = 'General'): Promise<{ success: boolean; message: string; categories: string[] }> {
+    const cleanName = name.trim();
+    if (cleanName.toLowerCase() === 'all') {
+      return { success: false, message: 'Cannot delete the "All" category', categories: this.getCategories() };
+    }
+
+    const current = this.getCategories();
+    const updated = current.filter(c => c.toLowerCase() !== cleanName.toLowerCase());
+
+    // Update any products currently assigned to this deleted category
+    const products = this.getProducts();
+    let productsUpdated = false;
+    for (const p of products) {
+      if (p.category.toLowerCase() === cleanName.toLowerCase()) {
+        p.category = reassignTo;
+        productsUpdated = true;
+        try {
+          await supabase.from('products').upsert(productToRow(p));
+        } catch (e) {}
+      }
+    }
+
+    if (productsUpdated) {
+      localStorage.setItem(LOCAL_STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+      if (!updated.some(c => c.toLowerCase() === reassignTo.toLowerCase())) {
+        updated.push(reassignTo);
+      }
+    }
+
+    await this.saveCategories(updated);
+    return { success: true, message: `Category "${cleanName}" deleted`, categories: updated };
   }
 
   // --- CUSTOMERS ---
