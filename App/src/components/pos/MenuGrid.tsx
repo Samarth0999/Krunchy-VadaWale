@@ -17,7 +17,6 @@ export const MenuGrid: React.FC<MenuGridProps> = ({ selectedCategory }) => {
   const { products, cart, addToCart, updateQuantity, settings } = usePOS();
   
   const [searchQuery, setSearchQuery] = useState('');
-  const [dietaryFilter, setDietaryFilter] = useState<'ALL' | 'VEG' | 'NON_VEG'>('ALL');
 
   // Filter products
   const filteredProducts = useMemo(() => {
@@ -27,9 +26,6 @@ export const MenuGrid: React.FC<MenuGridProps> = ({ selectedCategory }) => {
       if (selectedCategory !== 'All' && product.category.toLowerCase() !== selectedCategory.toLowerCase()) {
         return false;
       }
-
-      if (dietaryFilter === 'VEG' && !product.isVeg) return false;
-      if (dietaryFilter === 'NON_VEG' && product.isVeg) return false;
 
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase().trim();
@@ -41,7 +37,7 @@ export const MenuGrid: React.FC<MenuGridProps> = ({ selectedCategory }) => {
 
       return true;
     });
-  }, [products, selectedCategory, dietaryFilter, searchQuery]);
+  }, [products, selectedCategory, searchQuery]);
 
   const getCartQuantity = (productId: string) => {
     const item = cart.find(i => i.product.id === productId);
@@ -53,14 +49,14 @@ export const MenuGrid: React.FC<MenuGridProps> = ({ selectedCategory }) => {
   return (
     <div className="flex flex-col h-full">
       
-      {/* Search & Dietary Filters */}
+      {/* Search & Pure Veg Indicator */}
       <div className="flex items-center gap-2 mb-3">
         <div className="relative flex-1">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search catalog... (e.g. Burger, Wings, Fries)"
+            placeholder="Search catalog... (e.g. Burger, Vada Pav, Fries)"
             className="w-full bg-zinc-900/60 border border-zinc-800/80 rounded-lg px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600 pl-8 transition-colors"
           />
           <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-2" />
@@ -74,37 +70,12 @@ export const MenuGrid: React.FC<MenuGridProps> = ({ selectedCategory }) => {
           )}
         </div>
 
-        {/* Minimalist Segmented Dietary Switcher */}
-        <div className="flex items-center bg-zinc-900/60 border border-zinc-800/80 p-0.5 rounded-lg shrink-0">
-          <button
-            type="button"
-            onClick={() => setDietaryFilter('ALL')}
-            className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
-              dietaryFilter === 'ALL' ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400 hover:text-zinc-200'
-            }`}
-          >
-            All
-          </button>
-          <button
-            type="button"
-            onClick={() => setDietaryFilter('VEG')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
-              dietaryFilter === 'VEG' ? 'bg-zinc-800 text-emerald-400' : 'text-zinc-400 hover:text-zinc-200'
-            }`}
-          >
+        {/* Pure Veg Badge */}
+        <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg shrink-0 select-none">
+          <div className="w-2.5 h-2.5 rounded-xs border border-emerald-500 flex items-center justify-center">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-            <span>Veg</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setDietaryFilter('NON_VEG')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
-              dietaryFilter === 'NON_VEG' ? 'bg-zinc-800 text-rose-400' : 'text-zinc-400 hover:text-zinc-200'
-            }`}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-            <span>Non-Veg</span>
-          </button>
+          </div>
+          <span className="text-[11px] font-semibold text-emerald-400 whitespace-nowrap">100% Pure Veg</span>
         </div>
       </div>
 
@@ -142,12 +113,10 @@ export const MenuGrid: React.FC<MenuGridProps> = ({ selectedCategory }) => {
                       className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-200"
                     />
 
-                    {/* Subtle Badges */}
+                    {/* Pure Veg Badge */}
                     <div className="absolute top-2 left-2 flex items-center gap-1">
-                      <div className={`w-3.5 h-3.5 rounded-sm bg-zinc-950/80 backdrop-blur-xs flex items-center justify-center border ${
-                        product.isVeg ? 'border-emerald-600/80' : 'border-rose-600/80'
-                      }`}>
-                        <div className={`w-1.5 h-1.5 rounded-full ${product.isVeg ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
+                      <div className="w-3.5 h-3.5 rounded-sm bg-zinc-950/80 backdrop-blur-xs flex items-center justify-center border border-emerald-600/80">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
                       </div>
                       {product.isSpicy && (
                         <div className="w-3.5 h-3.5 rounded-sm bg-zinc-950/80 backdrop-blur-xs flex items-center justify-center text-rose-400">

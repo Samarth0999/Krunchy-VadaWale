@@ -237,14 +237,11 @@ export const MenuManagement: React.FC = () => {
                       {currency}{product.price}
                     </td>
 
-                    {/* Dietary */}
+                    {/* Pure Veg Badge */}
                     <td className="py-2.5 px-3.5">
-                      <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${
-                        product.isVeg 
-                          ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' 
-                          : 'text-rose-400 bg-rose-500/10 border-rose-500/20'
-                      }`}>
-                        {product.isVeg ? 'Veg' : 'Non-Veg'}
+                      <span className="text-[10px] font-medium px-2 py-0.5 rounded border text-emerald-400 bg-emerald-500/10 border-emerald-500/20 inline-flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        <span>100% Veg</span>
                       </span>
                     </td>
 

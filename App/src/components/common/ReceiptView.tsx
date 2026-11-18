@@ -82,7 +82,7 @@ export const ReceiptView: React.FC<ReceiptViewProps> = ({ order, settings, width
             <div key={idx} className="flex flex-col">
               <div className="flex justify-between items-start">
                 <span className="w-1/2 font-medium truncate pr-1">
-                  {item.isVeg ? '[V] ' : '[NV] '}{item.name}
+                  {item.name}
                 </span>
                 <span className="w-1/6 text-center">{item.quantity}</span>
                 <span className="w-1/6 text-right">{item.price}</span>

@@ -22,7 +22,6 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   const [price, setPrice] = useState<number>(199);
   const [description, setDescription] = useState('');
   const [image, setImage] = useState('');
-  const [isVeg, setIsVeg] = useState(false);
   const [isSpicy, setIsSpicy] = useState(false);
   const [isActive, setIsActive] = useState(true);
   const [inStock, setInStock] = useState(true);
@@ -47,7 +46,6 @@ export const ProductModal: React.FC<ProductModalProps> = ({
       setPrice(productToEdit.price);
       setDescription(productToEdit.description || '');
       setImage(productToEdit.image || '');
-      setIsVeg(productToEdit.isVeg);
       setIsSpicy(productToEdit.isSpicy || false);
       setIsActive(productToEdit.isActive);
       setInStock(productToEdit.inStock);
@@ -59,7 +57,6 @@ export const ProductModal: React.FC<ProductModalProps> = ({
       setPrice(199);
       setDescription('');
       setImage('https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=500&auto=format&fit=crop&q=80');
-      setIsVeg(false);
       setIsSpicy(false);
       setIsActive(true);
       setInStock(true);
@@ -88,7 +85,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
       price: Number(price),
       description: description.trim(),
       image: image.trim() || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format&fit=crop&q=80',
-      isVeg,
+      isVeg: true,
       isSpicy,
       isActive,
       inStock,
@@ -189,17 +186,12 @@ export const ProductModal: React.FC<ProductModalProps> = ({
           {/* Toggles */}
           <div className="pt-2 border-t border-zinc-800/80 grid grid-cols-2 sm:grid-cols-4 gap-2">
             
-            <div className="flex items-center justify-between p-2 rounded-lg bg-zinc-950/60 border border-zinc-800/80">
-              <span className="text-zinc-400">Veg</span>
-              <button
-                type="button"
-                onClick={() => setIsVeg(!isVeg)}
-                className={`w-7 h-4 flex items-center rounded-full p-0.5 transition-colors ${
-                  isVeg ? 'bg-emerald-500 justify-end' : 'bg-zinc-800 justify-start'
-                }`}
-              >
-                <div className="w-3 h-3 rounded-full bg-white"></div>
-              </button>
+            <div className="flex items-center justify-between p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+              <span className="text-emerald-400 font-medium flex items-center gap-1.5 text-[11px]">
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                100% Veg
+              </span>
+              <span className="text-[10px] text-emerald-500 font-mono">Pure</span>
             </div>
 
             <div className="flex items-center justify-between p-2 rounded-lg bg-zinc-950/60 border border-zinc-800/80">

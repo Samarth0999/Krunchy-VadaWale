@@ -26,7 +26,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
   const getCategoryIcon = (name: string) => {
     const n = name.toLowerCase();
     if (n === 'all') return <Sparkles className="w-3.5 h-3.5" />;
-    if (n.includes('chicken') || n.includes('fry') || n.includes('fried') || n.includes('hot')) return <Flame className="w-3.5 h-3.5" />;
+    if (n.includes('crispy') || n.includes('bites') || n.includes('paneer') || n.includes('hot')) return <Flame className="w-3.5 h-3.5" />;
     if (n.includes('burger') || n.includes('vada') || n.includes('pav') || n.includes('sandwich')) return <Sandwich className="w-3.5 h-3.5" />;
     if (n.includes('combo') || n.includes('bucket') || n.includes('box') || n.includes('meal')) return <Boxes className="w-3.5 h-3.5" />;
     if (n.includes('snack') || n.includes('starter') || n.includes('fries')) return <Utensils className="w-3.5 h-3.5" />;

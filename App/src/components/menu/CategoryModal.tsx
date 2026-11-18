@@ -30,7 +30,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onClose })
 
   const getCategoryIcon = (name: string) => {
     const n = name.toLowerCase();
-    if (n.includes('chicken') || n.includes('fry') || n.includes('fried') || n.includes('hot')) return <Flame className="w-4 h-4 text-orange-400" />;
+    if (n.includes('crispy') || n.includes('bites') || n.includes('paneer') || n.includes('hot')) return <Flame className="w-4 h-4 text-orange-400" />;
     if (n.includes('burger') || n.includes('vada') || n.includes('pav') || n.includes('sandwich')) return <Sandwich className="w-4 h-4 text-amber-400" />;
     if (n.includes('combo') || n.includes('bucket') || n.includes('box') || n.includes('meal')) return <Boxes className="w-4 h-4 text-yellow-400" />;
     if (n.includes('snack') || n.includes('starter') || n.includes('fries')) return <Utensils className="w-4 h-4 text-emerald-400" />;
@@ -215,3 +215,4 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onClose })
     </div>
   );
 };
+

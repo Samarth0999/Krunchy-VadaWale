@@ -21,15 +21,15 @@ export const defaultSettings: RestaurantSettings = {
   cashierName: "Counter 1"
 };
 
-// Default categories list for menu & POS
+// Default categories list for pure veg menu & POS
 export const defaultCategories: string[] = [
-  'Burgers',
-  'Fried Chicken',
+  'Burgers & Vada Pav',
+  'Crispy Bites',
   'Starters & Snacks',
   'Sides & Dips',
-  'Beverages',
+  'Beverages & Coolers',
   'Desserts',
-  'Combos & Buckets'
+  'Combos'
 ];
 
 // Clean production catalog - start fresh with 0 demo entries

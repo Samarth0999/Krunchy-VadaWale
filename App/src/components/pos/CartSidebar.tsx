@@ -185,7 +185,7 @@ export const CartSidebar: React.FC = () => {
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${item.product.isVeg ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
+                    <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-emerald-500"></span>
                     <span className="font-medium text-xs text-zinc-100 truncate">{item.product.name}</span>
                   </div>
                   <div className="text-[11px] text-zinc-400 font-mono mt-0.5">

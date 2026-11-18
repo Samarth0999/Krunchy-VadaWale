@@ -474,17 +474,18 @@ class StorageService {
 
   public async saveProduct(product: Product): Promise<void> {
     const prods = this.getProducts();
-    const index = prods.findIndex(p => p.id === product.id);
+    const cleanProduct = { ...product, isVeg: true };
+    const index = prods.findIndex(p => p.id === cleanProduct.id);
     if (index >= 0) {
-      prods[index] = product;
+      prods[index] = cleanProduct;
     } else {
-      prods.unshift(product);
+      prods.unshift(cleanProduct);
     }
     localStorage.setItem(LOCAL_STORAGE_KEYS.PRODUCTS, JSON.stringify(prods));
     this.notify();
 
     try {
-      await supabase.from('products').upsert(productToRow(product));
+      await supabase.from('products').upsert(productToRow(cleanProduct));
     } catch (e) {}
   }
 
@@ -502,6 +503,9 @@ class StorageService {
   public getCategories(): string[] {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEYS.CATEGORIES);
     let list: string[] = raw ? JSON.parse(raw) : [...defaultCategories];
+
+    // Filter out non-veg legacy categories
+    list = list.filter(c => c.toLowerCase() !== 'fried chicken');
 
     // Ensure all categories on current products are also represented
     const products = this.getProducts();
