@@ -6,12 +6,20 @@ import {
   Search, 
   UserPlus, 
   ShoppingBag, 
+  Smartphone,
   X 
 } from 'lucide-react';
 import { Customer } from '../../types';
 
 export const CustomerDirectory: React.FC = () => {
-  const { customers, saveCustomer, selectCustomer, setActiveTab, settings } = usePOS();
+  const { 
+    customers, 
+    saveCustomer, 
+    selectCustomer, 
+    setActiveTab, 
+    settings,
+    sendWhatsAppLoyaltyReminder 
+  } = usePOS();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filterTier, setFilterTier] = useState<string>('ALL');
@@ -264,14 +272,30 @@ export const CustomerDirectory: React.FC = () => {
 
                     {/* Action */}
                     <td className="py-2.5 px-3.5 text-right">
-                      <button
-                        type="button"
-                        onClick={(e) => handleStartOrderForCustomer(e, customer)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded text-xs transition-colors border border-zinc-700/60"
-                      >
-                        <ShoppingBag className="w-3 h-3" />
-                        <span>Order</span>
-                      </button>
+                      <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+                        {customer.currentPoints > 0 && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              sendWhatsAppLoyaltyReminder(customer);
+                            }}
+                            title={`Send WhatsApp Reminder: ${customer.currentPoints} pts available`}
+                            className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 rounded text-xs transition-colors border border-emerald-500/20 font-medium"
+                          >
+                            <Smartphone className="w-3 h-3" />
+                            <span className="hidden sm:inline">WhatsApp</span>
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={(e) => handleStartOrderForCustomer(e, customer)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded text-xs transition-colors border border-zinc-700/60"
+                        >
+                          <ShoppingBag className="w-3 h-3" />
+                          <span>Order</span>
+                        </button>
+                      </div>
                     </td>
 
                   </tr>

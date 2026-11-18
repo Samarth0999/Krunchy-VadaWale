@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { usePOS } from '../../context/POSContext';
 import { CustomerLookupBanner } from './CustomerLookupBanner';
 import { TablePickerModal } from '../tables/TablePickerModal';
-import { 
-  Trash2, 
-  Plus, 
-  Minus, 
-  UtensilsCrossed, 
-  ShoppingBag, 
-  Truck, 
-  MessageSquare, 
+import {
+  Trash2,
+  Plus,
+  Minus,
+  UtensilsCrossed,
+  ShoppingBag,
+  Truck,
+  MessageSquare,
   ArrowRight,
   Clock,
   Save,
@@ -17,25 +17,25 @@ import {
 } from 'lucide-react';
 
 export const CartSidebar: React.FC = () => {
-  const { 
-    cart, 
-    diningType, 
-    setDiningType, 
-    tableNumber, 
+  const {
+    cart,
+    diningType,
+    setDiningType,
+    tableNumber,
     activeTableId,
     activeTable,
     selectTable,
     saveActiveTableOrder,
     releaseTable,
-    updateQuantity, 
-    removeFromCart, 
+    updateQuantity,
+    removeFromCart,
     updateItemNotes,
-    clearCart, 
-    subtotal, 
+    clearCart,
+    subtotal,
     pointsDiscountValue,
     pointsToRedeem,
-    taxAmount, 
-    grandTotal, 
+    taxAmount,
+    grandTotal,
     potentialPointsEarned,
     settings,
     setIsCheckoutModalOpen,
@@ -68,24 +68,23 @@ export const CartSidebar: React.FC = () => {
 
   const currency = settings.currencySymbol || '₹';
 
-  const seatedMins = activeTable?.seatedAt 
+  const seatedMins = activeTable?.seatedAt
     ? Math.floor((Date.now() - new Date(activeTable.seatedAt).getTime()) / 60000)
     : null;
 
   return (
     <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl flex flex-col h-full overflow-hidden">
-      
+
       {/* Top: Dining Mode Switcher */}
       <div className="p-3 border-b border-zinc-800/80 bg-zinc-950/40 space-y-2">
         <div className="grid grid-cols-3 gap-1 p-0.5 bg-zinc-950 border border-zinc-800/80 rounded-lg">
           <button
             type="button"
             onClick={() => setDiningType('DINE_IN')}
-            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-colors ${
-              diningType === 'DINE_IN' 
-                ? 'bg-zinc-800 text-zinc-100 shadow-xs' 
-                : 'text-zinc-400 hover:text-zinc-200'
-            }`}
+            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-colors ${diningType === 'DINE_IN'
+              ? 'bg-zinc-800 text-zinc-100 shadow-xs'
+              : 'text-zinc-400 hover:text-zinc-200'
+              }`}
           >
             <UtensilsCrossed className="w-3.5 h-3.5" />
             <span>Dine-In</span>
@@ -97,11 +96,10 @@ export const CartSidebar: React.FC = () => {
               setDiningType('TAKEAWAY');
               selectTable(null);
             }}
-            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-colors ${
-              diningType === 'TAKEAWAY' 
-                ? 'bg-zinc-800 text-zinc-100 shadow-xs' 
-                : 'text-slate-400 hover:text-zinc-200'
-            }`}
+            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-colors ${diningType === 'TAKEAWAY'
+              ? 'bg-zinc-800 text-zinc-100 shadow-xs'
+              : 'text-zinc-400 hover:text-zinc-200'
+              }`}
           >
             <ShoppingBag className="w-3.5 h-3.5" />
             <span>Takeaway</span>
@@ -113,11 +111,10 @@ export const CartSidebar: React.FC = () => {
               setDiningType('DELIVERY');
               selectTable(null);
             }}
-            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-colors ${
-              diningType === 'DELIVERY' 
-                ? 'bg-zinc-800 text-zinc-100 shadow-xs' 
-                : 'text-zinc-400 hover:text-zinc-200'
-            }`}
+            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-colors ${diningType === 'DELIVERY'
+              ? 'bg-zinc-800 text-zinc-100 shadow-xs'
+              : 'text-zinc-400 hover:text-zinc-200'
+              }`}
           >
             <Truck className="w-3.5 h-3.5" />
             <span>Delivery</span>
@@ -131,9 +128,8 @@ export const CartSidebar: React.FC = () => {
               <span className="text-zinc-400 text-[11px]">Table:</span>
               <span className="font-semibold text-zinc-100 truncate">{tableNumber || 'None'}</span>
               {activeTable && (
-                <span className={`text-[9px] uppercase px-1.5 py-0.2 rounded font-mono ${
-                  activeTable.status === 'AVAILABLE' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'
-                }`}>
+                <span className={`text-[9px] uppercase px-1.5 py-0.2 rounded font-mono ${activeTable.status === 'AVAILABLE' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'
+                  }`}>
                   {activeTable.status}
                 </span>
               )}
@@ -182,7 +178,7 @@ export const CartSidebar: React.FC = () => {
           </div>
         ) : (
           cart.map(item => (
-            <div 
+            <div
               key={item.product.id}
               className="bg-zinc-950/50 border border-zinc-800/60 rounded-lg p-2 flex flex-col gap-1 transition-colors"
             >
@@ -307,7 +303,7 @@ export const CartSidebar: React.FC = () => {
 
         {/* Minimalist Action Buttons */}
         <div className="space-y-1.5 pt-2">
-          
+
           {diningType === 'DINE_IN' && cart.length > 0 && (
             <button
               type="button"

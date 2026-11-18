@@ -103,6 +103,14 @@ interface POSContextType {
   toasts: ToastMessage[];
   addToast: (title: string, message: string, type?: 'success' | 'info' | 'warning' | 'error') => void;
   removeToast: (id: string) => void;
+
+  // Theme
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
+  setTheme: (theme: 'light' | 'dark') => void;
+
+  // WhatsApp Loyalty Reminder
+  sendWhatsAppLoyaltyReminder: (customer: Customer) => void;
 }
 
 const POSContext = createContext<POSContextType | undefined>(undefined);
@@ -138,6 +146,45 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Toasts
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  // Theme
+  const [theme, setThemeState] = useState<'light' | 'dark'>(() => {
+    try {
+      const saved = localStorage.getItem('krunchy_theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+    } catch (e) {}
+    return 'dark';
+  });
+
+  const setTheme = useCallback((newTheme: 'light' | 'dark') => {
+    setThemeState(newTheme);
+    try {
+      localStorage.setItem('krunchy_theme', newTheme);
+    } catch (e) {}
+    const root = document.documentElement;
+    if (newTheme === 'light') {
+      root.classList.add('light');
+      root.classList.remove('dark');
+    } else {
+      root.classList.add('dark');
+      root.classList.remove('light');
+    }
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  }, [theme, setTheme]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'light') {
+      root.classList.add('light');
+      root.classList.remove('dark');
+    } else {
+      root.classList.add('dark');
+      root.classList.remove('light');
+    }
+  }, [theme]);
 
   const addToast = useCallback((title: string, message: string, type: 'success' | 'info' | 'warning' | 'error' = 'info') => {
     const id = `toast_${Date.now()}_${Math.random()}`;
@@ -543,6 +590,33 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     addToast('Points Adjusted', `Points updated by ${pointsDelta > 0 ? '+' : ''}${pointsDelta}.`, 'success');
   }, [addToast]);
 
+  const sendWhatsAppLoyaltyReminder = useCallback((customer: Customer) => {
+    if (!customer.phone) {
+      addToast('Phone Required', 'No phone number available for this customer.', 'warning');
+      return;
+    }
+
+    const cleanPhone = customer.phone.replace(/\D/g, '');
+    const phoneWithCountry = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+    const pointValue = (customer.currentPoints * (settings.loyaltyPointValue || 1));
+
+    const message = 
+      `*🌟 Special Reward from ${settings.name}!*%0A%0A` +
+      `Hi ${customer.name},%0A%0A` +
+      `You have *${customer.currentPoints} Loyalty Points* (worth *₹${pointValue}*) waiting in your rewards account! 🎉%0A%0A` +
+      `🔥 Redeem your points on your next visit for instant bill discounts on your favorite items.%0A%0A` +
+      (settings.address ? `📍 *Location:* ${settings.address}%0A` : '') +
+      (settings.phone ? `📞 *Phone:* ${settings.phone}%0A%0A` : '%0A') +
+      `We can't wait to serve you soon! 🍔🍟`;
+
+    window.open(`https://api.whatsapp.com/send?phone=${phoneWithCountry}&text=${message}`, '_blank');
+    addToast(
+      'Reminder Dispatched', 
+      `WhatsApp loyalty points reminder prepared for ${customer.name} (${customer.currentPoints} pts).`, 
+      'success'
+    );
+  }, [settings, addToast]);
+
   const updateSettings = useCallback(async (newSettings: RestaurantSettings) => {
     await storageService.saveSettings(newSettings);
     setSettings(newSettings);
@@ -627,7 +701,11 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         refreshData,
         toasts,
         addToast,
-        removeToast
+        removeToast,
+        theme,
+        toggleTheme,
+        setTheme,
+        sendWhatsAppLoyaltyReminder
       }}
     >
       {children}

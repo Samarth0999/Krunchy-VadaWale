@@ -11,7 +11,9 @@ import {
   Flame, 
   RotateCcw,
   LayoutGrid,
-  BookOpen
+  BookOpen,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { usePOS } from '../../context/POSContext';
 import { ActiveTab } from '../../types';
@@ -26,7 +28,9 @@ export const Header: React.FC = () => {
     orders,
     tables,
     occupiedTablesCount,
-    resetAndSeedDemoData
+    resetAndSeedDemoData,
+    theme,
+    toggleTheme
   } = usePOS();
 
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -168,6 +172,20 @@ export const Header: React.FC = () => {
 
           {/* Actions */}
           <div className="flex items-center gap-1">
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              title={theme === 'dark' ? "Switch to Light Theme" : "Switch to Dark Theme"}
+              className="p-1.5 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 rounded-md transition-colors"
+              aria-label="Toggle Theme"
+            >
+              {theme === 'dark' ? (
+                <Sun className="w-3.5 h-3.5 text-amber-400" />
+              ) : (
+                <Moon className="w-3.5 h-3.5 text-zinc-300" />
+              )}
+            </button>
+
             <button
               onClick={() => {
                 if (window.confirm("Reload demo menu, sample orders and customers?")) {

@@ -8,11 +8,12 @@ import {
   Sliders,
   Sparkles,
   TrendingUp,
-  Percent
+  Percent,
+  Smartphone
 } from 'lucide-react';
 
 export const LoyaltyDashboard: React.FC = () => {
-  const { ledger, settings, customers, openReceiptModal, orders } = usePOS();
+  const { ledger, settings, customers, openReceiptModal, orders, sendWhatsAppLoyaltyReminder } = usePOS();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'ALL' | 'EARN' | 'REDEEM' | 'ADJUSTMENT'>('ALL');
@@ -30,6 +31,12 @@ export const LoyaltyDashboard: React.FC = () => {
 
   const outstandingLiabilityPoints = useMemo(() => {
     return customers.reduce((acc, c) => acc + c.currentPoints, 0);
+  }, [customers]);
+
+  const customersWithPoints = useMemo(() => {
+    return customers
+      .filter(c => c.currentPoints > 0)
+      .sort((a, b) => b.currentPoints - a.currentPoints);
   }, [customers]);
 
   const filteredLedger = useMemo(() => {
@@ -174,6 +181,56 @@ export const LoyaltyDashboard: React.FC = () => {
         </div>
 
       </div>
+
+      {/* WhatsApp Reminders for Customers with Outstanding Points */}
+      {customersWithPoints.length > 0 && (
+        <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-xl p-4 space-y-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+            <div>
+              <h3 className="font-semibold text-sm text-zinc-100 flex items-center gap-2">
+                <Smartphone className="w-4 h-4 text-emerald-400" />
+                Customer Loyalty Reminders (WhatsApp)
+              </h3>
+              <p className="text-xs text-zinc-500">
+                Drive repeat visits by sending personalized WhatsApp reminders to customers with unspent loyalty points.
+              </p>
+            </div>
+            <span className="text-[11px] text-zinc-400 font-mono bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-800">
+              {customersWithPoints.length} customers with balance
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+            {customersWithPoints.slice(0, 6).map(customer => {
+              const val = customer.currentPoints * settings.loyaltyPointValue;
+              return (
+                <div 
+                  key={customer.id} 
+                  className="p-3 bg-zinc-950/70 border border-zinc-800/60 rounded-lg flex items-center justify-between gap-2"
+                >
+                  <div className="min-w-0">
+                    <span className="font-medium text-xs text-zinc-200 truncate block">{customer.name}</span>
+                    <span className="text-[10px] text-zinc-500 font-mono block">{customer.phone}</span>
+                    <div className="text-[11px] font-mono text-emerald-400 font-semibold mt-0.5">
+                      {customer.currentPoints} pts <span className="text-zinc-500 font-normal">({currency}{val})</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => sendWhatsAppLoyaltyReminder(customer)}
+                    className="flex items-center gap-1 px-2.5 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-medium rounded-lg border border-emerald-500/20 transition-colors shrink-0"
+                    title={`Send WhatsApp Reminder to ${customer.name}`}
+                  >
+                    <Smartphone className="w-3.5 h-3.5" />
+                    <span>Send</span>
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Transaction Ledger Audit Trail */}
       <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-xl overflow-hidden shadow-sm space-y-3 p-4">

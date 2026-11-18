@@ -5,7 +5,8 @@ import {
   X, 
   ShoppingBag, 
   Receipt, 
-  Heart
+  Heart,
+  Smartphone
 } from 'lucide-react';
 
 interface CustomerDetailModalProps {
@@ -27,7 +28,8 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
     adjustCustomerPoints, 
     selectCustomer, 
     setActiveTab, 
-    openReceiptModal 
+    openReceiptModal,
+    sendWhatsAppLoyaltyReminder
   } = usePOS();
 
   const [activeTab, setActiveTabLocal] = useState<'overview' | 'orders' | 'loyalty' | 'adjust'>('overview');
@@ -105,6 +107,17 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
+            {customer.currentPoints > 0 && (
+              <button
+                type="button"
+                onClick={() => sendWhatsAppLoyaltyReminder(customer)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-medium rounded-lg border border-emerald-500/20 transition-colors"
+                title={`Send WhatsApp Reminder: ${customer.currentPoints} pts available`}
+              >
+                <Smartphone className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">WhatsApp Reminder</span>
+              </button>
+            )}
             <button
               onClick={handleStartOrder}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-semibold rounded-lg transition-colors shadow-xs"
@@ -196,6 +209,31 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                   <span className="text-[10px] text-zinc-500">Per visit</span>
                 </div>
               </div>
+
+              {/* WhatsApp Points Reminder Banner */}
+              {customer.currentPoints > 0 && (
+                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Smartphone className="w-4 h-4 text-emerald-400" />
+                      <span className="text-xs font-semibold text-emerald-300">
+                        WhatsApp Loyalty Points Reminder
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-zinc-400 mt-0.5">
+                      Send {customer.name} a personalized reminder about {customer.currentPoints} unspent points ({currency}{customer.currentPoints * settings.loyaltyPointValue} discount value).
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => sendWhatsAppLoyaltyReminder(customer)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium rounded-lg transition-colors shadow-xs whitespace-nowrap"
+                  >
+                    <Smartphone className="w-3.5 h-3.5" />
+                    <span>Send on WhatsApp</span>
+                  </button>
+                </div>
+              )}
 
               {/* Favorites */}
               <div>

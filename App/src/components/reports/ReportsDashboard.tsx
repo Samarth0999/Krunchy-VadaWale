@@ -1,34 +1,34 @@
 import React, { useState, useMemo } from 'react';
 import { usePOS } from '../../context/POSContext';
-import { 
-  BarChart, 
-  Bar, 
-  LineChart, 
-  Line, 
-  PieChart, 
-  Pie, 
-  Cell, 
-  XAxis, 
-  YAxis, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer 
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
 } from 'recharts';
-import { 
-  BarChart3, 
-  Calendar, 
-  Download, 
-  TrendingUp, 
-  DollarSign, 
-  ShoppingBag, 
-  Users, 
-  Clock, 
+import {
+  BarChart3,
+  Calendar,
+  Download,
+  TrendingUp,
+  DollarSign,
+  ShoppingBag,
+  Users,
+  Clock,
   FileSpreadsheet
 } from 'lucide-react';
 import { Order, Customer } from '../../types';
 
 export const ReportsDashboard: React.FC = () => {
-  const { orders, customers, ledger, settings } = usePOS();
+  const { orders, customers, ledger, settings, theme } = usePOS();
 
   const [period, setPeriod] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('daily');
   const [selectedDate, setSelectedDate] = useState<string>(
@@ -37,10 +37,20 @@ export const ReportsDashboard: React.FC = () => {
 
   const currency = settings.currencySymbol || '₹';
 
+  const tooltipStyle = useMemo(() => ({
+    backgroundColor: theme === 'dark' ? '#18181b' : '#ffffff',
+    borderColor: theme === 'dark' ? '#27272a' : '#e2e8f0',
+    borderRadius: '8px',
+    color: theme === 'dark' ? '#f4f4f5' : '#09090b',
+    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+  }), [theme]);
+
+  const chartAxisColor = theme === 'dark' ? '#71717a' : '#94a3b8';
+
   // --- DAILY REPORT (EoD) COMPUTATIONS ---
   const dailyData = useMemo(() => {
     const targetDate = selectedDate;
-    
+
     // Filter orders matching selected date
     const dayOrders = orders.filter(o => o.createdAt.startsWith(targetDate) && o.status === 'COMPLETED');
 
@@ -299,7 +309,7 @@ export const ReportsDashboard: React.FC = () => {
 
   return (
     <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-zinc-950 space-y-5">
-      
+
       {/* Top Banner & Period Selector */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800/80">
         <div>
@@ -323,11 +333,10 @@ export const ReportsDashboard: React.FC = () => {
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
-                className={`px-3 py-1 rounded-md text-xs font-medium capitalize transition-colors ${
-                  period === p 
-                    ? 'bg-zinc-800 text-zinc-100 shadow-sm' 
-                    : 'text-zinc-400 hover:text-zinc-200'
-                }`}
+                className={`px-3 py-1 rounded-md text-xs font-medium capitalize transition-colors ${period === p
+                  ? 'bg-zinc-800 text-zinc-100 shadow-sm'
+                  : 'text-zinc-400 hover:text-zinc-200'
+                  }`}
               >
                 {p}
               </button>
@@ -347,7 +356,7 @@ export const ReportsDashboard: React.FC = () => {
       {/* --- PERIOD 1: DAILY (EoD) REPORT --- */}
       {period === 'daily' && (
         <div className="space-y-4">
-          
+
           {/* Daily Stat Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="bg-zinc-900/60 border border-zinc-800/80 p-3.5 rounded-xl">
@@ -385,7 +394,7 @@ export const ReportsDashboard: React.FC = () => {
 
           {/* Payment Mode Breakdown Cards & Hourly Chart */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
-            
+
             <div className="bg-zinc-900/60 border border-zinc-800/80 p-4 rounded-xl flex flex-col justify-between">
               <div>
                 <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-3">
@@ -420,11 +429,11 @@ export const ReportsDashboard: React.FC = () => {
               <div className="h-56 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={dailyData.hourlyChartData}>
-                    <XAxis dataKey="hour" stroke="#71717a" fontSize={10} tickLine={false} />
-                    <YAxis stroke="#71717a" fontSize={10} tickLine={false} />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px', color: '#f4f4f5' }}
-                      cursor={{ fill: '#27272a', opacity: 0.4 }}
+                    <XAxis dataKey="hour" stroke={chartAxisColor} fontSize={10} tickLine={false} />
+                    <YAxis stroke={chartAxisColor} fontSize={10} tickLine={false} />
+                    <Tooltip
+                      contentStyle={tooltipStyle}
+                      cursor={{ fill: '#27272a', opacity: 0.2 }}
                     />
                     <Bar dataKey="sales" fill="#ea580c" radius={[3, 3, 0, 0]} name="Revenue (₹)" />
                   </BarChart>
@@ -440,7 +449,7 @@ export const ReportsDashboard: React.FC = () => {
       {/* --- PERIOD 2: WEEKLY REPORT --- */}
       {period === 'weekly' && (
         <div className="space-y-4">
-          
+
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-zinc-900/60 border border-zinc-800/80 p-3.5 rounded-xl">
               <span className="text-[11px] text-zinc-400 block font-medium">7-Day Total Revenue</span>
@@ -464,14 +473,14 @@ export const ReportsDashboard: React.FC = () => {
             <div className="h-60 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={weeklyData.days}>
-                  <XAxis dataKey="label" stroke="#71717a" fontSize={11} tickLine={false} />
-                  <YAxis stroke="#71717a" fontSize={11} tickLine={false} />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px', color: '#f4f4f5' }}
+                  <XAxis dataKey="label" stroke={chartAxisColor} fontSize={11} tickLine={false} />
+                  <YAxis stroke={chartAxisColor} fontSize={11} tickLine={false} />
+                  <Tooltip
+                    contentStyle={tooltipStyle}
                   />
                   <Legend wrapperStyle={{ fontSize: '11px', color: '#a1a1aa' }} />
                   <Line type="monotone" dataKey="revenue" stroke="#ea580c" strokeWidth={2} name="Revenue (₹)" activeDot={{ r: 5 }} />
-                  <Line type="monotone" dataKey="orders" stroke="#71717a" strokeWidth={1.5} name="Orders" />
+                  <Line type="monotone" dataKey="orders" stroke={chartAxisColor} strokeWidth={1.5} name="Orders" />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -479,7 +488,7 @@ export const ReportsDashboard: React.FC = () => {
 
           {/* Top Selling Items & Repeat vs Walk-in */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
-            
+
             {/* Top Selling Ranking */}
             <div className="bg-zinc-900/60 border border-zinc-800/80 p-4 rounded-xl">
               <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-3">
@@ -527,7 +536,7 @@ export const ReportsDashboard: React.FC = () => {
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px', color: '#f4f4f5' }} />
+                    <Tooltip contentStyle={tooltipStyle} />
                     <Legend wrapperStyle={{ fontSize: '11px', color: '#a1a1aa' }} />
                   </PieChart>
                 </ResponsiveContainer>
@@ -542,7 +551,7 @@ export const ReportsDashboard: React.FC = () => {
       {/* --- PERIOD 3: MONTHLY REPORT --- */}
       {period === 'monthly' && (
         <div className="space-y-4">
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="bg-zinc-900/60 border border-zinc-800/80 p-3.5 rounded-xl">
               <span className="text-[11px] text-zinc-400 block font-medium">Monthly Revenue</span>
@@ -565,7 +574,7 @@ export const ReportsDashboard: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
-            
+
             {/* Peak Operating Hours */}
             <div className="bg-zinc-900/60 border border-zinc-800/80 p-4 rounded-xl">
               <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-3 flex items-center gap-1.5">
@@ -590,9 +599,9 @@ export const ReportsDashboard: React.FC = () => {
               <div className="h-56 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={monthlyData.loyaltyLiabilityData}>
-                    <XAxis dataKey="name" stroke="#71717a" fontSize={11} tickLine={false} />
-                    <YAxis stroke="#71717a" fontSize={11} tickLine={false} />
-                    <Tooltip contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px', color: '#f4f4f5' }} />
+                    <XAxis dataKey="name" stroke={chartAxisColor} fontSize={11} tickLine={false} />
+                    <YAxis stroke={chartAxisColor} fontSize={11} tickLine={false} />
+                    <Tooltip contentStyle={tooltipStyle} />
                     <Bar dataKey="points" radius={[3, 3, 0, 0]}>
                       {monthlyData.loyaltyLiabilityData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.fill} />
@@ -611,7 +620,7 @@ export const ReportsDashboard: React.FC = () => {
       {/* --- PERIOD 4: YEARLY REPORT --- */}
       {period === 'yearly' && (
         <div className="space-y-4">
-          
+
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-zinc-900/60 border border-zinc-800/80 p-3.5 rounded-xl">
               <span className="text-[11px] text-zinc-400 block font-medium">Annual Revenue</span>
@@ -635,9 +644,9 @@ export const ReportsDashboard: React.FC = () => {
             <div className="h-60 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={yearlyData.monthlyFinancials}>
-                  <XAxis dataKey="month" stroke="#71717a" fontSize={11} tickLine={false} />
-                  <YAxis stroke="#71717a" fontSize={11} tickLine={false} />
-                  <Tooltip contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px', color: '#f4f4f5' }} />
+                  <XAxis dataKey="month" stroke={chartAxisColor} fontSize={11} tickLine={false} />
+                  <YAxis stroke={chartAxisColor} fontSize={11} tickLine={false} />
+                  <Tooltip contentStyle={tooltipStyle} />
                   <Bar dataKey="revenue" fill="#ea580c" radius={[3, 3, 0, 0]} name="Revenue (₹)" />
                 </BarChart>
               </ResponsiveContainer>

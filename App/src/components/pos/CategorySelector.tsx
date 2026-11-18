@@ -1,14 +1,14 @@
 import React from 'react';
 import { usePOS } from '../../context/POSContext';
-import { 
-  Flame, 
-  Sandwich, 
-  Utensils, 
-  Layers, 
-  Coffee, 
-  IceCream, 
-  Boxes, 
-  Sparkles 
+import {
+  Flame,
+  Sandwich,
+  Utensils,
+  Layers,
+  Coffee,
+  IceCream,
+  Boxes,
+  Sparkles
 } from 'lucide-react';
 
 interface CategorySelectorProps {
@@ -49,17 +49,15 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
             key={cat.name}
             type="button"
             onClick={() => onSelectCategory(cat.name)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors border ${
-              isSelected 
-                ? 'bg-zinc-100 text-zinc-950 border-zinc-200 shadow-xs font-semibold' 
-                : 'bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 border-zinc-800/80'
-            }`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors border ${isSelected
+              ? 'bg-zinc-100 text-zinc-950 border-zinc-200 shadow-xs font-semibold'
+              : 'bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 border-zinc-800/80'
+              }`}
           >
             <span className={isSelected ? 'text-zinc-900' : 'text-zinc-400'}>{cat.icon}</span>
             <span>{cat.name}</span>
-            <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
-              isSelected ? 'bg-zinc-200 text-zinc-900 font-bold' : 'bg-zinc-800 text-zinc-500'
-            }`}>
+            <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${isSelected ? 'bg-zinc-200 text-zinc-900 font-bold' : 'bg-zinc-800 text-zinc-500'
+              }`}>
               {count}
             </span>
           </button>

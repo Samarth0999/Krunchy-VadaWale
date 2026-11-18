@@ -8,7 +8,8 @@ import {
   UserPlus, 
   X, 
   Check, 
-  Sparkles
+  Sparkles,
+  Smartphone
 } from 'lucide-react';
 import { Customer } from '../../types';
 
@@ -22,7 +23,8 @@ export const CustomerLookupBanner: React.FC = () => {
     potentialPointsEarned,
     settings,
     saveCustomer,
-    subtotal
+    subtotal,
+    sendWhatsAppLoyaltyReminder
   } = usePOS();
 
   const [phoneInput, setPhoneInput] = useState('');
@@ -193,11 +195,25 @@ export const CustomerLookupBanner: React.FC = () => {
               <span>Balance: <strong className="text-zinc-200 font-mono">{selectedCustomer.currentPoints} pts</strong> ({currency}{selectedCustomer.currentPoints * settings.loyaltyPointValue})</span>
             </div>
 
-            {subtotal >= settings.minOrderToEarn && potentialPointsEarned > 0 && (
-              <span className="text-[10px] text-emerald-400 font-mono">
-                +{potentialPointsEarned} pts
-              </span>
-            )}
+            <div className="flex items-center gap-2">
+              {selectedCustomer.currentPoints > 0 && (
+                <button
+                  type="button"
+                  onClick={() => sendWhatsAppLoyaltyReminder(selectedCustomer)}
+                  title="Send WhatsApp Loyalty Reminder"
+                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-[10px] font-medium border border-emerald-500/20 transition-colors"
+                >
+                  <Smartphone className="w-2.5 h-2.5" />
+                  <span>WhatsApp</span>
+                </button>
+              )}
+
+              {subtotal >= settings.minOrderToEarn && potentialPointsEarned > 0 && (
+                <span className="text-[10px] text-emerald-400 font-mono">
+                  +{potentialPointsEarned} pts
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Points Redemption Slider / Buttons */}
