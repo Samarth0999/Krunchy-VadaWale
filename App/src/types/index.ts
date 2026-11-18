@@ -1,5 +1,20 @@
 export type Category = string;
 
+export type StaffRole = 'Admin' | 'Manager' | 'Cashier';
+
+export interface StaffProfile {
+  id: string;
+  authUserId?: string;
+  email: string;
+  name: string;
+  role: StaffRole;
+  pin?: string;
+  avatarUrl?: string;
+  isActive: boolean;
+  lastLoginAt?: string;
+  createdAt?: string;
+}
+
 export interface Product {
   id: string;
   name: string;

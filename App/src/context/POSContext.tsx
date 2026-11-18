@@ -10,9 +10,12 @@ import {
   PaymentSplit, 
   ActiveTab,
   RestaurantTable,
-  TableStatus
+  TableStatus,
+  StaffProfile,
+  StaffRole
 } from '../types';
 import { storageService } from '../services/storageService';
+import { authService } from '../services/authService';
 import confetti from 'canvas-confetti';
 
 export interface ToastMessage {
@@ -113,6 +116,13 @@ interface POSContextType {
 
   // WhatsApp Loyalty Reminder
   sendWhatsAppLoyaltyReminder: (customer: Customer) => void;
+
+  // Staff & Supabase OAuth
+  currentStaff: StaffProfile | null;
+  staffDirectory: StaffProfile[];
+  signOutStaff: () => Promise<void>;
+  addStaffMember: (email: string, name: string, role: StaffRole) => Promise<{ success: boolean; message: string }>;
+  removeStaffMember: (staffId: string) => Promise<{ success: boolean; message: string }>;
 }
 
 const POSContext = createContext<POSContextType | undefined>(undefined);
@@ -129,6 +139,10 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [tables, setTables] = useState<RestaurantTable[]>([]);
   const [settings, setSettings] = useState<RestaurantSettings>(storageService.getSettings());
   const [isCloudConnected, setIsCloudConnected] = useState<boolean>(true);
+
+  // Staff Auth state
+  const [currentStaff, setCurrentStaff] = useState<StaffProfile | null>(() => authService.getCurrentStaff());
+  const [staffDirectory, setStaffDirectory] = useState<StaffProfile[]>(() => authService.getStaffDirectory());
 
   // Active Table state
   const [activeTableId, setActiveTableId] = useState<string | null>(null);
@@ -218,7 +232,17 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const unsubscribe = storageService.subscribe(() => {
       refreshData();
     });
-    return () => unsubscribe();
+    const unsubAuth = authService.subscribe((staff) => {
+      setCurrentStaff(staff);
+      setStaffDirectory(authService.getStaffDirectory());
+      if (staff) {
+        setSettings(prev => ({ ...prev, cashierName: staff.name }));
+      }
+    });
+    return () => {
+      unsubscribe();
+      unsubAuth();
+    };
   }, [refreshData]);
 
   // Keep activeTable synchronized
@@ -652,6 +676,29 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     addToast('Settings Updated', 'Restaurant and billing configurations saved.', 'success');
   }, [addToast]);
 
+  const signOutStaff = useCallback(async () => {
+    await authService.signOut();
+    addToast('Signed Out', 'Staff session closed successfully.', 'info');
+  }, [addToast]);
+
+  const addStaffMember = useCallback(async (email: string, name: string, role: StaffRole) => {
+    const res = await authService.addStaffMember(email, name, role);
+    setStaffDirectory(authService.getStaffDirectory());
+    if (res.success) {
+      addToast('Staff Authorized', res.message, 'success');
+    } else {
+      addToast('Failed to Authorize', res.message, 'warning');
+    }
+    return res;
+  }, [addToast]);
+
+  const removeStaffMember = useCallback(async (staffId: string) => {
+    const res = await authService.removeStaffMember(staffId);
+    setStaffDirectory(authService.getStaffDirectory());
+    addToast('Staff Removed', res.message, 'info');
+    return res;
+  }, [addToast]);
+
   return (
     <POSContext.Provider
       value={{
@@ -723,7 +770,12 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         theme,
         toggleTheme,
         setTheme,
-        sendWhatsAppLoyaltyReminder
+        sendWhatsAppLoyaltyReminder,
+        currentStaff,
+        staffDirectory,
+        signOutStaff,
+        addStaffMember,
+        removeStaffMember
       }}
     >
       {children}

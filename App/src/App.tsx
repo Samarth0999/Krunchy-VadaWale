@@ -1,6 +1,7 @@
 import React from 'react';
 import { POSProvider, usePOS } from './context/POSContext';
 import { Header } from './components/common/Header';
+import { LoginView } from './components/auth/LoginView';
 import { ToastContainer } from './components/common/ToastContainer';
 import { ReceiptModal } from './components/common/ReceiptModal';
 import { POSLayout } from './components/pos/POSLayout';
@@ -35,13 +36,30 @@ const MainContent: React.FC = () => {
   );
 };
 
+const AppShell: React.FC = () => {
+  const { currentStaff } = usePOS();
+
+  if (!currentStaff) {
+    return (
+      <>
+        <LoginView />
+        <ToastContainer />
+      </>
+    );
+  }
+
+  return (
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-zinc-950 font-sans text-zinc-100 antialiased selection:bg-zinc-800 selection:text-zinc-100">
+      <Header />
+      <MainContent />
+    </div>
+  );
+};
+
 export const App: React.FC = () => {
   return (
     <POSProvider>
-      <div className="flex flex-col h-screen w-screen overflow-hidden bg-zinc-950 font-sans text-zinc-100 antialiased selection:bg-zinc-800 selection:text-zinc-100">
-        <Header />
-        <MainContent />
-      </div>
+      <AppShell />
     </POSProvider>
   );
 };
