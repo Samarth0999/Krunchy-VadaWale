@@ -88,3 +88,4 @@ export const testSupabaseConnection = async (url?: string, key?: string): Promis
     return { success: false, message: err.message || 'Could not connect to Supabase.' };
   }
 };
+

@@ -267,25 +267,39 @@ ALTER TABLE public.loyalty_ledger ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.restaurant_settings ENABLE ROW LEVEL SECURITY;
 
 -- Allow unrestricted read/write access for authenticated cashiers and local POS terminals
+DROP POLICY IF EXISTS "Allow public read access for products" ON public.products;
 CREATE POLICY "Allow public read access for products" ON public.products FOR SELECT TO anon, authenticated USING (true);
+DROP POLICY IF EXISTS "Allow public write access for products" ON public.products;
 CREATE POLICY "Allow public write access for products" ON public.products FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Allow public read access for customers" ON public.customers;
 CREATE POLICY "Allow public read access for customers" ON public.customers FOR SELECT TO anon, authenticated USING (true);
+DROP POLICY IF EXISTS "Allow public write access for customers" ON public.customers;
 CREATE POLICY "Allow public write access for customers" ON public.customers FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Allow public read access for restaurant_tables" ON public.restaurant_tables;
 CREATE POLICY "Allow public read access for restaurant_tables" ON public.restaurant_tables FOR SELECT TO anon, authenticated USING (true);
+DROP POLICY IF EXISTS "Allow public write access for restaurant_tables" ON public.restaurant_tables;
 CREATE POLICY "Allow public write access for restaurant_tables" ON public.restaurant_tables FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Allow public read access for orders" ON public.orders;
 CREATE POLICY "Allow public read access for orders" ON public.orders FOR SELECT TO anon, authenticated USING (true);
+DROP POLICY IF EXISTS "Allow public write access for orders" ON public.orders;
 CREATE POLICY "Allow public write access for orders" ON public.orders FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Allow public read access for order_items" ON public.order_items;
 CREATE POLICY "Allow public read access for order_items" ON public.order_items FOR SELECT TO anon, authenticated USING (true);
+DROP POLICY IF EXISTS "Allow public write access for order_items" ON public.order_items;
 CREATE POLICY "Allow public write access for order_items" ON public.order_items FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Allow public read access for loyalty_ledger" ON public.loyalty_ledger;
 CREATE POLICY "Allow public read access for loyalty_ledger" ON public.loyalty_ledger FOR SELECT TO anon, authenticated USING (true);
+DROP POLICY IF EXISTS "Allow public write access for loyalty_ledger" ON public.loyalty_ledger;
 CREATE POLICY "Allow public write access for loyalty_ledger" ON public.loyalty_ledger FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Allow public read access for restaurant_settings" ON public.restaurant_settings;
 CREATE POLICY "Allow public read access for restaurant_settings" ON public.restaurant_settings FOR SELECT TO anon, authenticated USING (true);
+DROP POLICY IF EXISTS "Allow public write access for restaurant_settings" ON public.restaurant_settings;
 CREATE POLICY "Allow public write access for restaurant_settings" ON public.restaurant_settings FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
 -- Grant privileges for Supabase PostgREST API
@@ -324,3 +338,4 @@ BEGIN
     EXCEPTION WHEN duplicate_object THEN NULL;
     END;
 END $$;
+

@@ -63,3 +63,4 @@ The migration script includes 3 automated SQL reporting views that calculate ana
 KRUNCHY POS features a hybrid offline-first synchronization architecture:
 - When connected, all transactions, table updates, and catalog changes write directly to Supabase PostgreSQL and broadcast in real-time via Supabase Realtime channels.
 - If internet connectivity drops, transactions are securely cached locally in the browser/desktop shell, allowing billing counters to continue printing receipts without interruption.
+

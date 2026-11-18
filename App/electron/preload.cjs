@@ -6,3 +6,4 @@ contextBridge.exposeInMainWorld('electronAPI', {
   toggleFullscreen: () => ipcRenderer.invoke('toggle-fullscreen'),
   getPlatform: () => ipcRenderer.invoke('get-platform')
 });
+

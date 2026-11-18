@@ -92,3 +92,4 @@ ipcMain.handle('get-platform', () => {
     isElectron: true
   };
 });
+
