@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePOS } from '../../context/POSContext';
 import { QRCodeSVG } from 'qrcode.react';
 import { 
@@ -7,13 +7,9 @@ import {
   CreditCard, 
   Layers, 
   X, 
-  Check, 
-  Printer, 
-  Sparkles,
-  ArrowRight,
-  ShieldCheck
+  Printer
 } from 'lucide-react';
-import { PaymentMode, PaymentSplit } from '../../types';
+import { PaymentSplit } from '../../types';
 
 export const CheckoutModal: React.FC = () => {
   const { 
@@ -119,102 +115,95 @@ export const CheckoutModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[92vh] shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh] shadow-2xl">
         
         {/* Header */}
-        <div className="px-6 py-4 bg-slate-800/80 border-b border-slate-700 flex items-center justify-between">
+        <div className="px-5 py-4 border-b border-zinc-800 flex items-center justify-between">
           <div>
-            <h3 className="font-bold text-lg text-white">Payment Checkout</h3>
-            <p className="text-xs text-slate-400">Select payment mode and confirm bill settlement</p>
+            <h3 className="font-semibold text-sm text-zinc-100">Settlement & Checkout</h3>
+            <p className="text-[11px] text-zinc-500">Choose payment method to complete bill</p>
           </div>
           <button
             onClick={() => setIsCheckoutModalOpen(false)}
-            className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-700 transition-colors"
+            className="text-zinc-500 hover:text-zinc-300 p-1 rounded-md"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Amount Banner */}
-        <div className="bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 p-5 text-white flex items-center justify-between">
+        {/* Minimal Amount Header */}
+        <div className="px-5 py-4 bg-zinc-950/60 border-b border-zinc-800 flex items-baseline justify-between">
           <div>
-            <span className="text-xs uppercase tracking-wider font-bold text-orange-200">Amount Due</span>
-            <div className="text-3xl font-extrabold font-mono mt-0.5">
+            <span className="text-[11px] text-zinc-400 block font-medium">Net Amount Due</span>
+            <div className="text-2xl font-bold font-mono text-zinc-100 tracking-tight mt-0.5">
               {currency}{grandTotal.toFixed(2)}
             </div>
           </div>
 
           {selectedCustomer && (
-            <div className="text-right">
-              <span className="text-xs text-orange-200">Customer: <strong className="text-white">{selectedCustomer.name}</strong></span>
+            <div className="text-right text-xs">
+              <span className="text-zinc-400 block">{selectedCustomer.name}</span>
               {pointsToRedeem > 0 && (
-                <div className="text-xs text-amber-200 mt-0.5">
-                  Points Redeemed: {pointsToRedeem} pts (-{currency}{pointsToRedeem * settings.loyaltyPointValue})
-                </div>
-              )}
-              {potentialPointsEarned > 0 && (
-                <div className="text-xs font-bold text-white mt-0.5 bg-black/20 px-2 py-0.5 rounded-full inline-block">
-                  +{potentialPointsEarned} Loyalty Points Credited!
-                </div>
+                <span className="text-emerald-400 text-[11px] font-mono block">-{currency}{pointsToRedeem * settings.loyaltyPointValue} redeemed</span>
               )}
             </div>
           )}
         </div>
 
         {/* Payment Modes Tabs */}
-        <div className="p-6 overflow-y-auto space-y-6">
-          <div className="grid grid-cols-4 gap-2">
+        <div className="p-5 overflow-y-auto space-y-4">
+          <div className="grid grid-cols-4 gap-1 p-0.5 bg-zinc-950 border border-zinc-800 rounded-lg">
             
             <button
               type="button"
               onClick={() => setPaymentMode('CASH')}
-              className={`flex flex-col items-center justify-center p-3 rounded-xl border font-semibold text-xs transition-all ${
+              className={`flex items-center justify-center gap-1.5 py-2 rounded-md font-medium text-xs transition-colors ${
                 paymentMode === 'CASH' 
-                  ? 'bg-orange-500/10 border-orange-500 text-orange-400 ring-2 ring-orange-500/20' 
-                  : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800'
+                  ? 'bg-zinc-800 text-zinc-100 shadow-xs' 
+                  : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              <Banknote className="w-5 h-5 mb-1" />
+              <Banknote className="w-3.5 h-3.5" />
               <span>Cash</span>
             </button>
 
             <button
               type="button"
               onClick={() => setPaymentMode('UPI')}
-              className={`flex flex-col items-center justify-center p-3 rounded-xl border font-semibold text-xs transition-all ${
+              className={`flex items-center justify-center gap-1.5 py-2 rounded-md font-medium text-xs transition-colors ${
                 paymentMode === 'UPI' 
-                  ? 'bg-orange-500/10 border-orange-500 text-orange-400 ring-2 ring-orange-500/20' 
-                  : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800'
+                  ? 'bg-zinc-800 text-zinc-100 shadow-xs' 
+                  : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              <QrCode className="w-5 h-5 mb-1" />
+              <QrCode className="w-3.5 h-3.5" />
               <span>UPI / QR</span>
             </button>
 
             <button
               type="button"
               onClick={() => setPaymentMode('CARD')}
-              className={`flex flex-col items-center justify-center p-3 rounded-xl border font-semibold text-xs transition-all ${
+              className={`flex items-center justify-center gap-1.5 py-2 rounded-md font-medium text-xs transition-colors ${
                 paymentMode === 'CARD' 
-                  ? 'bg-orange-500/10 border-orange-500 text-orange-400 ring-2 ring-orange-500/20' 
-                  : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800'
+                  ? 'bg-zinc-800 text-zinc-100 shadow-xs' 
+                  : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              <CreditCard className="w-5 h-5 mb-1" />
+              <CreditCard className="w-3.5 h-3.5" />
               <span>Card</span>
             </button>
 
             <button
               type="button"
               onClick={() => setPaymentMode('SPLIT')}
-              className={`flex flex-col items-center justify-center p-3 rounded-xl border font-semibold text-xs transition-all ${
+              className={`flex items-center justify-center gap-1.5 py-2 rounded-md font-medium text-xs transition-colors ${
                 paymentMode === 'SPLIT' 
-                  ? 'bg-orange-500/10 border-orange-500 text-orange-400 ring-2 ring-orange-500/20' 
-                  : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800'
+                  ? 'bg-zinc-800 text-zinc-100 shadow-xs' 
+                  : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              <Layers className="w-5 h-5 mb-1" />
+              <Layers className="w-3.5 h-3.5" />
               <span>Split</span>
             </button>
 
@@ -222,63 +211,56 @@ export const CheckoutModal: React.FC = () => {
 
           {/* Mode 1: Cash Details */}
           {paymentMode === 'CASH' && (
-            <div className="space-y-4 bg-slate-950/70 p-4 rounded-xl border border-slate-800 animate-fade-in">
+            <div className="space-y-3 bg-zinc-950/40 p-4 rounded-xl border border-zinc-800">
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
-                  Cash Tendered by Customer ({currency})
+                <label className="text-[11px] font-medium text-zinc-400 block mb-1">
+                  Cash Tendered ({currency})
                 </label>
                 <input
                   type="number"
                   min={0}
                   value={cashTendered || ''}
                   onChange={(e) => setCashTendered(Number(e.target.value))}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-lg font-mono font-bold text-white focus:outline-none focus:border-orange-500"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-base font-mono font-bold text-zinc-100 focus:outline-none focus:border-zinc-700"
                 />
               </div>
 
-              {/* Quick Denomination Chips */}
-              <div className="flex gap-2 flex-wrap">
+              {/* Quick Chips */}
+              <div className="flex gap-1.5 flex-wrap">
                 <button
                   type="button"
                   onClick={() => setCashTendered(grandTotal)}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg text-slate-200 border border-slate-700"
+                  className="px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 text-xs rounded-md text-zinc-300 border border-zinc-800"
                 >
                   Exact ({currency}{grandTotal})
                 </button>
                 <button
                   type="button"
                   onClick={() => setCashTendered(Math.ceil(grandTotal / 100) * 100)}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg text-slate-200 border border-slate-700"
+                  className="px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 text-xs rounded-md text-zinc-300 border border-zinc-800"
                 >
                   Round 100 ({currency}{Math.ceil(grandTotal / 100) * 100})
                 </button>
                 <button
                   type="button"
                   onClick={() => setCashTendered(Math.ceil(grandTotal / 500) * 500 || 500)}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg text-slate-200 border border-slate-700"
+                  className="px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 text-xs rounded-md text-zinc-300 border border-zinc-800"
                 >
                   {currency}500
                 </button>
                 <button
                   type="button"
                   onClick={() => setCashTendered(cashTendered + 100)}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg text-slate-200 border border-slate-700"
+                  className="px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 text-xs rounded-md text-zinc-300 border border-zinc-800"
                 >
                   +100
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setCashTendered(cashTendered + 500)}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg text-slate-200 border border-slate-700"
-                >
-                  +500
-                </button>
               </div>
 
-              {/* Return Change Indicator */}
-              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-400">Change Due to Customer:</span>
-                <span className={`text-xl font-extrabold font-mono ${cashChange > 0 ? 'text-emerald-400' : 'text-slate-300'}`}>
+              {/* Return Change */}
+              <div className="p-2.5 rounded-lg bg-zinc-900 border border-zinc-800/80 flex items-center justify-between">
+                <span className="text-xs text-zinc-400">Change Due:</span>
+                <span className={`text-base font-bold font-mono ${cashChange > 0 ? 'text-emerald-400' : 'text-zinc-300'}`}>
                   {currency}{cashChange.toFixed(2)}
                 </span>
               </div>
@@ -287,34 +269,30 @@ export const CheckoutModal: React.FC = () => {
 
           {/* Mode 2: UPI / QR Details */}
           {paymentMode === 'UPI' && (
-            <div className="flex flex-col sm:flex-row items-center gap-6 bg-slate-950/70 p-5 rounded-xl border border-slate-800 animate-fade-in">
-              <div className="bg-white p-3 rounded-2xl shadow-lg border border-slate-300 shrink-0">
-                <QRCodeSVG value={upiUri} size={150} level="M" />
+            <div className="flex flex-col sm:flex-row items-center gap-4 bg-zinc-950/40 p-4 rounded-xl border border-zinc-800">
+              <div className="bg-white p-2.5 rounded-xl border border-zinc-300 shrink-0">
+                <QRCodeSVG value={upiUri} size={130} level="M" />
               </div>
 
-              <div className="flex-1 space-y-3">
+              <div className="flex-1 space-y-2 text-xs">
                 <div>
-                  <span className="text-xs font-bold text-orange-400 uppercase tracking-wider block">Scan to Pay</span>
-                  <p className="text-xs text-slate-300 mt-0.5">
-                    Customer can scan via Google Pay, PhonePe, Paytm, or any UPI app.
-                  </p>
+                  <span className="font-medium text-zinc-200 block">Scan with any UPI App</span>
+                  <p className="text-zinc-500 text-[11px] mt-0.5">Google Pay, PhonePe, Paytm, or BHIM</p>
                 </div>
 
-                <div className="text-xs text-slate-400 font-mono bg-slate-900 p-2 rounded-lg border border-slate-800">
-                  <div>VPA: <strong className="text-white">{settings.upiVpa || 'krunchy@upi'}</strong></div>
-                  <div>Amount: <strong className="text-white">{currency}{grandTotal.toFixed(2)}</strong></div>
+                <div className="text-[11px] text-zinc-400 font-mono bg-zinc-900 p-2 rounded border border-zinc-800">
+                  <div>VPA: <strong className="text-zinc-200">{settings.upiVpa || 'krunchy@upi'}</strong></div>
+                  <div>Amount: <strong className="text-zinc-200">{currency}{grandTotal.toFixed(2)}</strong></div>
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-semibold text-slate-400 block mb-1">
-                    UPI Reference / UTR Number (Optional)
-                  </label>
+                  <label className="text-[10px] text-zinc-500 block mb-0.5">Reference / UTR # (Optional)</label>
                   <input
                     type="text"
                     value={upiRef}
                     onChange={(e) => setUpiRef(e.target.value)}
                     placeholder="e.g. 432198765432"
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 font-mono"
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1 text-xs text-zinc-100 font-mono focus:outline-none focus:border-zinc-700"
                   />
                 </div>
               </div>
@@ -323,27 +301,25 @@ export const CheckoutModal: React.FC = () => {
 
           {/* Mode 3: Card Details */}
           {paymentMode === 'CARD' && (
-            <div className="space-y-4 bg-slate-950/70 p-5 rounded-xl border border-slate-800 animate-fade-in">
+            <div className="space-y-3 bg-zinc-950/40 p-4 rounded-xl border border-zinc-800">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center border border-orange-500/20">
-                  <CreditCard className="w-6 h-6" />
+                <div className="w-10 h-10 rounded-lg bg-zinc-800 text-zinc-300 flex items-center justify-center border border-zinc-700">
+                  <CreditCard className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-white">Card Payment Terminal</h4>
-                  <p className="text-xs text-slate-400">Swipe, tap, or insert customer's debit/credit card on the POS machine</p>
+                  <h4 className="text-xs font-semibold text-zinc-200">Card POS Terminal</h4>
+                  <p className="text-[11px] text-zinc-500">Swipe or tap customer card on the physical terminal</p>
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
-                  Card Authorization Code / Last 4 Digits (Optional)
-                </label>
+                <label className="text-[11px] text-zinc-400 block mb-1">Authorization Code / Last 4 Digits</label>
                 <input
                   type="text"
                   value={cardRef}
                   onChange={(e) => setCardRef(e.target.value)}
-                  placeholder="e.g. AUTH-8821 or 4242"
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-orange-500"
+                  placeholder="e.g. 4242 or AUTH-9921"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs font-mono text-zinc-100 focus:outline-none focus:border-zinc-700"
                 />
               </div>
             </div>
@@ -351,71 +327,59 @@ export const CheckoutModal: React.FC = () => {
 
           {/* Mode 4: Split Payment Details */}
           {paymentMode === 'SPLIT' && (
-            <div className="space-y-3 bg-slate-950/70 p-4 rounded-xl border border-slate-800 animate-fade-in">
-              <div className="flex items-center justify-between text-xs pb-2 border-b border-slate-800">
-                <span className="font-semibold text-slate-300">Allocate Amounts</span>
-                <span className={`font-mono font-bold ${Math.abs(splitRemaining) < 0.5 ? 'text-emerald-400' : 'text-amber-400'}`}>
+            <div className="space-y-3 bg-zinc-950/40 p-4 rounded-xl border border-zinc-800">
+              <div className="flex items-center justify-between text-xs pb-1 border-b border-zinc-800">
+                <span className="text-zinc-400">Allocate Amounts</span>
+                <span className={`font-mono font-medium ${Math.abs(splitRemaining) < 0.5 ? 'text-emerald-400' : 'text-amber-400'}`}>
                   Remaining: {currency}{splitRemaining.toFixed(2)}
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="text-[11px] font-semibold text-slate-400 block mb-1">Cash Part ({currency})</label>
+                  <label className="text-[10px] text-zinc-400 block mb-1">Cash</label>
                   <input
                     type="number"
                     min={0}
                     value={splitCash || ''}
                     onChange={(e) => setSplitCash(Number(e.target.value))}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:border-orange-500"
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1 text-xs text-zinc-100 font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-semibold text-slate-400 block mb-1">UPI Part ({currency})</label>
+                  <label className="text-[10px] text-zinc-400 block mb-1">UPI</label>
                   <input
                     type="number"
                     min={0}
                     value={splitUpi || ''}
                     onChange={(e) => setSplitUpi(Number(e.target.value))}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:border-orange-500"
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1 text-xs text-zinc-100 font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-semibold text-slate-400 block mb-1">Card Part ({currency})</label>
+                  <label className="text-[10px] text-zinc-400 block mb-1">Card</label>
                   <input
                     type="number"
                     min={0}
                     value={splitCard || ''}
                     onChange={(e) => setSplitCard(Number(e.target.value))}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:border-orange-500"
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1 text-xs text-zinc-100 font-mono"
                   />
                 </div>
               </div>
-
-              {splitUpi > 0 && (
-                <div className="p-3 bg-slate-900 rounded-lg border border-slate-800 flex items-center gap-3">
-                  <div className="bg-white p-1 rounded">
-                    <QRCodeSVG value={upiUri} size={60} level="M" />
-                  </div>
-                  <div className="text-xs">
-                    <div className="font-semibold text-white">Scan for UPI part: {currency}{splitUpi}</div>
-                    <div className="text-slate-400 text-[11px]">{settings.upiVpa}</div>
-                  </div>
-                </div>
-              )}
             </div>
           )}
 
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 bg-slate-800/80 border-t border-slate-700 flex items-center justify-between">
+        <div className="p-4 bg-zinc-950 border-t border-zinc-800 flex items-center justify-between">
           <button
             type="button"
             onClick={() => setIsCheckoutModalOpen(false)}
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700 transition-colors"
+            className="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 text-xs font-medium rounded-lg border border-zinc-800 transition-colors"
           >
             Cancel
           </button>
@@ -424,10 +388,10 @@ export const CheckoutModal: React.FC = () => {
             type="button"
             disabled={isSubmitting || (paymentMode === 'SPLIT' && Math.abs(splitRemaining) > 0.5)}
             onClick={handleCompleteOrder}
-            className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-lg shadow-orange-500/25 transition-all hover:scale-102"
+            className="flex items-center gap-1.5 px-5 py-2 bg-zinc-100 hover:bg-white disabled:opacity-40 text-zinc-950 font-semibold text-xs rounded-lg transition-colors shadow-xs"
           >
-            <Printer className="w-4 h-4" />
-            <span>{isSubmitting ? 'Processing...' : 'Complete & Print Bill'}</span>
+            <Printer className="w-3.5 h-3.5" />
+            <span>{isSubmitting ? 'Processing...' : 'Complete & Print'}</span>
           </button>
         </div>
 
@@ -435,4 +399,3 @@ export const CheckoutModal: React.FC = () => {
     </div>
   );
 };
-

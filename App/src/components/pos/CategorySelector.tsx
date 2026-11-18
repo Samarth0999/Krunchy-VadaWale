@@ -10,7 +10,6 @@ import {
   Boxes, 
   Sparkles 
 } from 'lucide-react';
-import { Category } from '../../types';
 
 interface CategorySelectorProps {
   selectedCategory: string;
@@ -24,14 +23,14 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
   const { products } = usePOS();
 
   const categories = [
-    { name: 'All', icon: <Sparkles className="w-4 h-4" /> },
-    { name: 'Fried Chicken', icon: <Flame className="w-4 h-4" /> },
-    { name: 'Burgers', icon: <Sandwich className="w-4 h-4" /> },
-    { name: 'Combos & Buckets', icon: <Boxes className="w-4 h-4" /> },
-    { name: 'Starters & Snacks', icon: <Utensils className="w-4 h-4" /> },
-    { name: 'Sides & Dips', icon: <Layers className="w-4 h-4" /> },
-    { name: 'Beverages', icon: <Coffee className="w-4 h-4" /> },
-    { name: 'Desserts', icon: <IceCream className="w-4 h-4" /> }
+    { name: 'All', icon: <Sparkles className="w-3.5 h-3.5" /> },
+    { name: 'Fried Chicken', icon: <Flame className="w-3.5 h-3.5" /> },
+    { name: 'Burgers', icon: <Sandwich className="w-3.5 h-3.5" /> },
+    { name: 'Combos & Buckets', icon: <Boxes className="w-3.5 h-3.5" /> },
+    { name: 'Starters & Snacks', icon: <Utensils className="w-3.5 h-3.5" /> },
+    { name: 'Sides & Dips', icon: <Layers className="w-3.5 h-3.5" /> },
+    { name: 'Beverages', icon: <Coffee className="w-3.5 h-3.5" /> },
+    { name: 'Desserts', icon: <IceCream className="w-3.5 h-3.5" /> }
   ];
 
   const getCategoryCount = (catName: string) => {
@@ -40,7 +39,7 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
   };
 
   return (
-    <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none select-none">
+    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none select-none">
       {categories.map(cat => {
         const isSelected = selectedCategory === cat.name;
         const count = getCategoryCount(cat.name);
@@ -50,16 +49,16 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
             key={cat.name}
             type="button"
             onClick={() => onSelectCategory(cat.name)}
-            className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-semibold text-xs whitespace-nowrap transition-all shadow-sm ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors border ${
               isSelected 
-                ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-orange-500/25 ring-2 ring-orange-500/50 scale-102' 
-                : 'bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800'
+                ? 'bg-zinc-100 text-zinc-950 border-zinc-200 shadow-xs font-semibold' 
+                : 'bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 border-zinc-800/80'
             }`}
           >
-            <span className={isSelected ? 'text-white' : 'text-orange-400'}>{cat.icon}</span>
+            <span className={isSelected ? 'text-zinc-900' : 'text-zinc-400'}>{cat.icon}</span>
             <span>{cat.name}</span>
-            <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-              isSelected ? 'bg-black/30 text-white' : 'bg-slate-800 text-slate-400'
+            <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
+              isSelected ? 'bg-zinc-200 text-zinc-900 font-bold' : 'bg-zinc-800 text-zinc-500'
             }`}>
               {count}
             </span>
@@ -69,4 +68,3 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
     </div>
   );
 };
-

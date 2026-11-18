@@ -9,7 +9,7 @@ export const POSLayout: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
   return (
-    <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4 min-h-0 overflow-hidden bg-slate-950">
+    <div className="flex-1 flex flex-col lg:flex-row gap-3.5 p-3.5 min-h-0 overflow-hidden bg-zinc-950">
       
       {/* Left Column: Menu Catalog & Selection */}
       <div className="flex-1 flex flex-col min-h-0 min-w-0">
@@ -24,7 +24,7 @@ export const POSLayout: React.FC = () => {
       </div>
 
       {/* Right Column: Live Cart & Bill Engine */}
-      <div className="w-full lg:w-[420px] xl:w-[460px] 2xl:w-[490px] shrink-0 flex flex-col min-h-0">
+      <div className="w-full lg:w-[380px] xl:w-[420px] 2xl:w-[450px] shrink-0 flex flex-col min-h-0">
         <CartSidebar />
       </div>
 
@@ -34,4 +34,3 @@ export const POSLayout: React.FC = () => {
     </div>
   );
 };
-

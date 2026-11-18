@@ -9,11 +9,9 @@ import {
   UtensilsCrossed, 
   ShoppingBag, 
   Truck, 
-  Sparkles, 
   MessageSquare, 
   ArrowRight,
   Clock,
-  Layers,
   Save,
   RotateCcw
 } from 'lucide-react';
@@ -24,7 +22,6 @@ export const CartSidebar: React.FC = () => {
     diningType, 
     setDiningType, 
     tableNumber, 
-    setTableNumber, 
     activeTableId,
     activeTable,
     selectTable,
@@ -71,24 +68,23 @@ export const CartSidebar: React.FC = () => {
 
   const currency = settings.currencySymbol || '₹';
 
-  // Compute seated minutes
   const seatedMins = activeTable?.seatedAt 
     ? Math.floor((Date.now() - new Date(activeTable.seatedAt).getTime()) / 60000)
     : null;
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl flex flex-col h-full shadow-xl overflow-hidden">
+    <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl flex flex-col h-full overflow-hidden">
       
-      {/* Top: Dining Type Switcher */}
-      <div className="p-3 border-b border-slate-800 bg-slate-950/70 space-y-2">
-        <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-900 rounded-xl border border-slate-800">
+      {/* Top: Dining Mode Switcher */}
+      <div className="p-3 border-b border-zinc-800/80 bg-zinc-950/40 space-y-2">
+        <div className="grid grid-cols-3 gap-1 p-0.5 bg-zinc-950 border border-zinc-800/80 rounded-lg">
           <button
             type="button"
             onClick={() => setDiningType('DINE_IN')}
-            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-colors ${
               diningType === 'DINE_IN' 
-                ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow' 
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-zinc-800 text-zinc-100 shadow-xs' 
+                : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
             <UtensilsCrossed className="w-3.5 h-3.5" />
@@ -101,10 +97,10 @@ export const CartSidebar: React.FC = () => {
               setDiningType('TAKEAWAY');
               selectTable(null);
             }}
-            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-colors ${
               diningType === 'TAKEAWAY' 
-                ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow' 
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-zinc-800 text-zinc-100 shadow-xs' 
+                : 'text-slate-400 hover:text-zinc-200'
             }`}
           >
             <ShoppingBag className="w-3.5 h-3.5" />
@@ -117,10 +113,10 @@ export const CartSidebar: React.FC = () => {
               setDiningType('DELIVERY');
               selectTable(null);
             }}
-            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-colors ${
               diningType === 'DELIVERY' 
-                ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow' 
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-zinc-800 text-zinc-100 shadow-xs' 
+                : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
             <Truck className="w-3.5 h-3.5" />
@@ -128,49 +124,42 @@ export const CartSidebar: React.FC = () => {
           </button>
         </div>
 
-        {/* Table Selector & Status Badge if Dine-In */}
+        {/* Minimal Table Selector Bar if Dine-In */}
         {diningType === 'DINE_IN' && (
-          <div className="bg-slate-900 p-2 rounded-xl border border-slate-800 flex items-center justify-between gap-2">
+          <div className="bg-zinc-950/70 p-2 rounded-lg border border-zinc-800/80 flex items-center justify-between gap-2 text-xs">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="w-7 h-7 rounded-lg bg-orange-500/10 text-orange-400 flex items-center justify-center font-bold text-xs shrink-0">
-                🪑
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-xs text-white truncate">{tableNumber || 'No Table'}</span>
-                  {activeTable && (
-                    <span className={`text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded ${
-                      activeTable.status === 'AVAILABLE' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
-                    }`}>
-                      {activeTable.status}
-                    </span>
-                  )}
-                </div>
-                {seatedMins !== null && (
-                  <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
-                    <Clock className="w-3 h-3 text-amber-400" />
-                    Seated {seatedMins}m ago
-                  </span>
-                )}
-              </div>
+              <span className="text-zinc-400 text-[11px]">Table:</span>
+              <span className="font-semibold text-zinc-100 truncate">{tableNumber || 'None'}</span>
+              {activeTable && (
+                <span className={`text-[9px] uppercase px-1.5 py-0.2 rounded font-mono ${
+                  activeTable.status === 'AVAILABLE' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'
+                }`}>
+                  {activeTable.status}
+                </span>
+              )}
+              {seatedMins !== null && (
+                <span className="text-[10px] text-zinc-500 font-mono hidden sm:inline">
+                  ({seatedMins}m)
+                </span>
+              )}
             </div>
 
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="flex items-center gap-1 shrink-0">
               <button
                 type="button"
                 onClick={() => setIsTablePickerOpen(true)}
-                className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-semibold rounded-lg border border-slate-700 transition-colors"
+                className="px-2 py-0.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[11px] rounded transition-colors"
               >
-                Change Table
+                Change
               </button>
               {activeTableId && (
                 <button
                   type="button"
                   onClick={() => releaseTable(activeTableId)}
-                  title="Clear / Release Table"
-                  className="p-1 text-slate-500 hover:text-rose-400 rounded-lg hover:bg-slate-800"
+                  title="Clear Table"
+                  className="p-1 text-zinc-500 hover:text-zinc-300"
                 >
-                  <RotateCcw className="w-3.5 h-3.5" />
+                  <RotateCcw className="w-3 h-3" />
                 </button>
               )}
             </div>
@@ -178,81 +167,79 @@ export const CartSidebar: React.FC = () => {
         )}
       </div>
 
-      {/* Customer Lookup & Loyalty Section */}
+      {/* Customer Lookup & Loyalty */}
       <div className="p-3 pb-0">
         <CustomerLookupBanner />
       </div>
 
       {/* Cart Items List */}
-      <div className="flex-1 overflow-y-auto px-3 py-1 space-y-2">
+      <div className="flex-1 overflow-y-auto px-3 py-1 space-y-1.5">
         {cart.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-48 text-slate-500">
-            <ShoppingBag className="w-10 h-10 mb-2 opacity-30 text-slate-400" />
-            <p className="text-xs font-medium">Cart is currently empty</p>
-            <p className="text-[11px] text-slate-600 text-center mt-1">
-              Tap menu items on the left to start billing
-            </p>
+          <div className="flex flex-col items-center justify-center h-48 text-zinc-500">
+            <ShoppingBag className="w-8 h-8 mb-2 opacity-30 text-zinc-600" />
+            <p className="text-xs">Order is empty</p>
+            <p className="text-[11px] text-zinc-600 mt-0.5">Select menu items to begin</p>
           </div>
         ) : (
           cart.map(item => (
             <div 
               key={item.product.id}
-              className="bg-slate-950/70 border border-slate-800/80 rounded-xl p-2.5 flex flex-col gap-1.5"
+              className="bg-zinc-950/50 border border-zinc-800/60 rounded-lg p-2 flex flex-col gap-1 transition-colors"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className={`w-2 h-2 rounded-full shrink-0 ${item.product.isVeg ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
-                    <span className="font-semibold text-xs text-white truncate">{item.product.name}</span>
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${item.product.isVeg ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
+                    <span className="font-medium text-xs text-zinc-100 truncate">{item.product.name}</span>
                   </div>
-                  <div className="text-[11px] text-slate-400 font-mono mt-0.5">
-                    {currency}{item.product.price} × {item.quantity} = <span className="text-white font-bold">{currency}{item.product.price * item.quantity}</span>
+                  <div className="text-[11px] text-zinc-400 font-mono mt-0.5">
+                    {currency}{item.product.price} × {item.quantity} = <span className="text-zinc-200 font-semibold">{currency}{item.product.price * item.quantity}</span>
                   </div>
                 </div>
 
-                {/* Quantity Controls */}
-                <div className="flex items-center gap-1 bg-slate-900 border border-slate-700/80 rounded-lg p-0.5 shrink-0">
+                {/* Minimal Quantity Controls */}
+                <div className="flex items-center gap-0.5 bg-zinc-900 border border-zinc-800 rounded p-0.5 shrink-0">
                   <button
                     type="button"
                     onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                    className="w-5 h-5 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 rounded transition-colors"
+                    className="w-4 h-4 flex items-center justify-center text-zinc-400 hover:text-white rounded"
                   >
-                    <Minus className="w-3 h-3" />
+                    <Minus className="w-2.5 h-2.5" />
                   </button>
-                  <span className="text-xs font-bold font-mono px-1.5 text-white">{item.quantity}</span>
+                  <span className="text-xs font-mono font-medium px-1 text-zinc-200">{item.quantity}</span>
                   <button
                     type="button"
                     onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                    className="w-5 h-5 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-800 rounded transition-colors"
+                    className="w-4 h-4 flex items-center justify-center text-zinc-400 hover:text-white rounded"
                   >
-                    <Plus className="w-3 h-3" />
+                    <Plus className="w-2.5 h-2.5" />
                   </button>
                 </div>
               </div>
 
-              {/* Item Note or Add Note Trigger */}
-              <div className="flex items-center justify-between text-[11px]">
+              {/* Note input/display */}
+              <div className="flex items-center justify-between text-[10px]">
                 {editingNoteId === item.product.id ? (
-                  <div className="flex items-center gap-1 w-full mt-1">
+                  <div className="flex items-center gap-1 w-full mt-0.5">
                     <input
                       type="text"
                       autoFocus
                       value={noteText}
                       onChange={(e) => setNoteText(e.target.value)}
-                      placeholder="Special instructions (e.g. no mayo, extra sauce)..."
-                      className="flex-1 bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-[11px] text-white focus:outline-none focus:border-orange-500"
+                      placeholder="Special instructions..."
+                      className="flex-1 bg-zinc-900 border border-zinc-800 rounded px-1.5 py-0.5 text-[10px] text-zinc-200 focus:outline-none focus:border-zinc-700"
                     />
                     <button
                       type="button"
                       onClick={() => handleSaveNote(item.product.id)}
-                      className="px-2 py-0.5 bg-orange-500 text-white rounded font-medium text-[10px]"
+                      className="px-1.5 py-0.5 bg-zinc-200 text-zinc-900 rounded font-medium"
                     >
                       Save
                     </button>
                     <button
                       type="button"
                       onClick={() => setEditingNoteId(null)}
-                      className="px-1 text-slate-400 hover:text-white text-[10px]"
+                      className="px-1 text-zinc-500 hover:text-zinc-300"
                     >
                       ✕
                     </button>
@@ -262,19 +249,19 @@ export const CartSidebar: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => handleOpenNote(item.product.id, item.notes)}
-                      className="text-slate-400 hover:text-orange-400 flex items-center gap-1 text-[10px] transition-colors"
+                      className="text-zinc-500 hover:text-zinc-300 flex items-center gap-1 transition-colors"
                     >
-                      <MessageSquare className="w-3 h-3" />
-                      <span>{item.notes ? `Note: "${item.notes}"` : '+ Add note'}</span>
+                      <MessageSquare className="w-2.5 h-2.5" />
+                      <span>{item.notes ? `"${item.notes}"` : '+ note'}</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => removeFromCart(item.product.id)}
-                      className="text-slate-500 hover:text-rose-400 p-0.5 transition-colors"
-                      title="Remove item"
+                      className="text-zinc-500 hover:text-rose-400 p-0.5 transition-colors"
+                      title="Remove"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-3 h-3" />
                     </button>
                   </>
                 )}
@@ -285,70 +272,63 @@ export const CartSidebar: React.FC = () => {
       </div>
 
       {/* Bill Calculation Breakdown */}
-      <div className="p-3 border-t border-slate-800 bg-slate-950/80 space-y-1.5 text-xs">
-        <div className="flex justify-between text-slate-400">
-          <span>Subtotal:</span>
-          <span className="font-mono text-slate-200">{currency}{subtotal.toFixed(2)}</span>
+      <div className="p-3 border-t border-zinc-800/80 bg-zinc-950/60 space-y-1 text-xs">
+        <div className="flex justify-between text-zinc-400">
+          <span>Subtotal</span>
+          <span className="font-mono text-zinc-200">{currency}{subtotal.toFixed(2)}</span>
         </div>
 
         {pointsDiscountValue > 0 && (
-          <div className="flex justify-between text-emerald-400 font-semibold">
-            <span className="flex items-center gap-1">
-              <Sparkles className="w-3 h-3" />
-              Loyalty Discount ({pointsToRedeem} pts):
-            </span>
+          <div className="flex justify-between text-emerald-400">
+            <span>Points Discount ({pointsToRedeem} pts)</span>
             <span className="font-mono">-{currency}{pointsDiscountValue.toFixed(2)}</span>
           </div>
         )}
 
-        <div className="flex justify-between text-slate-400">
-          <span>{settings.taxName || 'GST'} ({settings.taxRate}%):</span>
-          <span className="font-mono text-slate-200">{currency}{taxAmount.toFixed(2)}</span>
+        <div className="flex justify-between text-zinc-400">
+          <span>{settings.taxName || 'GST'} ({settings.taxRate}%)</span>
+          <span className="font-mono text-zinc-200">{currency}{taxAmount.toFixed(2)}</span>
         </div>
 
         {selectedCustomer && potentialPointsEarned > 0 && (
-          <div className="flex justify-between text-amber-400 text-[11px] font-medium pt-0.5">
-            <span>Points Customer Will Earn:</span>
-            <span className="font-mono font-bold">+{potentialPointsEarned} pts</span>
+          <div className="flex justify-between text-zinc-400 text-[11px]">
+            <span>Earns</span>
+            <span className="font-mono text-amber-400">+{potentialPointsEarned} pts</span>
           </div>
         )}
 
         {/* Grand Total */}
-        <div className="pt-2 border-t border-slate-800 flex items-baseline justify-between">
-          <div>
-            <span className="font-extrabold text-sm text-white">Grand Total</span>
-            <span className="text-[10px] text-slate-400 block">Incl. all taxes</span>
-          </div>
-          <span className="text-xl font-extrabold text-orange-400 font-mono tracking-tight">
+        <div className="pt-2 border-t border-zinc-800 flex items-baseline justify-between">
+          <span className="font-medium text-xs text-zinc-300">Total</span>
+          <span className="text-xl font-bold text-zinc-100 font-mono tracking-tight">
             {currency}{grandTotal.toFixed(2)}
           </span>
         </div>
 
-        {/* Action Buttons */}
+        {/* Minimalist Action Buttons */}
         <div className="space-y-1.5 pt-2">
           
-          {/* Quick Save Table Order button if Dine-In */}
           {diningType === 'DINE_IN' && cart.length > 0 && (
             <button
               type="button"
               onClick={handleSaveRunningOrder}
-              className="w-full bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors"
+              className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium py-1.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-colors border border-zinc-700/60"
             >
               <Save className="w-3.5 h-3.5" />
-              <span>Save Table Order / KOT ({tableNumber})</span>
+              <span>Save Table Order ({tableNumber})</span>
             </button>
           )}
 
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-4 gap-1.5">
             <button
               type="button"
               disabled={cart.length === 0}
               onClick={() => {
-                if (window.confirm("Clear all items from the current cart?")) {
+                if (window.confirm("Clear cart?")) {
                   clearCart();
                 }
               }}
-              className="col-span-1 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-300 font-semibold py-2.5 rounded-xl text-xs transition-colors"
+              className="col-span-1 bg-zinc-900 hover:bg-zinc-800 disabled:opacity-40 text-zinc-400 hover:text-zinc-200 font-medium py-2 rounded-lg text-xs transition-colors border border-zinc-800/80"
             >
               Clear
             </button>
@@ -357,10 +337,10 @@ export const CartSidebar: React.FC = () => {
               type="button"
               disabled={cart.length === 0}
               onClick={() => setIsCheckoutModalOpen(true)}
-              className="col-span-3 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 text-white font-extrabold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 transition-all hover:scale-101"
+              className="col-span-3 bg-zinc-100 hover:bg-white disabled:opacity-40 text-zinc-950 font-semibold py-2 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs"
             >
-              <span>Proceed to Pay</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>Pay {currency}{grandTotal.toFixed(2)}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>

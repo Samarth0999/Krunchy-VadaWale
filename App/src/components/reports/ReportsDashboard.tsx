@@ -18,14 +18,12 @@ import {
   BarChart3, 
   Calendar, 
   Download, 
-  Printer, 
   TrendingUp, 
   DollarSign, 
   ShoppingBag, 
   Users, 
-  Award, 
   Clock, 
-  PieChart as PieIcon 
+  FileSpreadsheet
 } from 'lucide-react';
 import { Order, Customer } from '../../types';
 
@@ -84,9 +82,9 @@ export const ReportsDashboard: React.FC = () => {
     const hourlyChartData = Object.values(hoursMap);
 
     const paymentChartData = [
-      { name: 'Cash', value: cashTotal, color: '#f59e0b' },
-      { name: 'UPI', value: upiTotal, color: '#10b981' },
-      { name: 'Card', value: cardTotal, color: '#3b82f6' }
+      { name: 'Cash', value: cashTotal, color: '#a1a1aa' },
+      { name: 'UPI', value: upiTotal, color: '#ea580c' },
+      { name: 'Card', value: cardTotal, color: '#71717a' }
     ].filter(item => item.value > 0);
 
     return {
@@ -161,8 +159,8 @@ export const ReportsDashboard: React.FC = () => {
       });
 
     const customerRatioData = [
-      { name: 'Loyalty / Registered', value: repeatCount, color: '#f97316' },
-      { name: 'Walk-in Guests', value: walkInCount, color: '#64748b' }
+      { name: 'Loyalty / Registered', value: repeatCount, color: '#ea580c' },
+      { name: 'Walk-in Guests', value: walkInCount, color: '#52525b' }
     ];
 
     return {
@@ -205,7 +203,7 @@ export const ReportsDashboard: React.FC = () => {
 
     const loyaltyLiabilityData = [
       { name: 'Points Issued (+)', points: pointsIssued, fill: '#10b981' },
-      { name: 'Points Redeemed (-)', points: pointsRedeemed, fill: '#ef4444' }
+      { name: 'Points Redeemed (-)', points: pointsRedeemed, fill: '#f43f5e' }
     ];
 
     return {
@@ -300,17 +298,14 @@ export const ReportsDashboard: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-950 space-y-5">
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-zinc-950 space-y-5">
       
       {/* Top Banner & Period Selector */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800/80">
         <div>
-          <div className="flex items-center gap-2">
-            <BarChart3 className="w-6 h-6 text-orange-400" />
-            <h2 className="text-xl font-extrabold text-white">Comprehensive Business Analytics</h2>
-          </div>
-          <p className="text-xs text-slate-400 mt-1">
-            Real-time filtering, sales trends, peak hours, customer LTV, and payment reconciliations.
+          <h2 className="text-xl font-semibold text-zinc-100 tracking-tight">Reports & Analytics</h2>
+          <p className="text-xs text-zinc-400 mt-0.5">
+            Real-time revenue metrics, peak hour analytics, customer lifetime value, and reconciliation.
           </p>
         </div>
 
@@ -320,16 +315,18 @@ export const ReportsDashboard: React.FC = () => {
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            className="bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-orange-500"
+            className="bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 font-mono focus:outline-none focus:border-zinc-700"
           />
 
-          <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+          <div className="flex bg-zinc-900 p-0.5 rounded-lg border border-zinc-800 text-xs">
             {(['daily', 'weekly', 'monthly', 'yearly'] as const).map(p => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-colors ${
-                  period === p ? 'bg-orange-500 text-white' : 'text-slate-400 hover:text-white'
+                className={`px-3 py-1 rounded-md text-xs font-medium capitalize transition-colors ${
+                  period === p 
+                    ? 'bg-zinc-800 text-zinc-100 shadow-sm' 
+                    : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
                 {p}
@@ -339,7 +336,7 @@ export const ReportsDashboard: React.FC = () => {
 
           <button
             onClick={handleExportCSV}
-            className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-medium rounded-lg border border-zinc-800 transition-colors"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Export CSV</span>
@@ -349,81 +346,87 @@ export const ReportsDashboard: React.FC = () => {
 
       {/* --- PERIOD 1: DAILY (EoD) REPORT --- */}
       {period === 'daily' && (
-        <div className="space-y-4 animate-fade-in">
+        <div className="space-y-4">
           
           {/* Daily Stat Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-              <span className="text-[11px] text-slate-400 block">Total Revenue (EoD)</span>
-              <div className="text-2xl font-extrabold text-orange-400 font-mono mt-1">
+            <div className="bg-zinc-900/60 border border-zinc-800/80 p-3.5 rounded-xl">
+              <span className="text-[11px] text-zinc-400 block font-medium">Total Revenue (EoD)</span>
+              <div className="text-xl font-semibold text-zinc-100 font-mono mt-0.5">
                 {currency}{dailyData.totalRevenue.toLocaleString()}
               </div>
-              <span className="text-[10px] text-slate-500">Gross sales for {selectedDate}</span>
+              <span className="text-[10px] text-zinc-500">{selectedDate}</span>
             </div>
 
-            <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-              <span className="text-[11px] text-slate-400 block">Total Orders</span>
-              <div className="text-2xl font-extrabold text-white font-mono mt-1">
+            <div className="bg-zinc-900/60 border border-zinc-800/80 p-3.5 rounded-xl">
+              <span className="text-[11px] text-zinc-400 block font-medium">Total Orders</span>
+              <div className="text-xl font-semibold text-zinc-100 font-mono mt-0.5">
                 {dailyData.orderCount}
               </div>
-              <span className="text-[10px] text-slate-500">Bills completed</span>
+              <span className="text-[10px] text-zinc-500">Completed bills</span>
             </div>
 
-            <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-              <span className="text-[11px] text-slate-400 block">Average Order Value</span>
-              <div className="text-2xl font-extrabold text-emerald-400 font-mono mt-1">
+            <div className="bg-zinc-900/60 border border-zinc-800/80 p-3.5 rounded-xl">
+              <span className="text-[11px] text-zinc-400 block font-medium">Average Order Value</span>
+              <div className="text-xl font-semibold text-zinc-100 font-mono mt-0.5">
                 {currency}{dailyData.aov}
               </div>
-              <span className="text-[10px] text-slate-500">Average ticket size</span>
+              <span className="text-[10px] text-zinc-500">Ticket size</span>
             </div>
 
-            <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-              <span className="text-[11px] text-slate-400 block">New Customer Sign-ups</span>
-              <div className="text-2xl font-extrabold text-sky-400 font-mono mt-1">
+            <div className="bg-zinc-900/60 border border-zinc-800/80 p-3.5 rounded-xl">
+              <span className="text-[11px] text-zinc-400 block font-medium">New Sign-ups</span>
+              <div className="text-xl font-semibold text-zinc-100 font-mono mt-0.5">
                 +{dailyData.newCustomersCount}
               </div>
-              <span className="text-[10px] text-slate-500">Added to loyalty CRM</span>
+              <span className="text-[10px] text-zinc-500">Added to loyalty</span>
             </div>
           </div>
 
-          {/* Payment Mode Breakdown Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Payment Mode Breakdown Cards & Hourly Chart */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
             
-            <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-              <span className="text-xs font-bold uppercase tracking-wider text-amber-400 block mb-2">
-                Payment Modes Settlement
-              </span>
-              <div className="space-y-2 text-xs">
-                <div className="flex justify-between items-center p-2.5 rounded-xl bg-slate-950 border border-slate-800">
-                  <span className="text-slate-300">Cash Collected:</span>
-                  <span className="font-bold text-amber-400 font-mono">{currency}{dailyData.cashTotal}</span>
+            <div className="bg-zinc-900/60 border border-zinc-800/80 p-4 rounded-xl flex flex-col justify-between">
+              <div>
+                <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-3">
+                  Payment Mode Settlements
+                </span>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between items-center py-2 border-b border-zinc-800/50">
+                    <span className="text-zinc-400">Cash Collected</span>
+                    <span className="font-semibold text-zinc-200 font-mono">{currency}{dailyData.cashTotal.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-zinc-800/50">
+                    <span className="text-zinc-400">UPI / QR Transfers</span>
+                    <span className="font-semibold text-zinc-200 font-mono">{currency}{dailyData.upiTotal.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-zinc-400">Card Swipes</span>
+                    <span className="font-semibold text-zinc-200 font-mono">{currency}{dailyData.cardTotal.toLocaleString()}</span>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center p-2.5 rounded-xl bg-slate-950 border border-slate-800">
-                  <span className="text-slate-300">UPI / QR Transfers:</span>
-                  <span className="font-bold text-emerald-400 font-mono">{currency}{dailyData.upiTotal}</span>
-                </div>
-                <div className="flex justify-between items-center p-2.5 rounded-xl bg-slate-950 border border-slate-800">
-                  <span className="text-slate-300">Card Swipes:</span>
-                  <span className="font-bold text-sky-400 font-mono">{currency}{dailyData.cardTotal}</span>
-                </div>
+              </div>
+
+              <div className="pt-3 border-t border-zinc-800/60 text-[11px] text-zinc-500">
+                Total reconciled today: <span className="font-mono text-zinc-300 font-medium">{currency}{dailyData.totalRevenue.toLocaleString()}</span>
               </div>
             </div>
 
             {/* Hourly Sales Chart */}
-            <div className="lg:col-span-2 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-              <span className="text-xs font-bold uppercase tracking-wider text-orange-400 block mb-3">
-                Hourly Sales Distribution ({selectedDate})
+            <div className="lg:col-span-2 bg-zinc-900/60 border border-zinc-800/80 p-4 rounded-xl">
+              <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-3">
+                Hourly Sales Distribution
               </span>
               <div className="h-56 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={dailyData.hourlyChartData}>
-                    <XAxis dataKey="hour" stroke="#64748b" fontSize={10} />
-                    <YAxis stroke="#64748b" fontSize={10} />
+                    <XAxis dataKey="hour" stroke="#71717a" fontSize={10} tickLine={false} />
+                    <YAxis stroke="#71717a" fontSize={10} tickLine={false} />
                     <Tooltip 
-                      contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px' }}
-                      itemStyle={{ color: '#f97316' }}
+                      contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px', color: '#f4f4f5' }}
+                      cursor={{ fill: '#27272a', opacity: 0.4 }}
                     />
-                    <Bar dataKey="sales" fill="#f97316" radius={[4, 4, 0, 0]} name="Revenue (₹)" />
+                    <Bar dataKey="sales" fill="#ea580c" radius={[3, 3, 0, 0]} name="Revenue (₹)" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -436,67 +439,65 @@ export const ReportsDashboard: React.FC = () => {
 
       {/* --- PERIOD 2: WEEKLY REPORT --- */}
       {period === 'weekly' && (
-        <div className="space-y-4 animate-fade-in">
+        <div className="space-y-4">
           
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-              <span className="text-[11px] text-slate-400 block">7-Day Total Revenue</span>
-              <div className="text-2xl font-extrabold text-orange-400 font-mono mt-1">
+            <div className="bg-zinc-900/60 border border-zinc-800/80 p-3.5 rounded-xl">
+              <span className="text-[11px] text-zinc-400 block font-medium">7-Day Total Revenue</span>
+              <div className="text-xl font-semibold text-zinc-100 font-mono mt-0.5">
                 {currency}{weeklyData.totalWeeklyRevenue.toLocaleString()}
               </div>
             </div>
-            <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-              <span className="text-[11px] text-slate-400 block">7-Day Total Orders</span>
-              <div className="text-2xl font-extrabold text-white font-mono mt-1">
+            <div className="bg-zinc-900/60 border border-zinc-800/80 p-3.5 rounded-xl">
+              <span className="text-[11px] text-zinc-400 block font-medium">7-Day Total Orders</span>
+              <div className="text-xl font-semibold text-zinc-100 font-mono mt-0.5">
                 {weeklyData.totalWeeklyOrders}
               </div>
             </div>
           </div>
 
           {/* 7-Day Trend Chart */}
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-            <span className="text-xs font-bold uppercase tracking-wider text-orange-400 block mb-3">
+          <div className="bg-zinc-900/60 border border-zinc-800/80 p-4 rounded-xl">
+            <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-3">
               Sales Trend (Last 7 Days)
             </span>
-            <div className="h-64 w-full">
+            <div className="h-60 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={weeklyData.days}>
-                  <XAxis dataKey="label" stroke="#64748b" fontSize={11} />
-                  <YAxis stroke="#64748b" fontSize={11} />
+                  <XAxis dataKey="label" stroke="#71717a" fontSize={11} tickLine={false} />
+                  <YAxis stroke="#71717a" fontSize={11} tickLine={false} />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px' }}
+                    contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px', color: '#f4f4f5' }}
                   />
-                  <Legend />
-                  <Line type="monotone" dataKey="revenue" stroke="#f97316" strokeWidth={3} name="Revenue (₹)" activeDot={{ r: 6 }} />
-                  <Line type="monotone" dataKey="orders" stroke="#38bdf8" strokeWidth={2} name="Order Count" />
+                  <Legend wrapperStyle={{ fontSize: '11px', color: '#a1a1aa' }} />
+                  <Line type="monotone" dataKey="revenue" stroke="#ea580c" strokeWidth={2} name="Revenue (₹)" activeDot={{ r: 5 }} />
+                  <Line type="monotone" dataKey="orders" stroke="#71717a" strokeWidth={1.5} name="Orders" />
                 </LineChart>
               </ResponsiveContainer>
             </div>
           </div>
 
           {/* Top Selling Items & Repeat vs Walk-in */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
             
             {/* Top Selling Ranking */}
-            <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-              <span className="text-xs font-bold uppercase tracking-wider text-amber-400 block mb-3">
-                Top-Selling Menu Items (Past 7 Days)
+            <div className="bg-zinc-900/60 border border-zinc-800/80 p-4 rounded-xl">
+              <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-3">
+                Top-Selling Menu Items
               </span>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 {weeklyData.topSellingItems.length === 0 ? (
-                  <p className="text-xs text-slate-500">No sales recorded in the past 7 days.</p>
+                  <p className="text-xs text-zinc-500">No sales recorded in the past 7 days.</p>
                 ) : (
                   weeklyData.topSellingItems.map((item, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs">
-                      <div className="flex items-center gap-2.5">
-                        <span className="w-5 h-5 rounded-full bg-orange-500/10 text-orange-400 font-bold flex items-center justify-center text-[10px]">
-                          #{idx + 1}
-                        </span>
-                        <span className="font-semibold text-white truncate max-w-xs">{item.name}</span>
+                    <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-zinc-950/70 border border-zinc-800/60 text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="text-zinc-500 font-mono text-[11px] w-4">#{idx + 1}</span>
+                        <span className="font-medium text-zinc-200 truncate max-w-xs">{item.name}</span>
                       </div>
                       <div className="text-right">
-                        <span className="font-bold text-orange-400 font-mono">{item.qty} sold</span>
-                        <span className="text-[10px] text-slate-500 block font-mono">({currency}{item.revenue})</span>
+                        <span className="font-mono text-zinc-100 font-medium">{item.qty} sold</span>
+                        <span className="text-[10px] text-zinc-500 block font-mono">({currency}{item.revenue.toLocaleString()})</span>
                       </div>
                     </div>
                   ))
@@ -505,9 +506,9 @@ export const ReportsDashboard: React.FC = () => {
             </div>
 
             {/* Repeat vs Walk-in Customer Donut */}
-            <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col items-center">
-              <span className="text-xs font-bold uppercase tracking-wider text-sky-400 block mb-2 self-start">
-                Repeat (Loyalty) vs. Walk-In Customer Ratio
+            <div className="bg-zinc-900/60 border border-zinc-800/80 p-4 rounded-xl flex flex-col">
+              <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-2">
+                Loyalty vs. Walk-In Guest Ratio
               </span>
               <div className="h-56 w-full flex items-center justify-center">
                 <ResponsiveContainer width="100%" height="100%">
@@ -519,16 +520,15 @@ export const ReportsDashboard: React.FC = () => {
                       cx="50%"
                       cy="50%"
                       innerRadius={45}
-                      outerRadius={75}
-                      paddingAngle={5}
-                      label
+                      outerRadius={70}
+                      paddingAngle={4}
                     >
                       {weeklyData.customerRatioData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px' }} />
-                    <Legend />
+                    <Tooltip contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px', color: '#f4f4f5' }} />
+                    <Legend wrapperStyle={{ fontSize: '11px', color: '#a1a1aa' }} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -541,60 +541,59 @@ export const ReportsDashboard: React.FC = () => {
 
       {/* --- PERIOD 3: MONTHLY REPORT --- */}
       {period === 'monthly' && (
-        <div className="space-y-4 animate-fade-in">
+        <div className="space-y-4">
           
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-              <span className="text-[11px] text-slate-400 block">Monthly Revenue</span>
-              <div className="text-2xl font-extrabold text-orange-400 font-mono mt-1">
+            <div className="bg-zinc-900/60 border border-zinc-800/80 p-3.5 rounded-xl">
+              <span className="text-[11px] text-zinc-400 block font-medium">Monthly Revenue</span>
+              <div className="text-xl font-semibold text-zinc-100 font-mono mt-0.5">
                 {currency}{monthlyData.totalMonthRevenue.toLocaleString()}
               </div>
             </div>
-            <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-              <span className="text-[11px] text-slate-400 block">Monthly Orders</span>
-              <div className="text-2xl font-extrabold text-white font-mono mt-1">
+            <div className="bg-zinc-900/60 border border-zinc-800/80 p-3.5 rounded-xl">
+              <span className="text-[11px] text-zinc-400 block font-medium">Monthly Orders</span>
+              <div className="text-xl font-semibold text-zinc-100 font-mono mt-0.5">
                 {monthlyData.totalMonthOrders}
               </div>
             </div>
-            <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-              <span className="text-[11px] text-slate-400 block">Monthly AOV</span>
-              <div className="text-2xl font-extrabold text-emerald-400 font-mono mt-1">
+            <div className="bg-zinc-900/60 border border-zinc-800/80 p-3.5 rounded-xl">
+              <span className="text-[11px] text-zinc-400 block font-medium">Monthly AOV</span>
+              <div className="text-xl font-semibold text-zinc-100 font-mono mt-0.5">
                 {currency}{monthlyData.aov}
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
             
             {/* Peak Operating Hours */}
-            <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-              <span className="text-xs font-bold uppercase tracking-wider text-amber-400 block mb-3 flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-orange-400" />
+            <div className="bg-zinc-900/60 border border-zinc-800/80 p-4 rounded-xl">
+              <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-3 flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-zinc-500" />
                 Peak Operating Hours of the Month
               </span>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 {monthlyData.peakHoursData.map((item, idx) => (
-                  <div key={idx} className="flex justify-between items-center p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs">
-                    <span className="font-semibold text-white">{item.hour}</span>
-                    <span className="font-bold text-orange-400 font-mono">{currency}{item.revenue.toLocaleString()}</span>
+                  <div key={idx} className="flex justify-between items-center p-2.5 rounded-lg bg-zinc-950/70 border border-zinc-800/60 text-xs">
+                    <span className="font-medium text-zinc-200">{item.hour}</span>
+                    <span className="font-mono text-zinc-100 font-semibold">{currency}{item.revenue.toLocaleString()}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Loyalty Liability: Issued vs Redeemed */}
-            <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-              <span className="text-xs font-bold uppercase tracking-wider text-purple-400 block mb-3 flex items-center gap-1.5">
-                <Award className="w-4 h-4 text-purple-400" />
-                Loyalty Points Liability (Issued vs Redeemed)
+            <div className="bg-zinc-900/60 border border-zinc-800/80 p-4 rounded-xl">
+              <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-3">
+                Loyalty Points Movement (Issued vs Redeemed)
               </span>
               <div className="h-56 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={monthlyData.loyaltyLiabilityData}>
-                    <XAxis dataKey="name" stroke="#64748b" fontSize={11} />
-                    <YAxis stroke="#64748b" fontSize={11} />
-                    <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px' }} />
-                    <Bar dataKey="points" radius={[4, 4, 0, 0]}>
+                    <XAxis dataKey="name" stroke="#71717a" fontSize={11} tickLine={false} />
+                    <YAxis stroke="#71717a" fontSize={11} tickLine={false} />
+                    <Tooltip contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px', color: '#f4f4f5' }} />
+                    <Bar dataKey="points" radius={[3, 3, 0, 0]}>
                       {monthlyData.loyaltyLiabilityData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.fill} />
                       ))}
@@ -611,54 +610,54 @@ export const ReportsDashboard: React.FC = () => {
 
       {/* --- PERIOD 4: YEARLY REPORT --- */}
       {period === 'yearly' && (
-        <div className="space-y-4 animate-fade-in">
+        <div className="space-y-4">
           
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-              <span className="text-[11px] text-slate-400 block">Annual Revenue</span>
-              <div className="text-2xl font-extrabold text-orange-400 font-mono mt-1">
+            <div className="bg-zinc-900/60 border border-zinc-800/80 p-3.5 rounded-xl">
+              <span className="text-[11px] text-zinc-400 block font-medium">Annual Revenue</span>
+              <div className="text-xl font-semibold text-zinc-100 font-mono mt-0.5">
                 {currency}{yearlyData.totalYearRevenue.toLocaleString()}
               </div>
             </div>
-            <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-              <span className="text-[11px] text-slate-400 block">Annual Orders</span>
-              <div className="text-2xl font-extrabold text-white font-mono mt-1">
+            <div className="bg-zinc-900/60 border border-zinc-800/80 p-3.5 rounded-xl">
+              <span className="text-[11px] text-zinc-400 block font-medium">Annual Orders</span>
+              <div className="text-xl font-semibold text-zinc-100 font-mono mt-0.5">
                 {yearlyData.totalYearOrders}
               </div>
             </div>
           </div>
 
           {/* Month-by-Month Financial Trend */}
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-            <span className="text-xs font-bold uppercase tracking-wider text-orange-400 block mb-3">
-              Annual Month-by-Month Revenue Trend
+          <div className="bg-zinc-900/60 border border-zinc-800/80 p-4 rounded-xl">
+            <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-3">
+              Annual Month-by-Month Revenue
             </span>
-            <div className="h-64 w-full">
+            <div className="h-60 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={yearlyData.monthlyFinancials}>
-                  <XAxis dataKey="month" stroke="#64748b" fontSize={11} />
-                  <YAxis stroke="#64748b" fontSize={11} />
-                  <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px' }} />
-                  <Bar dataKey="revenue" fill="#f97316" radius={[4, 4, 0, 0]} name="Revenue (₹)" />
+                  <XAxis dataKey="month" stroke="#71717a" fontSize={11} tickLine={false} />
+                  <YAxis stroke="#71717a" fontSize={11} tickLine={false} />
+                  <Tooltip contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px', color: '#f4f4f5' }} />
+                  <Bar dataKey="revenue" fill="#ea580c" radius={[3, 3, 0, 0]} name="Revenue (₹)" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
 
           {/* Customer Lifetime Value (LTV) Distribution */}
-          <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-3">
+          <div className="bg-zinc-900/60 border border-zinc-800/80 p-4 rounded-xl">
+            <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-3">
               Customer Lifetime Value (LTV) Segments
             </span>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {yearlyData.ltvTiers.map((tier, idx) => (
-                <div key={idx} className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                  <span className="text-xs text-slate-400 block font-medium">{tier.name}</span>
-                  <div className="text-xl font-extrabold text-white font-mono mt-1">
+                <div key={idx} className="bg-zinc-950/70 p-3 rounded-lg border border-zinc-800/60">
+                  <span className="text-xs text-zinc-400 block font-medium">{tier.name}</span>
+                  <div className="text-lg font-semibold text-zinc-100 font-mono mt-0.5">
                     {tier.count} customers
                   </div>
-                  <span className="text-[10px] text-slate-500">
-                    {yearlyData.totalCustomers > 0 ? `${Math.round((tier.count / yearlyData.totalCustomers) * 100)}% of client base` : '0%'}
+                  <span className="text-[10px] text-zinc-500">
+                    {yearlyData.totalCustomers > 0 ? `${Math.round((tier.count / yearlyData.totalCustomers) * 100)}% of clients` : '0%'}
                   </span>
                 </div>
               ))}
@@ -671,4 +670,3 @@ export const ReportsDashboard: React.FC = () => {
     </div>
   );
 };
-

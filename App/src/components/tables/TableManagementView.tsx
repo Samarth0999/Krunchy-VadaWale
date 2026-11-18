@@ -7,15 +7,9 @@ import {
   Plus, 
   ArrowRightLeft, 
   CheckCircle2, 
-  Sparkles, 
-  Coffee, 
   ShoppingBag, 
   X, 
-  Check, 
-  RotateCcw, 
-  Trash2, 
-  Layers, 
-  CreditCard 
+  RotateCcw
 } from 'lucide-react';
 import { RestaurantTable, TableStatus } from '../../types';
 
@@ -27,7 +21,6 @@ export const TableManagementView: React.FC = () => {
     transferActiveTable, 
     releaseTable, 
     saveTable, 
-    deleteTable, 
     setActiveTab, 
     settings 
   } = usePOS();
@@ -47,14 +40,12 @@ export const TableManagementView: React.FC = () => {
 
   const currency = settings.currencySymbol || '₹';
 
-  // Sections list
   const sections = useMemo(() => {
     const set = new Set<string>();
     tables.forEach(t => set.add(t.section));
     return ['All', ...Array.from(set)];
   }, [tables]);
 
-  // Filtered tables
   const filteredTables = useMemo(() => {
     return tables.filter(t => {
       if (selectedSection !== 'All' && t.section !== selectedSection) return false;
@@ -63,7 +54,6 @@ export const TableManagementView: React.FC = () => {
     });
   }, [tables, selectedSection, selectedStatusFilter]);
 
-  // Overall statistics
   const totalTables = tables.length;
   const occupiedCount = tables.filter(t => t.status === 'OCCUPIED').length;
   const billedCount = tables.filter(t => t.status === 'BILLED').length;
@@ -78,62 +68,53 @@ export const TableManagementView: React.FC = () => {
     }, 0);
   }, [tables]);
 
-  // Calculate elapsed seated time
   const getElapsedMinutes = (seatedAt?: string | null) => {
     if (!seatedAt) return null;
     const diffMs = Date.now() - new Date(seatedAt).getTime();
     return Math.floor(diffMs / 60000);
   };
 
-  // Status Badge Colors & Glow
   const getStatusBadge = (status: TableStatus) => {
     switch (status) {
       case 'AVAILABLE':
         return {
-          label: 'Available',
-          badgeClass: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-          borderClass: 'border-slate-800 hover:border-emerald-500/50',
+          label: 'Free',
+          badgeClass: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
           dotClass: 'bg-emerald-500'
         };
       case 'OCCUPIED':
         return {
-          label: 'Occupied / Dining',
-          badgeClass: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-          borderClass: 'border-amber-500/40 shadow-lg shadow-amber-500/5 bg-slate-900/90',
-          dotClass: 'bg-amber-400 animate-pulse'
+          label: 'Dining',
+          badgeClass: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+          dotClass: 'bg-amber-400'
         };
       case 'BILLED':
         return {
-          label: 'Bill Presented',
-          badgeClass: 'bg-purple-500/15 text-purple-400 border-purple-500/30',
-          borderClass: 'border-purple-500/50 shadow-lg shadow-purple-500/5 bg-slate-900/90',
+          label: 'Billed',
+          badgeClass: 'text-purple-400 bg-purple-500/10 border-purple-500/20',
           dotClass: 'bg-purple-400'
         };
       case 'RESERVED':
         return {
           label: 'Reserved',
-          badgeClass: 'bg-sky-500/15 text-sky-400 border-sky-500/30',
-          borderClass: 'border-sky-500/40',
+          badgeClass: 'text-sky-400 bg-sky-500/10 border-sky-500/20',
           dotClass: 'bg-sky-400'
         };
       case 'DIRTY':
         return {
           label: 'Needs Bussing',
-          badgeClass: 'bg-rose-500/15 text-rose-400 border-rose-500/30',
-          borderClass: 'border-rose-500/40',
+          badgeClass: 'text-rose-400 bg-rose-500/10 border-rose-500/20',
           dotClass: 'bg-rose-400'
         };
       default:
         return {
           label: status,
-          badgeClass: 'bg-slate-800 text-slate-400 border-slate-700',
-          borderClass: 'border-slate-800',
-          dotClass: 'bg-slate-400'
+          badgeClass: 'text-zinc-400 bg-zinc-800 border-zinc-700',
+          dotClass: 'bg-zinc-400'
         };
     }
   };
 
-  // Handle clicking a table card
   const handleOpenTableInPOS = (table: RestaurantTable) => {
     selectTable(table.id);
     setActiveTab('pos');
@@ -167,63 +148,62 @@ export const TableManagementView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-950 space-y-5">
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-zinc-950 space-y-4">
       
-      {/* Top Banner & Overview Metrics */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+      {/* Top Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800/80">
         <div>
           <div className="flex items-center gap-2">
-            <UtensilsCrossed className="w-6 h-6 text-orange-400" />
-            <h2 className="text-xl font-extrabold text-white">Table & Floor Management</h2>
+            <UtensilsCrossed className="w-5 h-5 text-orange-500" />
+            <h2 className="text-lg font-bold text-zinc-100 tracking-tight">Tables & Floor Layout</h2>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
-            Real-time visual floor plan, running dining bills, table shifting, and live seating status.
+          <p className="text-xs text-zinc-500 mt-0.5">
+            Active dining sessions, table status, and floor orders
           </p>
         </div>
 
         {/* Live Counters */}
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-3 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-xs">
+          <div className="flex items-center gap-3 bg-zinc-900/60 px-3 py-1.5 rounded-lg border border-zinc-800/80 text-xs">
             <div>
-              <span className="text-slate-400 block text-[10px]">Occupied</span>
-              <strong className="text-amber-400 font-mono">{occupiedCount + billedCount} / {totalTables}</strong>
+              <span className="text-zinc-500 block text-[10px]">Occupied</span>
+              <strong className="text-zinc-100 font-mono">{occupiedCount + billedCount} / {totalTables}</strong>
             </div>
-            <div className="w-px h-6 bg-slate-800"></div>
+            <div className="w-px h-5 bg-zinc-800"></div>
             <div>
-              <span className="text-slate-400 block text-[10px]">Available</span>
+              <span className="text-zinc-500 block text-[10px]">Available</span>
               <strong className="text-emerald-400 font-mono">{availableCount}</strong>
             </div>
-            <div className="w-px h-6 bg-slate-800"></div>
+            <div className="w-px h-5 bg-zinc-800"></div>
             <div>
-              <span className="text-slate-400 block text-[10px]">Active Floor Sales</span>
-              <strong className="text-orange-400 font-mono">{currency}{totalRunningSales}</strong>
+              <span className="text-zinc-500 block text-[10px]">Running Floor Total</span>
+              <strong className="text-zinc-100 font-mono">{currency}{totalRunningSales}</strong>
             </div>
           </div>
 
           <button
             onClick={() => setIsAddTableOpen(true)}
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white text-xs font-bold rounded-xl shadow-lg shadow-orange-500/20 transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-semibold rounded-lg transition-colors shadow-xs"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3.5 h-3.5" />
             <span>Add Table</span>
           </button>
         </div>
       </div>
 
       {/* Filter and Section Selector */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
         
-        {/* Floor Sections */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-          <span className="text-[11px] font-semibold text-slate-400 mr-1 hidden sm:inline">Section:</span>
+        {/* Sections */}
+        <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
           {sections.map(sec => (
             <button
               key={sec}
               onClick={() => setSelectedSection(sec)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors ${
+              className={`px-3 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-colors border ${
                 selectedSection === sec 
-                  ? 'bg-orange-500 text-white shadow' 
-                  : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                  ? 'bg-zinc-100 text-zinc-950 border-zinc-200 font-semibold' 
+                  : 'bg-zinc-900/50 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 border-zinc-800/80'
               }`}
             >
               {sec}
@@ -232,20 +212,20 @@ export const TableManagementView: React.FC = () => {
         </div>
 
         {/* Status Filters */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+        <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none bg-zinc-900/50 p-0.5 rounded-lg border border-zinc-800/80 text-xs">
           {[
             { id: 'ALL', label: `All (${totalTables})` },
-            { id: 'AVAILABLE', label: `🟢 Free (${availableCount})` },
-            { id: 'OCCUPIED', label: `🟡 Dining (${occupiedCount})` },
-            { id: 'BILLED', label: `🟣 Billed (${billedCount})` },
-            { id: 'RESERVED', label: `🔵 Reserved (${reservedCount})` },
-            { id: 'DIRTY', label: `🔴 Bussing (${dirtyCount})` }
+            { id: 'AVAILABLE', label: `Free (${availableCount})` },
+            { id: 'OCCUPIED', label: `Dining (${occupiedCount})` },
+            { id: 'BILLED', label: `Billed (${billedCount})` },
+            { id: 'RESERVED', label: `Reserved (${reservedCount})` },
+            { id: 'DIRTY', label: `Bussing (${dirtyCount})` }
           ].map(f => (
             <button
               key={f.id}
               onClick={() => setSelectedStatusFilter(f.id)}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-colors ${
-                selectedStatusFilter === f.id ? 'bg-orange-500 text-white' : 'text-slate-400 hover:text-white'
+              className={`px-2.5 py-1 rounded-md text-[11px] font-medium whitespace-nowrap transition-colors ${
+                selectedStatusFilter === f.id ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
               {f.label}
@@ -256,7 +236,7 @@ export const TableManagementView: React.FC = () => {
       </div>
 
       {/* Tables Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
         {filteredTables.map(table => {
           const statusInfo = getStatusBadge(table.status);
           const elapsed = getElapsedMinutes(table.seatedAt);
@@ -266,25 +246,20 @@ export const TableManagementView: React.FC = () => {
           return (
             <div
               key={table.id}
-              className={`bg-slate-900 border rounded-2xl p-4 flex flex-col justify-between transition-all select-none hover:shadow-xl ${statusInfo.borderClass}`}
+              className="bg-zinc-900/40 hover:bg-zinc-900/70 border border-zinc-800/80 rounded-xl p-3.5 flex flex-col justify-between transition-colors select-none"
             >
-              {/* Card Top: Table Name & Capacity */}
               <div>
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <h3 className="font-extrabold text-base text-white tracking-wide">{table.name}</h3>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
-                        {table.section}
-                      </span>
-                      <span className="text-[10px] text-slate-500 font-mono">
-                        • {table.capacity} Seats
-                      </span>
+                    <h3 className="font-semibold text-sm text-zinc-100">{table.name}</h3>
+                    <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-zinc-500 font-mono">
+                      <span>{table.section}</span>
+                      <span>•</span>
+                      <span>{table.capacity} Seats</span>
                     </div>
                   </div>
 
-                  {/* Status Badge */}
-                  <span className={`text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border flex items-center gap-1.5 ${statusInfo.badgeClass}`}>
+                  <span className={`text-[10px] font-medium px-2 py-0.5 rounded border flex items-center gap-1.5 ${statusInfo.badgeClass}`}>
                     <span className={`w-1.5 h-1.5 rounded-full ${statusInfo.dotClass}`}></span>
                     <span>{statusInfo.label}</span>
                   </span>
@@ -292,94 +267,83 @@ export const TableManagementView: React.FC = () => {
 
                 {/* Seating / Customer Details if Occupied or Billed */}
                 {(table.status === 'OCCUPIED' || table.status === 'BILLED') && (
-                  <div className="mt-3 p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-2">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-400 flex items-center gap-1">
-                        <Users className="w-3.5 h-3.5 text-orange-400" />
-                        Guests: <strong className="text-white">{table.guestCount || 2}</strong>
+                  <div className="mt-3 p-2.5 bg-zinc-950/70 rounded-lg border border-zinc-800/80 space-y-1.5">
+                    <div className="flex items-center justify-between text-xs text-zinc-400">
+                      <span className="flex items-center gap-1">
+                        <Users className="w-3 h-3 text-zinc-500" />
+                        {table.guestCount || 2} guests
                       </span>
                       {elapsed !== null && (
-                        <span className="text-slate-400 flex items-center gap-1 font-mono text-[11px]">
-                          <Clock className="w-3.5 h-3.5 text-amber-400" />
-                          {elapsed}m seated
+                        <span className="flex items-center gap-1 font-mono text-[10px] text-zinc-500">
+                          <Clock className="w-3 h-3" />
+                          {elapsed}m
                         </span>
                       )}
                     </div>
 
                     {table.customer && (
-                      <div className="text-xs text-slate-300 font-medium truncate pt-1 border-t border-slate-800">
-                        Customer: <strong className="text-white">{table.customer.name}</strong>
+                      <div className="text-[11px] text-zinc-300 font-medium truncate pt-1 border-t border-zinc-800/80">
+                        {table.customer.name}
                       </div>
                     )}
 
-                    {/* Running Cart Items Snapshot */}
                     {table.activeCart && table.activeCart.length > 0 && (
-                      <div className="pt-1 border-t border-slate-800">
-                        <div className="flex items-center justify-between text-[11px]">
-                          <span className="text-slate-400">{totalItemsCount} items ordered</span>
-                          <span className="font-mono font-bold text-orange-400 text-sm">
-                            {currency}{tableSubtotal}
-                          </span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 truncate mt-0.5">
-                          {table.activeCart.map(i => `${i.product.name} (x${i.quantity})`).join(', ')}
-                        </p>
+                      <div className="pt-1 border-t border-zinc-800/80 flex items-center justify-between text-xs">
+                        <span className="text-zinc-500 text-[10px]">{totalItemsCount} items</span>
+                        <strong className="font-mono text-zinc-100">{currency}{tableSubtotal}</strong>
                       </div>
                     )}
                   </div>
                 )}
 
-                {/* If Reserved */}
+                {/* Reserved Note */}
                 {table.status === 'RESERVED' && (
-                  <div className="mt-3 p-3 bg-sky-950/30 rounded-xl border border-sky-900/40 text-xs text-sky-200">
-                    <p className="font-semibold">{table.notes || 'Reserved for upcoming party'}</p>
+                  <div className="mt-2.5 p-2 bg-zinc-950/60 rounded-lg border border-zinc-800/80 text-[11px] text-sky-300">
+                    {table.notes || 'Reserved party'}
                   </div>
                 )}
 
-                {/* If Dirty */}
+                {/* Dirty Note */}
                 {table.status === 'DIRTY' && (
-                  <div className="mt-3 p-3 bg-rose-950/30 rounded-xl border border-rose-900/40 text-xs text-rose-200">
-                    <p className="font-semibold">Guests departed. Table needs sanitizing & clearing.</p>
+                  <div className="mt-2.5 p-2 bg-zinc-950/60 rounded-lg border border-zinc-800/80 text-[11px] text-zinc-400">
+                    Needs cleaning and sanitizing
                   </div>
                 )}
               </div>
 
-              {/* Card Bottom: Quick Actions */}
-              <div className="mt-4 pt-3 border-t border-slate-800/80 space-y-2">
+              {/* Card Bottom: Minimal Actions */}
+              <div className="mt-3.5 pt-2.5 border-t border-zinc-800/60 space-y-1.5">
                 
-                {/* When Table is Available */}
                 {table.status === 'AVAILABLE' && (
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5">
                     <button
                       type="button"
                       onClick={() => handleOpenTableInPOS(table)}
-                      className="flex-1 py-2 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5"
+                      className="flex-1 py-1.5 bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs rounded-lg transition-colors flex items-center justify-center gap-1.5"
                     >
                       <ShoppingBag className="w-3.5 h-3.5" />
-                      <span>Start Dining</span>
+                      <span>Start Order</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => updateTableStatus(table.id, 'RESERVED')}
-                      className="px-2.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold"
-                      title="Mark Reserved"
+                      className="px-2.5 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 rounded-lg text-xs border border-zinc-800"
                     >
                       Reserve
                     </button>
                   </div>
                 )}
 
-                {/* When Table is Occupied or Billed */}
                 {(table.status === 'OCCUPIED' || table.status === 'BILLED') && (
-                  <div className="space-y-1.5">
-                    <div className="flex gap-1.5">
+                  <div className="space-y-1">
+                    <div className="flex gap-1">
                       <button
                         type="button"
                         onClick={() => handleOpenTableInPOS(table)}
-                        className="flex-1 py-1.5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1"
+                        className="flex-1 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 text-xs font-medium rounded-lg transition-colors flex items-center justify-center gap-1 border border-zinc-700/60"
                       >
-                        <ShoppingBag className="w-3.5 h-3.5" />
-                        <span>Open & Add Items</span>
+                        <ShoppingBag className="w-3 h-3" />
+                        <span>Open POS</span>
                       </button>
 
                       <button
@@ -389,35 +353,31 @@ export const TableManagementView: React.FC = () => {
                           const firstFree = tables.find(t => t.id !== table.id && t.status === 'AVAILABLE');
                           if (firstFree) setTransferTargetId(firstFree.id);
                         }}
-                        className="px-2 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold"
-                        title="Shift / Transfer Table"
+                        className="px-2 py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 rounded-lg text-xs border border-zinc-800"
+                        title="Shift Table"
                       >
-                        <ArrowRightLeft className="w-3.5 h-3.5" />
+                        <ArrowRightLeft className="w-3 h-3" />
                       </button>
                     </div>
 
-                    <div className="flex gap-1.5">
+                    <div className="flex gap-1">
                       <button
                         type="button"
                         onClick={() => updateTableStatus(table.id, table.status === 'OCCUPIED' ? 'BILLED' : 'OCCUPIED')}
-                        className={`flex-1 py-1 rounded-lg text-[11px] font-semibold border transition-colors ${
-                          table.status === 'BILLED' 
-                            ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' 
-                            : 'bg-purple-500/10 text-purple-400 border-purple-500/30'
-                        }`}
+                        className="flex-1 py-1 rounded-md text-[10px] font-medium bg-zinc-900 text-zinc-400 hover:text-zinc-200 border border-zinc-800"
                       >
-                        {table.status === 'BILLED' ? 'Return to Dining' : 'Present Bill'}
+                        {table.status === 'BILLED' ? 'Revert to Dining' : 'Mark Billed'}
                       </button>
 
                       <button
                         type="button"
                         onClick={() => {
-                          if (window.confirm(`Release ${table.name} and clear its running order?`)) {
+                          if (window.confirm(`Release ${table.name}?`)) {
                             releaseTable(table.id);
                           }
                         }}
-                        className="px-2 py-1 bg-slate-800 hover:bg-rose-950 text-slate-400 hover:text-rose-400 rounded-lg text-[11px] font-semibold"
-                        title="Release / Clear"
+                        className="px-2 py-1 bg-zinc-900 hover:bg-rose-950/40 text-zinc-500 hover:text-rose-400 rounded-md text-[10px] border border-zinc-800"
+                        title="Release"
                       >
                         Release
                       </button>
@@ -425,32 +385,30 @@ export const TableManagementView: React.FC = () => {
                   </div>
                 )}
 
-                {/* When Table is Dirty */}
                 {table.status === 'DIRTY' && (
                   <button
                     type="button"
                     onClick={() => updateTableStatus(table.id, 'AVAILABLE')}
-                    className="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow transition-colors flex items-center justify-center gap-1.5"
+                    className="w-full py-1.5 bg-emerald-600/90 hover:bg-emerald-600 text-white font-medium text-xs rounded-lg transition-colors flex items-center justify-center gap-1"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Cleaned & Available</span>
+                    <span>Cleaned & Free</span>
                   </button>
                 )}
 
-                {/* When Table is Reserved */}
                 {table.status === 'RESERVED' && (
-                  <div className="flex gap-2">
+                  <div className="flex gap-1">
                     <button
                       type="button"
                       onClick={() => handleOpenTableInPOS(table)}
-                      className="flex-1 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-xl transition-colors"
+                      className="flex-1 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 font-medium text-xs rounded-lg"
                     >
                       Seat Guests
                     </button>
                     <button
                       type="button"
                       onClick={() => updateTableStatus(table.id, 'AVAILABLE')}
-                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-xl text-xs font-semibold"
+                      className="px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 rounded-lg text-xs"
                     >
                       Cancel
                     </button>
@@ -464,52 +422,52 @@ export const TableManagementView: React.FC = () => {
         })}
       </div>
 
-      {/* Modal 1: Add New Table */}
+      {/* Modal: Add New Table */}
       {isAddTableOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
-            <div className="px-6 py-4 bg-slate-800 border-b border-slate-700 flex items-center justify-between">
-              <h3 className="font-bold text-base text-white">Add Dining Table</h3>
-              <button onClick={() => setIsAddTableOpen(false)} className="text-slate-400 hover:text-white">
-                <X className="w-5 h-5" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl w-full max-w-sm overflow-hidden shadow-2xl">
+            <div className="px-5 py-3.5 border-b border-zinc-800 flex items-center justify-between">
+              <h3 className="font-semibold text-sm text-zinc-100">Add Dining Table</h3>
+              <button onClick={() => setIsAddTableOpen(false)} className="text-zinc-500 hover:text-zinc-300">
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleAddNewTable} className="p-6 space-y-4">
+            <form onSubmit={handleAddNewTable} className="p-5 space-y-3.5 text-xs">
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">Table Name / Number *</label>
+                <label className="text-zinc-400 block mb-1">Table Name</label>
                 <input
                   type="text"
                   required
                   autoFocus
                   value={newTableName}
                   onChange={(e) => setNewTableName(e.target.value)}
-                  placeholder="e.g. Table 9, Booth 3, Terrace 1"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
+                  placeholder="e.g. Table 9, Terrace 2"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-zinc-100 focus:outline-none focus:border-zinc-700"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">Floor Section *</label>
+                <label className="text-zinc-400 block mb-1">Floor Section</label>
                 <input
                   type="text"
                   required
                   value={newTableSection}
                   onChange={(e) => setNewTableSection(e.target.value)}
-                  placeholder="e.g. Main Dining, AC Lounge, Patio"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
+                  placeholder="e.g. Main Dining, AC Lounge"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-zinc-100 focus:outline-none focus:border-zinc-700"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">Seating Capacity (Guests)</label>
+                <label className="text-zinc-400 block mb-1">Seats Capacity</label>
                 <input
                   type="number"
                   min={1}
                   max={20}
                   value={newTableCapacity}
                   onChange={(e) => setNewTableCapacity(Number(e.target.value))}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-orange-500"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-2.5 py-1.5 font-mono text-zinc-100 focus:outline-none focus:border-zinc-700"
                 />
               </div>
 
@@ -517,15 +475,15 @@ export const TableManagementView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsAddTableOpen(false)}
-                  className="px-4 py-2 bg-slate-800 text-slate-300 text-xs rounded-xl hover:bg-slate-700"
+                  className="px-3 py-1.5 bg-zinc-800 text-zinc-400 rounded-lg hover:text-zinc-200"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs rounded-xl shadow-lg"
+                  className="px-4 py-1.5 bg-zinc-100 hover:bg-white text-zinc-950 font-semibold rounded-lg"
                 >
-                  Create Table
+                  Save Table
                 </button>
               </div>
             </form>
@@ -533,42 +491,39 @@ export const TableManagementView: React.FC = () => {
         </div>
       )}
 
-      {/* Modal 2: Shift / Transfer Table */}
+      {/* Modal: Shift / Transfer Table */}
       {transferSourceTable && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
-            <div className="px-6 py-4 bg-slate-800 border-b border-slate-700 flex items-center justify-between">
-              <h3 className="font-bold text-base text-white flex items-center gap-2">
-                <ArrowRightLeft className="w-4 h-4 text-orange-400" />
-                Shift / Transfer Table Order
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl w-full max-w-sm overflow-hidden shadow-2xl">
+            <div className="px-5 py-3.5 border-b border-zinc-800 flex items-center justify-between">
+              <h3 className="font-semibold text-sm text-zinc-100 flex items-center gap-1.5">
+                <ArrowRightLeft className="w-3.5 h-3.5 text-zinc-400" />
+                Shift Table Order
               </h3>
-              <button onClick={() => setTransferSourceTable(null)} className="text-slate-400 hover:text-white">
-                <X className="w-5 h-5" />
+              <button onClick={() => setTransferSourceTable(null)} className="text-zinc-500 hover:text-zinc-300">
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleTransferSubmit} className="p-6 space-y-4">
-              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs">
-                <span className="text-slate-400 block">Current Seated Table:</span>
-                <strong className="text-white text-sm">{transferSourceTable.name} ({transferSourceTable.section})</strong>
-                <span className="text-orange-400 font-mono block mt-0.5">
-                  Running Bill: {currency}{transferSourceTable.activeCart?.reduce((s, i) => s + i.product.price * i.quantity, 0) || 0}
-                </span>
+            <form onSubmit={handleTransferSubmit} className="p-5 space-y-3 text-xs">
+              <div className="p-2.5 bg-zinc-950 rounded-lg border border-zinc-800">
+                <span className="text-zinc-500 block text-[10px]">From:</span>
+                <strong className="text-zinc-200">{transferSourceTable.name} ({transferSourceTable.section})</strong>
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">Transfer to New Table:</label>
+                <label className="text-zinc-400 block mb-1">To Free Table:</label>
                 <select
                   value={transferTargetId}
                   onChange={(e) => setTransferTargetId(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-zinc-100 focus:outline-none focus:border-zinc-700"
                 >
-                  <option value="">Select destination table...</option>
+                  <option value="">Select table...</option>
                   {tables
                     .filter(t => t.id !== transferSourceTable.id && t.status === 'AVAILABLE')
                     .map(t => (
                       <option key={t.id} value={t.id}>
-                        {t.name} ({t.section} • {t.capacity} seats) - Free
+                        {t.name} ({t.section} • {t.capacity} seats)
                       </option>
                     ))}
                 </select>
@@ -578,16 +533,16 @@ export const TableManagementView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setTransferSourceTable(null)}
-                  className="px-4 py-2 bg-slate-800 text-slate-300 text-xs rounded-xl hover:bg-slate-700"
+                  className="px-3 py-1.5 bg-zinc-800 text-zinc-400 rounded-lg hover:text-zinc-200"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={!transferTargetId}
-                  className="px-5 py-2 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-lg"
+                  className="px-4 py-1.5 bg-zinc-100 hover:bg-white disabled:opacity-40 text-zinc-950 font-semibold rounded-lg"
                 >
-                  Confirm Transfer
+                  Shift
                 </button>
               </div>
             </form>
@@ -598,4 +553,3 @@ export const TableManagementView: React.FC = () => {
     </div>
   );
 };
-

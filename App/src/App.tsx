@@ -38,7 +38,7 @@ const MainContent: React.FC = () => {
 export const App: React.FC = () => {
   return (
     <POSProvider>
-      <div className="flex flex-col h-screen w-screen overflow-hidden bg-slate-950 font-sans text-slate-100">
+      <div className="flex flex-col h-screen w-screen overflow-hidden bg-zinc-950 font-sans text-zinc-100 antialiased selection:bg-zinc-800 selection:text-zinc-100">
         <Header />
         <MainContent />
       </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePOS } from '../../context/POSContext';
 import { Product } from '../../types';
-import { X, Check, Image as ImageIcon, Flame } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 
 interface ProductModalProps {
   isOpen: boolean;
@@ -102,50 +102,41 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   const currency = settings.currencySymbol || '₹';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-xl overflow-hidden flex flex-col max-h-[92vh] shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh] shadow-2xl">
         
         {/* Header */}
-        <div className="px-6 py-4 bg-slate-800/80 border-b border-slate-700 flex items-center justify-between">
-          <h3 className="font-bold text-base text-white">
-            {productToEdit ? 'Edit Menu Item' : 'Add New Menu Item'}
+        <div className="px-5 py-3.5 border-b border-zinc-800 flex items-center justify-between">
+          <h3 className="font-semibold text-sm text-zinc-100">
+            {productToEdit ? 'Edit Item' : 'New Menu Item'}
           </h3>
-          <button
-            onClick={onClose}
-            className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-700"
-          >
-            <X className="w-5 h-5" />
+          <button onClick={onClose} className="text-zinc-500 hover:text-zinc-300">
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 space-y-3.5 text-xs">
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Item Name */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="sm:col-span-2">
-              <label className="text-xs font-semibold text-slate-300 block mb-1">
-                Item Name *
-              </label>
+              <label className="text-zinc-400 block mb-1">Item Name *</label>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Krunchy Double Smash Cheeseburger"
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-zinc-100 focus:outline-none focus:border-zinc-700"
               />
             </div>
 
-            {/* Category */}
             <div>
-              <label className="text-xs font-semibold text-slate-300 block mb-1">
-                Category *
-              </label>
+              <label className="text-zinc-400 block mb-1">Category *</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-zinc-100 focus:outline-none focus:border-zinc-700"
               >
                 {defaultCategories.map(cat => (
                   <option key={cat} value={cat}>{cat}</option>
@@ -153,188 +144,103 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               </select>
             </div>
 
-            {/* Custom Category if selected */}
-            {category === 'Custom' ? (
-              <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
-                  Custom Category Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={customCategory}
-                  onChange={(e) => setCustomCategory(e.target.value)}
-                  placeholder="e.g. Rice Bowls"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
-                />
-              </div>
-            ) : (
-              /* Price */
-              <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
-                  Selling Price ({currency}) *
-                </label>
-                <input
-                  type="number"
-                  required
-                  min={0}
-                  value={price || ''}
-                  onChange={(e) => setPrice(Number(e.target.value))}
-                  placeholder="199"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-orange-500"
-                />
-              </div>
-            )}
-
-            {category === 'Custom' && (
-              <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
-                  Selling Price ({currency}) *
-                </label>
-                <input
-                  type="number"
-                  required
-                  min={0}
-                  value={price || ''}
-                  onChange={(e) => setPrice(Number(e.target.value))}
-                  placeholder="199"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-orange-500"
-                />
-              </div>
-            )}
-
-            {/* SKU / Code */}
             <div>
-              <label className="text-xs font-semibold text-slate-300 block mb-1">
-                Item Code / SKU
-              </label>
+              <label className="text-zinc-400 block mb-1">Price ({currency}) *</label>
               <input
-                type="text"
-                value={sku}
-                onChange={(e) => setSku(e.target.value)}
-                placeholder="e.g. KRN-BG-01"
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-orange-500"
+                type="number"
+                required
+                min={0}
+                value={price || ''}
+                onChange={(e) => setPrice(Number(e.target.value))}
+                placeholder="199"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-2.5 py-1.5 font-mono text-zinc-100 focus:outline-none focus:border-zinc-700"
               />
             </div>
 
-            {/* Image URL */}
             <div className="sm:col-span-2">
-              <label className="text-xs font-semibold text-slate-300 block mb-1">
-                Image URL (Unsplash or direct image link)
-              </label>
-              <div className="flex gap-3 items-center">
-                <input
-                  type="url"
-                  value={image}
-                  onChange={(e) => setImage(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
-                />
-                {image && (
-                  <img
-                    src={image}
-                    alt="Preview"
-                    className="w-10 h-10 rounded-lg object-cover border border-slate-700"
-                    onError={(e) => (e.currentTarget.style.display = 'none')}
-                  />
-                )}
-              </div>
-            </div>
-
-            {/* Description */}
-            <div className="sm:col-span-2">
-              <label className="text-xs font-semibold text-slate-300 block mb-1">
-                Description / Ingredients
-              </label>
-              <textarea
-                rows={2}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Crispy fried fillet, smoky chipotle mayo, lettuce, brioche..."
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
+              <label className="text-zinc-400 block mb-1">Image URL</label>
+              <input
+                type="url"
+                value={image}
+                onChange={(e) => setImage(e.target.value)}
+                placeholder="https://..."
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-zinc-100 focus:outline-none focus:border-zinc-700"
               />
             </div>
           </div>
 
-          {/* Dietary & Status Toggles */}
-          <div className="pt-2 border-t border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {/* Toggles */}
+          <div className="pt-2 border-t border-zinc-800/80 grid grid-cols-2 sm:grid-cols-4 gap-2">
             
-            {/* Veg / Non-Veg */}
-            <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800">
-              <span className="text-xs text-slate-300 font-medium">Vegetarian?</span>
+            <div className="flex items-center justify-between p-2 rounded-lg bg-zinc-950/60 border border-zinc-800/80">
+              <span className="text-zinc-400">Veg</span>
               <button
                 type="button"
                 onClick={() => setIsVeg(!isVeg)}
-                className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${
-                  isVeg ? 'bg-emerald-600 justify-end' : 'bg-slate-700 justify-start'
+                className={`w-7 h-4 flex items-center rounded-full p-0.5 transition-colors ${
+                  isVeg ? 'bg-emerald-500 justify-end' : 'bg-zinc-800 justify-start'
                 }`}
               >
-                <div className="w-4 h-4 rounded-full bg-white shadow-md"></div>
+                <div className="w-3 h-3 rounded-full bg-white"></div>
               </button>
             </div>
 
-            {/* Spicy */}
-            <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800">
-              <span className="text-xs text-slate-300 font-medium flex items-center gap-1">
-                <Flame className="w-3.5 h-3.5 text-rose-500" />
-                Spicy?
-              </span>
+            <div className="flex items-center justify-between p-2 rounded-lg bg-zinc-950/60 border border-zinc-800/80">
+              <span className="text-zinc-400">Spicy</span>
               <button
                 type="button"
                 onClick={() => setIsSpicy(!isSpicy)}
-                className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${
-                  isSpicy ? 'bg-rose-600 justify-end' : 'bg-slate-700 justify-start'
+                className={`w-7 h-4 flex items-center rounded-full p-0.5 transition-colors ${
+                  isSpicy ? 'bg-rose-500 justify-end' : 'bg-zinc-800 justify-start'
                 }`}
               >
-                <div className="w-4 h-4 rounded-full bg-white shadow-md"></div>
+                <div className="w-3 h-3 rounded-full bg-white"></div>
               </button>
             </div>
 
-            {/* In Stock */}
-            <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800">
-              <span className="text-xs text-slate-300 font-medium">In Stock</span>
+            <div className="flex items-center justify-between p-2 rounded-lg bg-zinc-950/60 border border-zinc-800/80">
+              <span className="text-zinc-400">In Stock</span>
               <button
                 type="button"
                 onClick={() => setInStock(!inStock)}
-                className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${
-                  inStock ? 'bg-orange-500 justify-end' : 'bg-slate-700 justify-start'
+                className={`w-7 h-4 flex items-center rounded-full p-0.5 transition-colors ${
+                  inStock ? 'bg-zinc-200 justify-end' : 'bg-zinc-800 justify-start'
                 }`}
               >
-                <div className="w-4 h-4 rounded-full bg-white shadow-md"></div>
+                <div className={`w-3 h-3 rounded-full ${inStock ? 'bg-zinc-950' : 'bg-zinc-500'}`}></div>
               </button>
             </div>
 
-            {/* Active on POS */}
-            <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800">
-              <span className="text-xs text-slate-300 font-medium">Active</span>
+            <div className="flex items-center justify-between p-2 rounded-lg bg-zinc-950/60 border border-zinc-800/80">
+              <span className="text-zinc-400">Active</span>
               <button
                 type="button"
                 onClick={() => setIsActive(!isActive)}
-                className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${
-                  isActive ? 'bg-orange-500 justify-end' : 'bg-slate-700 justify-start'
+                className={`w-7 h-4 flex items-center rounded-full p-0.5 transition-colors ${
+                  isActive ? 'bg-zinc-200 justify-end' : 'bg-zinc-800 justify-start'
                 }`}
               >
-                <div className="w-4 h-4 rounded-full bg-white shadow-md"></div>
+                <div className={`w-3 h-3 rounded-full ${isActive ? 'bg-zinc-950' : 'bg-zinc-500'}`}></div>
               </button>
             </div>
 
           </div>
 
           {/* Submit Buttons */}
-          <div className="pt-4 border-t border-slate-800 flex justify-end gap-3">
+          <div className="pt-3 border-t border-zinc-800 flex justify-end gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl"
+              className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex items-center gap-1.5 px-5 py-2 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white text-xs font-bold rounded-xl shadow-lg shadow-orange-500/25"
+              className="flex items-center gap-1.5 px-4 py-1.5 bg-zinc-100 hover:bg-white text-zinc-950 font-semibold rounded-lg shadow-xs"
             >
-              <Check className="w-4 h-4" />
-              <span>{productToEdit ? 'Save Changes' : 'Add to Menu'}</span>
+              <Check className="w-3.5 h-3.5" />
+              <span>{productToEdit ? 'Save Changes' : 'Add Item'}</span>
             </button>
           </div>
 
@@ -344,4 +250,3 @@ export const ProductModal: React.FC<ProductModalProps> = ({
     </div>
   );
 };
-
