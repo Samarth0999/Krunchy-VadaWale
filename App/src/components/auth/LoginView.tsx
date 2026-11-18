@@ -7,11 +7,8 @@ import {
   ShieldCheck, 
   AlertCircle, 
   ArrowRight, 
-  UserCheck, 
-  Sparkles,
   RefreshCw
 } from 'lucide-react';
-import { StaffRole } from '../../types';
 
 interface LoginViewProps {
   onLoginSuccess?: () => void;
@@ -54,12 +51,6 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
     } else {
       setErrorMessage(result.error || 'Authentication failed. Please check credentials.');
     }
-  };
-
-  // Offline / Quick cashier bypass
-  const handleOfflineBypass = (role: StaffRole, name: string) => {
-    authService.loginOfflineCashier(role, name);
-    if (onLoginSuccess) onLoginSuccess();
   };
 
   return (
@@ -218,29 +209,6 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
               </div>
             </form>
           )}
-        </div>
-
-        {/* Quick Offline Testing / Counter Bypass */}
-        <div className="mt-6 pt-5 border-t border-zinc-800/80 flex flex-col items-center">
-          <span className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2 font-mono">
-            Offline Testing / Local Counter
-          </span>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => handleOfflineBypass('Admin', 'Admin (Local)')}
-              className="px-2.5 py-1 text-[11px] font-mono text-zinc-400 hover:text-orange-400 hover:bg-zinc-800 rounded-lg transition-colors border border-zinc-800"
-            >
-              Demo Admin
-            </button>
-            <button
-              type="button"
-              onClick={() => handleOfflineBypass('Cashier', 'Counter 1')}
-              className="px-2.5 py-1 text-[11px] font-mono text-zinc-400 hover:text-emerald-400 hover:bg-zinc-800 rounded-lg transition-colors border border-zinc-800"
-            >
-              Demo Cashier
-            </button>
-          </div>
         </div>
 
       </div>
