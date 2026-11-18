@@ -12,7 +12,8 @@ import {
   RestaurantTable,
   TableStatus,
   StaffProfile,
-  StaffRole
+  StaffRole,
+  StaffPermissions
 } from '../types';
 import { storageService } from '../services/storageService';
 import { authService } from '../services/authService';
@@ -123,6 +124,7 @@ interface POSContextType {
   signOutStaff: () => Promise<void>;
   addStaffMember: (email: string, name: string, role: StaffRole) => Promise<{ success: boolean; message: string }>;
   removeStaffMember: (staffId: string) => Promise<{ success: boolean; message: string }>;
+  updateStaffPermissions: (staffId: string, permissions: StaffPermissions) => Promise<{ success: boolean; message: string }>;
 }
 
 const POSContext = createContext<POSContextType | undefined>(undefined);
@@ -699,6 +701,17 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return res;
   }, [addToast]);
 
+  const updateStaffPermissions = useCallback(async (staffId: string, permissions: StaffPermissions) => {
+    const res = await authService.updateStaffPermissions(staffId, permissions);
+    setStaffDirectory(authService.getStaffDirectory());
+    if (res.success) {
+      addToast('Permissions Updated', res.message, 'success');
+    } else {
+      addToast('Update Failed', res.message, 'warning');
+    }
+    return res;
+  }, [addToast]);
+
   return (
     <POSContext.Provider
       value={{
@@ -775,7 +788,8 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         staffDirectory,
         signOutStaff,
         addStaffMember,
-        removeStaffMember
+        removeStaffMember,
+        updateStaffPermissions
       }}
     >
       {children}

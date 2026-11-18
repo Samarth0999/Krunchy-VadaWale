@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS public.staff_profiles (
     pin TEXT,
     avatar_url TEXT,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    permissions JSONB DEFAULT '{"pos":true,"tables":true,"orders":true,"menu":false,"customers":true,"loyalty":false,"reports":false,"settings":false,"canApplyDiscount":false,"canManageCategories":false,"canEditProducts":false,"canAdjustLoyaltyPoints":false,"canManageStaff":false}'::jsonb,
     last_login_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -101,8 +102,10 @@ BEGIN
             'email', staff_record.email,
             'name', resolved_name,
             'role', staff_record.role,
+            'permissions', COALESCE(staff_record.permissions, '{"pos":true,"tables":true,"orders":true,"menu":false,"customers":true,"loyalty":false,"reports":false,"settings":false,"canApplyDiscount":false,"canManageCategories":false,"canEditProducts":false,"canAdjustLoyaltyPoints":false,"canManageStaff":false}'::jsonb),
             'avatar_url', resolved_avatar
         )
     );
 END;
 $$;
+

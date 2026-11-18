@@ -15,7 +15,10 @@ import {
 import { Product } from '../../types';
 
 export const MenuManagement: React.FC = () => {
-  const { products, deleteProduct, saveProduct, categories, settings } = usePOS();
+  const { products, deleteProduct, saveProduct, categories, settings, currentStaff } = usePOS();
+
+  const canEdit = currentStaff?.permissions?.canEditProducts !== false;
+  const canCategories = currentStaff?.permissions?.canManageCategories !== false;
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -107,21 +110,25 @@ export const MenuManagement: React.FC = () => {
             </div>
           </div>
 
-          <button
-            onClick={() => setIsCategoryModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-700/80 text-xs font-semibold rounded-lg transition-colors shadow-xs"
-          >
-            <Tags className="w-3.5 h-3.5 text-orange-400" />
-            <span>Categories</span>
-          </button>
+          {canCategories && (
+            <button
+              onClick={() => setIsCategoryModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-700/80 text-xs font-semibold rounded-lg transition-colors shadow-xs"
+            >
+              <Tags className="w-3.5 h-3.5 text-orange-400" />
+              <span>Categories</span>
+            </button>
+          )}
 
-          <button
-            onClick={handleOpenAdd}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-semibold rounded-lg transition-colors shadow-xs"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add Item</span>
-          </button>
+          {canEdit && (
+            <button
+              onClick={handleOpenAdd}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-semibold rounded-lg transition-colors shadow-xs"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Item</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -164,14 +171,16 @@ export const MenuManagement: React.FC = () => {
             </button>
           ))}
 
-          <button
-            onClick={() => setIsCategoryModalOpen(true)}
-            title="Manage Categories"
-            className="px-2 py-1 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-orange-400 border border-dashed border-zinc-700/80 rounded-lg text-xs font-medium flex items-center gap-1 whitespace-nowrap transition-colors"
-          >
-            <Plus className="w-3 h-3" />
-            <span>Category</span>
-          </button>
+          {canCategories && (
+            <button
+              onClick={() => setIsCategoryModalOpen(true)}
+              title="Manage Categories"
+              className="px-2 py-1 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-orange-400 border border-dashed border-zinc-700/80 rounded-lg text-xs font-medium flex items-center gap-1 whitespace-nowrap transition-colors"
+            >
+              <Plus className="w-3 h-3" />
+              <span>Category</span>
+            </button>
+          )}
         </div>
 
       </div>
@@ -275,22 +284,26 @@ export const MenuManagement: React.FC = () => {
 
                     {/* Actions */}
                     <td className="py-2.5 px-3.5 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenEdit(product)}
-                          className="p-1 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded transition-colors"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(product)}
-                          className="p-1 text-zinc-500 hover:text-rose-400 hover:bg-zinc-800 rounded transition-colors"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                      {canEdit ? (
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEdit(product)}
+                            className="p-1 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded transition-colors"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(product)}
+                            className="p-1 text-zinc-500 hover:text-rose-400 hover:bg-zinc-800 rounded transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-[10px] text-zinc-500 font-mono italic">View Only</span>
+                      )}
                     </td>
 
                   </tr>

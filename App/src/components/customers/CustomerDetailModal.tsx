@@ -29,8 +29,11 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
     selectCustomer, 
     setActiveTab, 
     openReceiptModal,
-    sendWhatsAppLoyaltyReminder
+    sendWhatsAppLoyaltyReminder,
+    currentStaff
   } = usePOS();
+
+  const canAdjustPoints = currentStaff?.permissions?.canAdjustLoyaltyPoints !== false;
 
   const [activeTab, setActiveTabLocal] = useState<'overview' | 'orders' | 'loyalty' | 'adjust'>('overview');
   
@@ -160,14 +163,16 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
           >
             Ledger ({customerLedger.length})
           </button>
-          <button
-            onClick={() => setActiveTabLocal('adjust')}
-            className={`pb-2 px-2.5 font-medium border-b-2 transition-colors ${
-              activeTab === 'adjust' ? 'border-zinc-200 text-zinc-100' : 'border-transparent text-zinc-400 hover:text-zinc-200'
-            }`}
-          >
-            Adjust Points
-          </button>
+          {canAdjustPoints && (
+            <button
+              onClick={() => setActiveTabLocal('adjust')}
+              className={`pb-2 px-2.5 font-medium border-b-2 transition-colors ${
+                activeTab === 'adjust' ? 'border-zinc-200 text-zinc-100' : 'border-transparent text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              Adjust Points
+            </button>
+          )}
         </div>
 
         {/* Content */}
@@ -363,7 +368,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
           )}
 
           {/* TAB 4: ADJUST POINTS */}
-          {activeTab === 'adjust' && (
+          {activeTab === 'adjust' && canAdjustPoints && (
             <form onSubmit={handleAdjustPointsSubmit} className="space-y-3 bg-zinc-950 p-4 rounded-xl border border-zinc-800 text-xs">
               <h4 className="font-medium text-zinc-200">Manual Points Adjustment</h4>
 

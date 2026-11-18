@@ -14,18 +14,32 @@ import { ReportsDashboard } from './components/reports/ReportsDashboard';
 import { SettingsView } from './components/settings/SettingsView';
 
 const MainContent: React.FC = () => {
-  const { activeTab } = usePOS();
+  const { activeTab, setActiveTab, currentStaff } = usePOS();
+
+  // If active tab is restricted by staff permissions, redirect to first allowed tab
+  React.useEffect(() => {
+    if (currentStaff?.permissions) {
+      const isAllowed = Boolean(currentStaff.permissions[activeTab]);
+      if (!isAllowed) {
+        const tabList = ['pos', 'tables', 'orders', 'menu', 'customers', 'loyalty', 'reports', 'settings'] as const;
+        const firstAllowed = tabList.find(t => Boolean(currentStaff.permissions[t]));
+        if (firstAllowed) {
+          setActiveTab(firstAllowed);
+        }
+      }
+    }
+  }, [activeTab, currentStaff, setActiveTab]);
 
   return (
     <main className="flex-1 flex flex-col min-h-0 overflow-hidden">
-      {activeTab === 'pos' && <POSLayout />}
-      {activeTab === 'tables' && <TableManagementView />}
-      {activeTab === 'orders' && <OrdersHistory />}
-      {activeTab === 'menu' && <MenuManagement />}
-      {activeTab === 'customers' && <CustomerDirectory />}
-      {activeTab === 'loyalty' && <LoyaltyDashboard />}
-      {activeTab === 'reports' && <ReportsDashboard />}
-      {activeTab === 'settings' && <SettingsView />}
+      {activeTab === 'pos' && currentStaff?.permissions?.pos !== false && <POSLayout />}
+      {activeTab === 'tables' && currentStaff?.permissions?.tables !== false && <TableManagementView />}
+      {activeTab === 'orders' && currentStaff?.permissions?.orders !== false && <OrdersHistory />}
+      {activeTab === 'menu' && currentStaff?.permissions?.menu !== false && <MenuManagement />}
+      {activeTab === 'customers' && currentStaff?.permissions?.customers !== false && <CustomerDirectory />}
+      {activeTab === 'loyalty' && currentStaff?.permissions?.loyalty !== false && <LoyaltyDashboard />}
+      {activeTab === 'reports' && currentStaff?.permissions?.reports !== false && <ReportsDashboard />}
+      {activeTab === 'settings' && currentStaff?.permissions?.settings !== false && <SettingsView />}
 
       {/* Global Receipt Modal */}
       <ReceiptModal />

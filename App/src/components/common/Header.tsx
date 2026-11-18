@@ -101,6 +101,11 @@ export const Header: React.FC = () => {
     },
   ];
 
+  const allowedNavItems = React.useMemo(() => {
+    if (!currentStaff?.permissions) return navItems;
+    return navItems.filter(item => Boolean(currentStaff.permissions[item.id]));
+  }, [navItems, currentStaff]);
+
   return (
     <header className="h-14 border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md text-zinc-100 sticky top-0 z-40 select-none">
       <div className="h-full px-4 flex items-center justify-between gap-4">
@@ -121,7 +126,7 @@ export const Header: React.FC = () => {
 
         {/* Navigation Tabs - Minimal Segmented Control */}
         <nav className="hidden lg:flex items-center p-0.5 rounded-lg bg-zinc-900/60 border border-zinc-800/60">
-          {navItems.map(item => {
+          {allowedNavItems.map(item => {
             const isActive = activeTab === item.id;
             return (
               <button
@@ -246,7 +251,7 @@ export const Header: React.FC = () => {
 
       {/* Mobile Navigation bar */}
       <div className="flex lg:hidden overflow-x-auto px-2 py-1 gap-1 bg-zinc-950 border-t border-zinc-800/80 scrollbar-none">
-        {navItems.map(item => {
+        {allowedNavItems.map(item => {
           const isActive = activeTab === item.id;
           return (
             <button

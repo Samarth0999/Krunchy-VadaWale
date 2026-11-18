@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { usePOS } from '../../context/POSContext';
-import { RestaurantSettings, StaffRole } from '../../types';
+import { RestaurantSettings, StaffRole, StaffProfile, StaffPermissions } from '../../types';
+import { StaffPermissionsModal } from '../auth/StaffPermissionsModal';
 import { 
   Settings, 
   Store, 
@@ -10,6 +11,7 @@ import {
   Download, 
   Check, 
   ShieldCheck,
+  Shield,
   Users,
   UserPlus,
   Trash2,
@@ -23,9 +25,13 @@ export const SettingsView: React.FC = () => {
     isCloudConnected,
     staffDirectory,
     addStaffMember,
-    removeStaffMember
+    removeStaffMember,
+    updateStaffPermissions,
+    currentStaff
   } = usePOS();
   
+  const canManageStaff = currentStaff?.permissions?.canManageStaff !== false;
+
   const [formData, setFormData] = useState<RestaurantSettings>({ ...settings });
   const [isSaved, setIsSaved] = useState(false);
 
@@ -34,6 +40,10 @@ export const SettingsView: React.FC = () => {
   const [newStaffName, setNewStaffName] = useState('');
   const [newStaffRole, setNewStaffRole] = useState<StaffRole>('Cashier');
   const [isAddingStaff, setIsAddingStaff] = useState(false);
+
+  // Customized permissions modal state
+  const [selectedStaffForPerms, setSelectedStaffForPerms] = useState<StaffProfile | null>(null);
+  const [isPermsModalOpen, setIsPermsModalOpen] = useState(false);
 
   const handleChange = (field: keyof RestaurantSettings, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -355,57 +365,64 @@ export const SettingsView: React.FC = () => {
           </div>
 
           {/* Add Staff Form */}
-          <div className="bg-zinc-950/60 border border-zinc-800/80 rounded-xl p-3.5 space-y-3">
-            <span className="text-[11px] font-semibold text-zinc-300 block uppercase tracking-wider">
-              Authorize New Staff Member
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
-              <div className="sm:col-span-2">
-                <input
-                  type="email"
-                  value={newStaffEmail}
-                  onChange={(e) => setNewStaffEmail(e.target.value)}
-                  placeholder="staff.member@gmail.com"
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-orange-500"
-                />
-              </div>
+          {canManageStaff ? (
+            <div className="bg-zinc-950/60 border border-zinc-800/80 rounded-xl p-3.5 space-y-3">
+              <span className="text-[11px] font-semibold text-zinc-300 block uppercase tracking-wider">
+                Authorize New Staff Member
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+                <div className="sm:col-span-2">
+                  <input
+                    type="email"
+                    value={newStaffEmail}
+                    onChange={(e) => setNewStaffEmail(e.target.value)}
+                    placeholder="staff.member@gmail.com"
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-orange-500"
+                  />
+                </div>
 
-              <div>
-                <input
-                  type="text"
-                  value={newStaffName}
-                  onChange={(e) => setNewStaffName(e.target.value)}
-                  placeholder="Staff Name (e.g. Rahul)"
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-orange-500"
-                />
-              </div>
+                <div>
+                  <input
+                    type="text"
+                    value={newStaffName}
+                    onChange={(e) => setNewStaffName(e.target.value)}
+                    placeholder="Staff Name (e.g. Rahul)"
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-orange-500"
+                  />
+                </div>
 
-              <div className="flex gap-2">
-                <select
-                  value={newStaffRole}
-                  onChange={(e) => setNewStaffRole(e.target.value as StaffRole)}
-                  className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1.5 text-xs text-zinc-100 focus:outline-none focus:border-orange-500"
-                >
-                  <option value="Cashier">Cashier</option>
-                  <option value="Manager">Manager</option>
-                  <option value="Admin">Admin</option>
-                </select>
+                <div className="flex gap-2">
+                  <select
+                    value={newStaffRole}
+                    onChange={(e) => setNewStaffRole(e.target.value as StaffRole)}
+                    className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1.5 text-xs text-zinc-100 focus:outline-none focus:border-orange-500"
+                  >
+                    <option value="Cashier">Cashier</option>
+                    <option value="Manager">Manager</option>
+                    <option value="Admin">Admin</option>
+                  </select>
 
-                <button
-                  type="button"
-                  onClick={handleAddNewStaff}
-                  disabled={isAddingStaff || !newStaffEmail.trim()}
-                  className="flex items-center gap-1 px-3 py-1.5 bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition-colors shadow-xs cursor-pointer disabled:cursor-not-allowed shrink-0"
-                >
-                  <UserPlus className="w-3.5 h-3.5" />
-                  <span>Authorize</span>
-                </button>
+                  <button
+                    type="button"
+                    onClick={handleAddNewStaff}
+                    disabled={isAddingStaff || !newStaffEmail.trim()}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition-colors shadow-xs cursor-pointer disabled:cursor-not-allowed shrink-0"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    <span>Authorize</span>
+                  </button>
+                </div>
               </div>
+              <p className="text-[10px] text-zinc-500">
+                Only Google accounts added to this list will be allowed to log into the billing counter.
+              </p>
             </div>
-            <p className="text-[10px] text-zinc-500">
-              Only Google accounts added to this list will be allowed to log into the billing counter.
-            </p>
-          </div>
+          ) : (
+            <div className="p-3 bg-zinc-950/60 border border-zinc-800 rounded-xl text-zinc-400 text-xs flex items-center gap-2">
+              <Shield className="w-4 h-4 text-orange-400 shrink-0" />
+              <span>Admin authorization required to add staff or modify customized permissions.</span>
+            </div>
+          )}
 
           {/* Authorized Staff Table */}
           <div className="overflow-x-auto">
@@ -446,14 +463,32 @@ export const SettingsView: React.FC = () => {
                       </span>
                     </td>
                     <td className="py-2.5 px-3 text-right">
-                      <button
-                        type="button"
-                        onClick={() => removeStaffMember(staff.id)}
-                        className="p-1 text-zinc-400 hover:text-red-400 hover:bg-red-500/10 rounded-md transition-colors"
-                        title="Remove staff authorization"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      {canManageStaff ? (
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedStaffForPerms(staff);
+                              setIsPermsModalOpen(true);
+                            }}
+                            className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-orange-400 hover:text-orange-300 bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/20 rounded-lg transition-colors cursor-pointer"
+                            title="Configure customized permissions"
+                          >
+                            <Shield className="w-3 h-3" />
+                            <span>Permissions</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeStaffMember(staff.id)}
+                            className="p-1 text-zinc-400 hover:text-red-400 hover:bg-red-500/10 rounded-md transition-colors cursor-pointer"
+                            title="Remove staff authorization"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-[10px] text-zinc-500 font-mono italic">View Only</span>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -486,6 +521,16 @@ export const SettingsView: React.FC = () => {
         </div>
 
       </form>
+
+      {/* Customized Staff Permissions Modal */}
+      <StaffPermissionsModal
+        isOpen={isPermsModalOpen}
+        onClose={() => setIsPermsModalOpen(false)}
+        staff={selectedStaffForPerms}
+        onSave={async (id, perms) => {
+          await updateStaffPermissions(id, perms);
+        }}
+      />
 
     </div>
   );

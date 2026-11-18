@@ -2,6 +2,78 @@ export type Category = string;
 
 export type StaffRole = 'Admin' | 'Manager' | 'Cashier';
 
+export interface StaffPermissions {
+  // Navigation Tabs Access
+  pos: boolean;
+  tables: boolean;
+  orders: boolean;
+  menu: boolean;
+  customers: boolean;
+  loyalty: boolean;
+  reports: boolean;
+  settings: boolean;
+
+  // Granular Operational Privileges
+  canApplyDiscount: boolean;
+  canManageCategories: boolean;
+  canEditProducts: boolean;
+  canAdjustLoyaltyPoints: boolean;
+  canManageStaff: boolean;
+}
+
+export const getDefaultPermissions = (role: StaffRole): StaffPermissions => {
+  if (role === 'Admin') {
+    return {
+      pos: true,
+      tables: true,
+      orders: true,
+      menu: true,
+      customers: true,
+      loyalty: true,
+      reports: true,
+      settings: true,
+      canApplyDiscount: true,
+      canManageCategories: true,
+      canEditProducts: true,
+      canAdjustLoyaltyPoints: true,
+      canManageStaff: true
+    };
+  }
+  if (role === 'Manager') {
+    return {
+      pos: true,
+      tables: true,
+      orders: true,
+      menu: true,
+      customers: true,
+      loyalty: true,
+      reports: true,
+      settings: false,
+      canApplyDiscount: true,
+      canManageCategories: true,
+      canEditProducts: true,
+      canAdjustLoyaltyPoints: true,
+      canManageStaff: false
+    };
+  }
+  // Default Cashier Preset
+  return {
+    pos: true,
+    tables: true,
+    orders: true,
+    menu: false,
+    customers: true,
+    loyalty: false,
+    reports: false,
+    settings: false,
+    canApplyDiscount: false,
+    canManageCategories: false,
+    canEditProducts: false,
+    canAdjustLoyaltyPoints: false,
+    canManageStaff: false
+  };
+};
+
 export interface StaffProfile {
   id: string;
   authUserId?: string;
@@ -11,6 +83,7 @@ export interface StaffProfile {
   pin?: string;
   avatarUrl?: string;
   isActive: boolean;
+  permissions: StaffPermissions;
   lastLoginAt?: string;
   createdAt?: string;
 }

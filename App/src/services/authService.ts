@@ -1,5 +1,5 @@
 import { supabase } from '../config/supabase';
-import { StaffProfile, StaffRole } from '../types';
+import { StaffProfile, StaffRole, StaffPermissions, getDefaultPermissions } from '../types';
 
 const STORAGE_KEYS = {
   CURRENT_STAFF: 'krunchy_current_staff_v2',
@@ -14,6 +14,7 @@ const defaultStaffProfiles: StaffProfile[] = [
     name: 'Samarth Gore',
     role: 'Admin',
     isActive: true,
+    permissions: getDefaultPermissions('Admin'),
     createdAt: new Date().toISOString()
   },
   {
@@ -22,6 +23,7 @@ const defaultStaffProfiles: StaffProfile[] = [
     name: 'Counter 1',
     role: 'Cashier',
     isActive: true,
+    permissions: getDefaultPermissions('Cashier'),
     createdAt: new Date().toISOString()
   }
 ];
@@ -86,13 +88,19 @@ class AuthService {
           name: staff.name,
           role: staff.role,
           avatar_url: staff.avatarUrl || null,
+          permissions: staff.permissions || getDefaultPermissions(staff.role),
           is_active: staff.isActive
         });
       }
     } catch (e) { }
   }
 
-  public async addStaffMember(email: string, name: string, role: StaffRole): Promise<{ success: boolean; message: string }> {
+  public async addStaffMember(
+    email: string, 
+    name: string, 
+    role: StaffRole,
+    customPermissions?: StaffPermissions
+  ): Promise<{ success: boolean; message: string }> {
     const cleanEmail = email.toLowerCase().trim();
     if (!cleanEmail) {
       return { success: false, message: 'Email address is required.' };
@@ -109,12 +117,45 @@ class AuthService {
       name: name.trim() || cleanEmail.split('@')[0],
       role,
       isActive: true,
+      permissions: customPermissions || getDefaultPermissions(role),
       createdAt: new Date().toISOString()
     };
 
     const updated = [...directory, newStaff];
     await this.saveStaffDirectory(updated);
     return { success: true, message: `Authorized ${cleanEmail} as ${role}.` };
+  }
+
+  public async updateStaffPermissions(
+    staffId: string, 
+    permissions: StaffPermissions
+  ): Promise<{ success: boolean; message: string }> {
+    const directory = this.getStaffDirectory();
+    const index = directory.findIndex(s => s.id === staffId);
+    if (index === -1) {
+      return { success: false, message: 'Staff member not found.' };
+    }
+
+    directory[index].permissions = permissions;
+    await this.saveStaffDirectory(directory);
+
+    try {
+      await supabase
+        .from('staff_profiles')
+        .update({ permissions })
+        .eq('id', staffId);
+    } catch (e) {}
+
+    // If currently logged-in user was updated, immediately refresh their live session
+    if (this.currentStaff && this.currentStaff.id === staffId) {
+      this.currentStaff = { ...this.currentStaff, permissions };
+      try {
+        localStorage.setItem(STORAGE_KEYS.CURRENT_STAFF, JSON.stringify(this.currentStaff));
+      } catch (e) {}
+      this.notify();
+    }
+
+    return { success: true, message: `Permissions updated for ${directory[index].name}.` };
   }
 
   public async removeStaffMember(staffId: string): Promise<{ success: boolean; message: string }> {
@@ -198,6 +239,7 @@ class AuthService {
       name,
       role,
       isActive: true,
+      permissions: getDefaultPermissions(role),
       lastLoginAt: new Date().toISOString(),
       createdAt: new Date().toISOString()
     };
@@ -233,14 +275,16 @@ class AuthService {
           };
         }
 
+        const role = rpcData.staff.role as StaffRole;
         const staff: StaffProfile = {
           id: rpcData.staff.id,
           authUserId: rpcData.staff.auth_user_id || authUser.id,
           email: rpcData.staff.email,
           name: rpcData.staff.name,
-          role: rpcData.staff.role as StaffRole,
+          role,
           avatarUrl: rpcData.staff.avatar_url,
           isActive: true,
+          permissions: (rpcData.staff.permissions as StaffPermissions) || getDefaultPermissions(role),
           lastLoginAt: new Date().toISOString()
         };
 
@@ -270,14 +314,16 @@ class AuthService {
             .eq('id', tableData.id);
         } catch (e) { }
 
+        const role = tableData.role as StaffRole;
         const staff: StaffProfile = {
           id: tableData.id,
           authUserId: authUser.id,
           email: tableData.email,
           name: userName || tableData.name,
-          role: tableData.role as StaffRole,
+          role,
           avatarUrl: avatarUrl || tableData.avatar_url,
           isActive: true,
+          permissions: (tableData.permissions as StaffPermissions) || getDefaultPermissions(role),
           lastLoginAt: new Date().toISOString()
         };
 
@@ -294,6 +340,7 @@ class AuthService {
           authUserId: authUser.id,
           name: userName || localMatch.name,
           avatarUrl: avatarUrl || localMatch.avatarUrl,
+          permissions: localMatch.permissions || getDefaultPermissions(localMatch.role),
           lastLoginAt: new Date().toISOString()
         };
         this.setSession(staff);
