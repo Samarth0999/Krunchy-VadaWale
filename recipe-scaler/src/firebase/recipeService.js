@@ -24,6 +24,14 @@ export function getLocalCachedRecipes() {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
+        // Ensure newly added default recipes appear even if local cache exists
+        const existingIds = new Set(parsed.map((r) => r.id));
+        const missingDefaults = defaultRecipes.filter((dr) => !existingIds.has(dr.id));
+        if (missingDefaults.length > 0) {
+          const merged = [...parsed, ...missingDefaults];
+          saveLocalCachedRecipes(merged);
+          return merged;
+        }
         return parsed;
       }
     }
