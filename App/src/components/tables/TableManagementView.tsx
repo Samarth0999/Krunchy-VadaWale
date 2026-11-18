@@ -7,9 +7,15 @@ import {
   Plus, 
   ArrowRightLeft, 
   CheckCircle2, 
+  Sparkles, 
+  Coffee, 
   ShoppingBag, 
   X, 
-  LayoutGrid
+  Check, 
+  RotateCcw, 
+  Trash2, 
+  Layers, 
+  CreditCard 
 } from 'lucide-react';
 import { RestaurantTable, TableStatus } from '../../types';
 
@@ -21,6 +27,7 @@ export const TableManagementView: React.FC = () => {
     transferActiveTable, 
     releaseTable, 
     saveTable, 
+    deleteTable, 
     setActiveTab, 
     settings 
   } = usePOS();
@@ -84,43 +91,43 @@ export const TableManagementView: React.FC = () => {
       case 'AVAILABLE':
         return {
           label: 'Available',
-          badgeClass: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-          borderClass: 'border-white/[0.07] hover:border-emerald-500/40 bg-dark-900',
-          dotClass: 'bg-emerald-400'
+          badgeClass: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
+          borderClass: 'border-slate-800 hover:border-emerald-500/50',
+          dotClass: 'bg-emerald-500'
         };
       case 'OCCUPIED':
         return {
-          label: 'Occupied',
+          label: 'Occupied / Dining',
           badgeClass: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-          borderClass: 'border-amber-500/40 shadow-glow-amber/20 bg-dark-850',
+          borderClass: 'border-amber-500/40 shadow-lg shadow-amber-500/5 bg-slate-900/90',
           dotClass: 'bg-amber-400 animate-pulse'
         };
       case 'BILLED':
         return {
-          label: 'Billed',
+          label: 'Bill Presented',
           badgeClass: 'bg-purple-500/15 text-purple-400 border-purple-500/30',
-          borderClass: 'border-purple-500/40 shadow-purple-500/10 bg-dark-850',
+          borderClass: 'border-purple-500/50 shadow-lg shadow-purple-500/5 bg-slate-900/90',
           dotClass: 'bg-purple-400'
         };
       case 'RESERVED':
         return {
           label: 'Reserved',
           badgeClass: 'bg-sky-500/15 text-sky-400 border-sky-500/30',
-          borderClass: 'border-sky-500/40 bg-dark-900',
+          borderClass: 'border-sky-500/40',
           dotClass: 'bg-sky-400'
         };
       case 'DIRTY':
         return {
-          label: 'Bussing',
+          label: 'Needs Bussing',
           badgeClass: 'bg-rose-500/15 text-rose-400 border-rose-500/30',
-          borderClass: 'border-rose-500/40 bg-dark-900',
+          borderClass: 'border-rose-500/40',
           dotClass: 'bg-rose-400'
         };
       default:
         return {
           label: status,
-          badgeClass: 'bg-dark-800 text-slate-400 border-white/[0.06]',
-          borderClass: 'border-white/[0.07]',
+          badgeClass: 'bg-slate-800 text-slate-400 border-slate-700',
+          borderClass: 'border-slate-800',
           dotClass: 'bg-slate-400'
         };
     }
@@ -160,44 +167,42 @@ export const TableManagementView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-dark-950 space-y-5">
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-950 space-y-5">
       
       {/* Top Banner & Overview Metrics */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-dark-900 border border-white/[0.08] p-5 rounded-2xl shadow-surface">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
         <div>
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center border border-orange-500/20">
-              <LayoutGrid className="w-4 h-4" />
-            </div>
-            <h2 className="text-xl font-extrabold text-white tracking-tight">Table & Floor Operations</h2>
+          <div className="flex items-center gap-2">
+            <UtensilsCrossed className="w-6 h-6 text-orange-400" />
+            <h2 className="text-xl font-extrabold text-white">Table & Floor Management</h2>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Visual floor layout, real-time dining timers, table transfers, and running order tabs.
+            Real-time visual floor plan, running dining bills, table shifting, and live seating status.
           </p>
         </div>
 
         {/* Live Counters */}
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-4 bg-dark-950 px-4 py-2 rounded-xl border border-white/[0.08] text-xs shadow-inner">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-3 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-xs">
             <div>
-              <span className="text-slate-400 block text-[10px] font-semibold">Active Seated</span>
-              <strong className="text-amber-400 font-mono text-sm">{occupiedCount + billedCount} / {totalTables}</strong>
+              <span className="text-slate-400 block text-[10px]">Occupied</span>
+              <strong className="text-amber-400 font-mono">{occupiedCount + billedCount} / {totalTables}</strong>
             </div>
-            <div className="w-px h-7 bg-white/[0.08]"></div>
+            <div className="w-px h-6 bg-slate-800"></div>
             <div>
-              <span className="text-slate-400 block text-[10px] font-semibold">Available</span>
-              <strong className="text-emerald-400 font-mono text-sm">{availableCount}</strong>
+              <span className="text-slate-400 block text-[10px]">Available</span>
+              <strong className="text-emerald-400 font-mono">{availableCount}</strong>
             </div>
-            <div className="w-px h-7 bg-white/[0.08]"></div>
+            <div className="w-px h-6 bg-slate-800"></div>
             <div>
-              <span className="text-slate-400 block text-[10px] font-semibold">Floor Running Total</span>
-              <strong className="text-orange-400 font-mono text-sm">{currency}{totalRunningSales.toLocaleString()}</strong>
+              <span className="text-slate-400 block text-[10px]">Active Floor Sales</span>
+              <strong className="text-orange-400 font-mono">{currency}{totalRunningSales}</strong>
             </div>
           </div>
 
           <button
             onClick={() => setIsAddTableOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white text-xs font-bold rounded-xl shadow-glow-orange transition-all duration-200 active:scale-95"
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white text-xs font-bold rounded-xl shadow-lg shadow-orange-500/20 transition-all"
           >
             <Plus className="w-4 h-4" />
             <span>Add Table</span>
@@ -206,19 +211,19 @@ export const TableManagementView: React.FC = () => {
       </div>
 
       {/* Filter and Section Selector */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-dark-900 border border-white/[0.08] p-3 rounded-2xl shadow-sm">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
         
         {/* Floor Sections */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-          <span className="text-xs font-bold text-slate-400 mr-1 hidden sm:inline">Section:</span>
+          <span className="text-[11px] font-semibold text-slate-400 mr-1 hidden sm:inline">Section:</span>
           {sections.map(sec => (
             <button
               key={sec}
               onClick={() => setSelectedSection(sec)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors ${
                 selectedSection === sec 
-                  ? 'bg-orange-500 text-white shadow-glow-orange/30' 
-                  : 'bg-dark-850 hover:bg-dark-800 text-slate-300'
+                  ? 'bg-orange-500 text-white shadow' 
+                  : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
               }`}
             >
               {sec}
@@ -227,7 +232,7 @@ export const TableManagementView: React.FC = () => {
         </div>
 
         {/* Status Filters */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none bg-dark-950 p-1 rounded-xl border border-white/[0.06] text-xs shadow-inner">
+        <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
           {[
             { id: 'ALL', label: `All (${totalTables})` },
             { id: 'AVAILABLE', label: `🟢 Free (${availableCount})` },
@@ -239,8 +244,8 @@ export const TableManagementView: React.FC = () => {
             <button
               key={f.id}
               onClick={() => setSelectedStatusFilter(f.id)}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all ${
-                selectedStatusFilter === f.id ? 'bg-orange-500 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-colors ${
+                selectedStatusFilter === f.id ? 'bg-orange-500 text-white' : 'text-slate-400 hover:text-white'
               }`}
             >
               {f.label}
@@ -261,7 +266,7 @@ export const TableManagementView: React.FC = () => {
           return (
             <div
               key={table.id}
-              className={`border rounded-2xl p-4 flex flex-col justify-between transition-all duration-200 select-none hover:shadow-surface ${statusInfo.borderClass}`}
+              className={`bg-slate-900 border rounded-2xl p-4 flex flex-col justify-between transition-all select-none hover:shadow-xl ${statusInfo.borderClass}`}
             >
               {/* Card Top: Table Name & Capacity */}
               <div>
@@ -269,7 +274,7 @@ export const TableManagementView: React.FC = () => {
                   <div>
                     <h3 className="font-extrabold text-base text-white tracking-wide">{table.name}</h3>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[10px] text-slate-400 uppercase tracking-wider font-extrabold">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
                         {table.section}
                       </span>
                       <span className="text-[10px] text-slate-500 font-mono">
@@ -279,7 +284,7 @@ export const TableManagementView: React.FC = () => {
                   </div>
 
                   {/* Status Badge */}
-                  <span className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border flex items-center gap-1.5 ${statusInfo.badgeClass}`}>
+                  <span className={`text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border flex items-center gap-1.5 ${statusInfo.badgeClass}`}>
                     <span className={`w-1.5 h-1.5 rounded-full ${statusInfo.dotClass}`}></span>
                     <span>{statusInfo.label}</span>
                   </span>
@@ -287,14 +292,14 @@ export const TableManagementView: React.FC = () => {
 
                 {/* Seating / Customer Details if Occupied or Billed */}
                 {(table.status === 'OCCUPIED' || table.status === 'BILLED') && (
-                  <div className="mt-3.5 p-3 bg-dark-950 rounded-xl border border-white/[0.06] space-y-2 shadow-inner">
+                  <div className="mt-3 p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-2">
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-slate-400 flex items-center gap-1">
                         <Users className="w-3.5 h-3.5 text-orange-400" />
-                        Party: <strong className="text-white">{table.guestCount || 2}</strong>
+                        Guests: <strong className="text-white">{table.guestCount || 2}</strong>
                       </span>
                       {elapsed !== null && (
-                        <span className="text-slate-400 flex items-center gap-1 font-mono text-[11px] tabular-nums">
+                        <span className="text-slate-400 flex items-center gap-1 font-mono text-[11px]">
                           <Clock className="w-3.5 h-3.5 text-amber-400" />
                           {elapsed}m seated
                         </span>
@@ -302,17 +307,17 @@ export const TableManagementView: React.FC = () => {
                     </div>
 
                     {table.customer && (
-                      <div className="text-xs text-slate-300 font-medium truncate pt-1 border-t border-white/[0.06]">
-                        Patron: <strong className="text-white">{table.customer.name}</strong>
+                      <div className="text-xs text-slate-300 font-medium truncate pt-1 border-t border-slate-800">
+                        Customer: <strong className="text-white">{table.customer.name}</strong>
                       </div>
                     )}
 
                     {/* Running Cart Items Snapshot */}
                     {table.activeCart && table.activeCart.length > 0 && (
-                      <div className="pt-1.5 border-t border-white/[0.06]">
+                      <div className="pt-1 border-t border-slate-800">
                         <div className="flex items-center justify-between text-[11px]">
-                          <span className="text-slate-400">{totalItemsCount} items</span>
-                          <span className="font-mono font-extrabold text-orange-400 text-sm tabular-nums">
+                          <span className="text-slate-400">{totalItemsCount} items ordered</span>
+                          <span className="font-mono font-bold text-orange-400 text-sm">
                             {currency}{tableSubtotal}
                           </span>
                         </div>
@@ -326,21 +331,21 @@ export const TableManagementView: React.FC = () => {
 
                 {/* If Reserved */}
                 {table.status === 'RESERVED' && (
-                  <div className="mt-3.5 p-3 bg-sky-950/40 rounded-xl border border-sky-800/40 text-xs text-sky-200">
+                  <div className="mt-3 p-3 bg-sky-950/30 rounded-xl border border-sky-900/40 text-xs text-sky-200">
                     <p className="font-semibold">{table.notes || 'Reserved for upcoming party'}</p>
                   </div>
                 )}
 
                 {/* If Dirty */}
                 {table.status === 'DIRTY' && (
-                  <div className="mt-3.5 p-3 bg-rose-950/40 rounded-xl border border-rose-800/40 text-xs text-rose-200">
-                    <p className="font-semibold">Guests departed. Table needs clearing & bussing.</p>
+                  <div className="mt-3 p-3 bg-rose-950/30 rounded-xl border border-rose-900/40 text-xs text-rose-200">
+                    <p className="font-semibold">Guests departed. Table needs sanitizing & clearing.</p>
                   </div>
                 )}
               </div>
 
               {/* Card Bottom: Quick Actions */}
-              <div className="mt-4 pt-3 border-t border-white/[0.06] space-y-2">
+              <div className="mt-4 pt-3 border-t border-slate-800/80 space-y-2">
                 
                 {/* When Table is Available */}
                 {table.status === 'AVAILABLE' && (
@@ -348,7 +353,7 @@ export const TableManagementView: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => handleOpenTableInPOS(table)}
-                      className="flex-1 py-2 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold text-xs rounded-xl shadow-glow-orange/30 transition-all flex items-center justify-center gap-1.5 active:scale-95"
+                      className="flex-1 py-2 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5"
                     >
                       <ShoppingBag className="w-3.5 h-3.5" />
                       <span>Start Dining</span>
@@ -356,7 +361,7 @@ export const TableManagementView: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => updateTableStatus(table.id, 'RESERVED')}
-                      className="px-3 py-2 bg-dark-850 hover:bg-dark-800 text-slate-300 rounded-xl text-xs font-bold border border-white/[0.06]"
+                      className="px-2.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold"
                       title="Mark Reserved"
                     >
                       Reserve
@@ -371,7 +376,7 @@ export const TableManagementView: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => handleOpenTableInPOS(table)}
-                        className="flex-1 py-1.5 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1 shadow-sm active:scale-95"
+                        className="flex-1 py-1.5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1"
                       >
                         <ShoppingBag className="w-3.5 h-3.5" />
                         <span>Open & Add Items</span>
@@ -384,7 +389,7 @@ export const TableManagementView: React.FC = () => {
                           const firstFree = tables.find(t => t.id !== table.id && t.status === 'AVAILABLE');
                           if (firstFree) setTransferTargetId(firstFree.id);
                         }}
-                        className="px-2.5 py-1.5 bg-dark-850 hover:bg-dark-800 text-slate-300 rounded-xl text-xs font-bold border border-white/[0.06]"
+                        className="px-2 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold"
                         title="Shift / Transfer Table"
                       >
                         <ArrowRightLeft className="w-3.5 h-3.5" />
@@ -395,7 +400,7 @@ export const TableManagementView: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => updateTableStatus(table.id, table.status === 'OCCUPIED' ? 'BILLED' : 'OCCUPIED')}
-                        className={`flex-1 py-1 rounded-lg text-[11px] font-bold border transition-colors ${
+                        className={`flex-1 py-1 rounded-lg text-[11px] font-semibold border transition-colors ${
                           table.status === 'BILLED' 
                             ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' 
                             : 'bg-purple-500/10 text-purple-400 border-purple-500/30'
@@ -411,7 +416,7 @@ export const TableManagementView: React.FC = () => {
                             releaseTable(table.id);
                           }
                         }}
-                        className="px-2.5 py-1 bg-dark-850 hover:bg-rose-950 text-slate-400 hover:text-rose-400 rounded-lg text-[11px] font-bold border border-white/[0.06]"
+                        className="px-2 py-1 bg-slate-800 hover:bg-rose-950 text-slate-400 hover:text-rose-400 rounded-lg text-[11px] font-semibold"
                         title="Release / Clear"
                       >
                         Release
@@ -425,10 +430,10 @@ export const TableManagementView: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => updateTableStatus(table.id, 'AVAILABLE')}
-                    className="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-glow-emerald/30 transition-all flex items-center justify-center gap-1.5"
+                    className="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow transition-colors flex items-center justify-center gap-1.5"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Cleaned & Free</span>
+                    <span>Cleaned & Available</span>
                   </button>
                 )}
 
@@ -445,7 +450,7 @@ export const TableManagementView: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => updateTableStatus(table.id, 'AVAILABLE')}
-                      className="px-3 py-1.5 bg-dark-850 hover:bg-dark-800 text-slate-400 rounded-xl text-xs font-bold border border-white/[0.06]"
+                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-xl text-xs font-semibold"
                     >
                       Cancel
                     </button>
@@ -461,10 +466,10 @@ export const TableManagementView: React.FC = () => {
 
       {/* Modal 1: Add New Table */}
       {isAddTableOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-          <div className="bg-dark-900 border border-white/[0.1] rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
-            <div className="px-6 py-4 bg-dark-950/80 border-b border-white/[0.08] flex items-center justify-between">
-              <h3 className="font-extrabold text-base text-white">Add Dining Table</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
+            <div className="px-6 py-4 bg-slate-800 border-b border-slate-700 flex items-center justify-between">
+              <h3 className="font-bold text-base text-white">Add Dining Table</h3>
               <button onClick={() => setIsAddTableOpen(false)} className="text-slate-400 hover:text-white">
                 <X className="w-5 h-5" />
               </button>
@@ -472,7 +477,7 @@ export const TableManagementView: React.FC = () => {
 
             <form onSubmit={handleAddNewTable} className="p-6 space-y-4">
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1.5">Table Name / Number *</label>
+                <label className="text-xs font-semibold text-slate-300 block mb-1">Table Name / Number *</label>
                 <input
                   type="text"
                   required
@@ -480,45 +485,45 @@ export const TableManagementView: React.FC = () => {
                   value={newTableName}
                   onChange={(e) => setNewTableName(e.target.value)}
                   placeholder="e.g. Table 9, Booth 3, Terrace 1"
-                  className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1.5">Floor Section *</label>
+                <label className="text-xs font-semibold text-slate-300 block mb-1">Floor Section *</label>
                 <input
                   type="text"
                   required
                   value={newTableSection}
                   onChange={(e) => setNewTableSection(e.target.value)}
                   placeholder="e.g. Main Dining, AC Lounge, Patio"
-                  className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1.5">Seating Capacity (Guests)</label>
+                <label className="text-xs font-semibold text-slate-300 block mb-1">Seating Capacity (Guests)</label>
                 <input
                   type="number"
                   min={1}
                   max={20}
                   value={newTableCapacity}
                   onChange={(e) => setNewTableCapacity(Number(e.target.value))}
-                  className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs font-mono text-white focus:outline-none focus:border-orange-500"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-orange-500"
                 />
               </div>
 
-              <div className="pt-2 flex justify-end gap-2.5">
+              <div className="pt-2 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsAddTableOpen(false)}
-                  className="px-4 py-2 bg-dark-850 text-slate-300 text-xs font-bold rounded-xl hover:bg-dark-800"
+                  className="px-4 py-2 bg-slate-800 text-slate-300 text-xs rounded-xl hover:bg-slate-700"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-extrabold text-xs rounded-xl shadow-glow-orange"
+                  className="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs rounded-xl shadow-lg"
                 >
                   Create Table
                 </button>
@@ -530,10 +535,10 @@ export const TableManagementView: React.FC = () => {
 
       {/* Modal 2: Shift / Transfer Table */}
       {transferSourceTable && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-          <div className="bg-dark-900 border border-white/[0.1] rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
-            <div className="px-6 py-4 bg-dark-950/80 border-b border-white/[0.08] flex items-center justify-between">
-              <h3 className="font-extrabold text-base text-white flex items-center gap-2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
+            <div className="px-6 py-4 bg-slate-800 border-b border-slate-700 flex items-center justify-between">
+              <h3 className="font-bold text-base text-white flex items-center gap-2">
                 <ArrowRightLeft className="w-4 h-4 text-orange-400" />
                 Shift / Transfer Table Order
               </h3>
@@ -543,44 +548,44 @@ export const TableManagementView: React.FC = () => {
             </div>
 
             <form onSubmit={handleTransferSubmit} className="p-6 space-y-4">
-              <div className="p-3.5 bg-dark-950 rounded-2xl border border-white/[0.06] text-xs">
-                <span className="text-slate-400 block font-medium">Current Table:</span>
+              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs">
+                <span className="text-slate-400 block">Current Seated Table:</span>
                 <strong className="text-white text-sm">{transferSourceTable.name} ({transferSourceTable.section})</strong>
-                <span className="text-orange-400 font-mono block mt-1 font-bold">
+                <span className="text-orange-400 font-mono block mt-0.5">
                   Running Bill: {currency}{transferSourceTable.activeCart?.reduce((s, i) => s + i.product.price * i.quantity, 0) || 0}
                 </span>
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1.5">Transfer to Destination Table:</label>
+                <label className="text-xs font-semibold text-slate-300 block mb-1">Transfer to New Table:</label>
                 <select
                   value={transferTargetId}
                   onChange={(e) => setTransferTargetId(e.target.value)}
-                  className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500"
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
                 >
                   <option value="">Select destination table...</option>
                   {tables
                     .filter(t => t.id !== transferSourceTable.id && t.status === 'AVAILABLE')
                     .map(t => (
                       <option key={t.id} value={t.id}>
-                        {t.name} ({t.section} • {t.capacity} seats) - Available
+                        {t.name} ({t.section} • {t.capacity} seats) - Free
                       </option>
                     ))}
                 </select>
               </div>
 
-              <div className="pt-2 flex justify-end gap-2.5">
+              <div className="pt-2 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setTransferSourceTable(null)}
-                  className="px-4 py-2 bg-dark-850 text-slate-300 text-xs font-bold rounded-xl hover:bg-dark-800"
+                  className="px-4 py-2 bg-slate-800 text-slate-300 text-xs rounded-xl hover:bg-slate-700"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={!transferTargetId}
-                  className="px-5 py-2 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 disabled:opacity-40 text-white font-extrabold text-xs rounded-xl shadow-glow-orange"
+                  className="px-5 py-2 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-lg"
                 >
                   Confirm Transfer
                 </button>
@@ -593,3 +598,4 @@ export const TableManagementView: React.FC = () => {
     </div>
   );
 };
+

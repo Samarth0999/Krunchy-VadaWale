@@ -39,7 +39,7 @@ export const ReceiptModal: React.FC = () => {
       `*Total Paid:* ₹${activeReceiptOrder.totalAmount}%0A` +
       (activeReceiptOrder.pointsEarned > 0 ? `*🎉 Loyalty Points Earned:* +${activeReceiptOrder.pointsEarned} pts%0A` : '') +
       `--------------------------------%0A` +
-      `Thank you for dining with ${settings.name}! 🍗`;
+      `Thank you for visiting ${settings.name}! 🍗`;
 
     window.open(`https://api.whatsapp.com/send?phone=${phoneWithCountry}&text=${message}`, '_blank');
   };
@@ -64,36 +64,31 @@ export const ReceiptModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in select-none">
-      <div className="bg-dark-900 border border-white/[0.1] rounded-3xl w-full max-w-lg overflow-hidden flex flex-col max-h-[92vh] shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[92vh] shadow-2xl">
         
         {/* Modal Top Bar */}
-        <div className="px-6 py-4 bg-dark-950/80 border-b border-white/[0.08] flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center border border-orange-500/20">
-              <Printer className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="font-extrabold text-sm text-white">Receipt Preview ({activeReceiptOrder.orderNumber})</h3>
-              <p className="text-[10px] text-slate-400 font-mono">Thermal roll output format</p>
-            </div>
+        <div className="px-5 py-3.5 bg-slate-800/80 border-b border-slate-700 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Printer className="w-5 h-5 text-orange-400" />
+            <h3 className="font-bold text-base text-white">Receipt Preview ({activeReceiptOrder.orderNumber})</h3>
           </div>
           
-          {/* Width Selector & Close */}
-          <div className="flex items-center gap-2.5">
-            <div className="bg-dark-950 p-1 rounded-xl border border-white/[0.08] flex text-xs">
+          {/* Width Selector */}
+          <div className="flex items-center gap-2">
+            <div className="bg-slate-950 p-1 rounded-lg border border-slate-700 flex text-xs">
               <button
                 onClick={() => setPrintWidth('80mm')}
-                className={`px-3 py-1 rounded-lg font-bold transition-all ${
-                  printWidth === '80mm' ? 'bg-orange-500 text-white shadow' : 'text-slate-400 hover:text-white'
+                className={`px-2.5 py-1 rounded font-medium transition-colors ${
+                  printWidth === '80mm' ? 'bg-orange-500 text-white' : 'text-slate-400 hover:text-white'
                 }`}
               >
                 80mm
               </button>
               <button
                 onClick={() => setPrintWidth('58mm')}
-                className={`px-3 py-1 rounded-lg font-bold transition-all ${
-                  printWidth === '58mm' ? 'bg-orange-500 text-white shadow' : 'text-slate-400 hover:text-white'
+                className={`px-2.5 py-1 rounded font-medium transition-colors ${
+                  printWidth === '58mm' ? 'bg-orange-500 text-white' : 'text-slate-400 hover:text-white'
                 }`}
               >
                 58mm
@@ -102,16 +97,16 @@ export const ReceiptModal: React.FC = () => {
 
             <button
               onClick={closeReceiptModal}
-              className="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-white/[0.06] transition-colors"
+              className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-700 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        {/* Scrollable Receipt Container */}
-        <div className="flex-1 overflow-y-auto p-6 bg-dark-950 flex justify-center shadow-inner">
-          <div className="bg-white rounded-xl shadow-2xl overflow-hidden border border-slate-300">
+        {/* Scrollable Receipt Area */}
+        <div className="flex-1 overflow-y-auto p-4 bg-slate-950/70 flex justify-center">
+          <div className="bg-white rounded-lg shadow-xl overflow-hidden border border-gray-300">
             <ReceiptView 
               order={activeReceiptOrder} 
               settings={settings} 
@@ -121,12 +116,12 @@ export const ReceiptModal: React.FC = () => {
         </div>
 
         {/* Bottom Actions */}
-        <div className="p-4 bg-dark-950/90 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3">
+        <div className="p-4 bg-slate-900 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             {activeReceiptOrder.customerPhone && (
               <button
                 onClick={shareViaWhatsApp}
-                className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-glow-emerald/20 transition-all active:scale-95"
+                className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl shadow transition-colors"
               >
                 <Smartphone className="w-4 h-4" />
                 <span>WhatsApp</span>
@@ -135,23 +130,23 @@ export const ReceiptModal: React.FC = () => {
 
             <button
               onClick={copyReceiptText}
-              className="flex items-center gap-1.5 px-3.5 py-2 bg-dark-850 hover:bg-dark-800 text-slate-200 text-xs font-bold rounded-xl border border-white/[0.08] transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition-colors"
             >
               {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4" />}
-              <span>{copied ? 'Copied' : 'Copy Text'}</span>
+              <span>{copied ? 'Copied' : 'Copy'}</span>
             </button>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={closeReceiptModal}
-              className="px-4 py-2 bg-dark-850 hover:bg-dark-800 text-slate-300 text-xs font-bold rounded-xl border border-white/[0.08] transition-colors"
+              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700 transition-colors"
             >
               Close
             </button>
             <button
               onClick={handlePrint}
-              className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white text-xs font-extrabold rounded-xl shadow-glow-orange transition-all duration-200 active:scale-95"
+              className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white text-xs font-bold rounded-xl shadow-lg shadow-orange-500/20 transition-all hover:scale-102"
             >
               <Printer className="w-4 h-4" />
               <span>Print Thermal Receipt</span>
@@ -163,3 +158,4 @@ export const ReceiptModal: React.FC = () => {
     </div>
   );
 };
+

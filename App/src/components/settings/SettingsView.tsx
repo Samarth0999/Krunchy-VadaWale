@@ -6,14 +6,13 @@ import {
   Store, 
   Receipt, 
   Award, 
+  QrCode, 
   Printer, 
   RotateCcw, 
   Download, 
   Check, 
   CloudCheck,
-  ShieldCheck,
-  Sliders,
-  Sparkles
+  ShieldCheck
 } from 'lucide-react';
 import { firebaseConfig } from '../../config/firebase';
 
@@ -49,34 +48,31 @@ export const SettingsView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-dark-950 space-y-6">
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-950 space-y-6">
       
       {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-dark-900 border border-white/[0.08] p-5 rounded-2xl shadow-surface">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
         <div>
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center border border-orange-500/20">
-              <Settings className="w-4 h-4" />
-            </div>
-            <h2 className="text-xl font-extrabold text-white tracking-tight">System Configuration & Hardware</h2>
+          <div className="flex items-center gap-2">
+            <Settings className="w-6 h-6 text-orange-400" />
+            <h2 className="text-xl font-extrabold text-white">Platform Settings & Hardware</h2>
           </div>
           <p className="text-xs text-slate-400 mt-1">
             Configure restaurant identity, GST tax slabs, UPI merchant VPA, loyalty earn rates, and thermal printers.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 bg-dark-950 px-3.5 py-2 rounded-xl border border-white/[0.08] text-xs shadow-inner">
-          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+        <div className="flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-xs">
           <CloudCheck className="w-4 h-4 text-emerald-400" />
-          <span className="text-slate-300 font-mono">Firebase: {firebaseConfig.projectId}</span>
+          <span className="text-slate-300 font-mono">Project: {firebaseConfig.projectId}</span>
         </div>
       </div>
 
       <form onSubmit={handleSave} className="space-y-6">
         
         {/* SECTION 1: Restaurant Identity */}
-        <div className="bg-dark-900 border border-white/[0.08] rounded-2xl p-5 space-y-4 shadow-surface">
-          <div className="flex items-center gap-2 pb-3 border-b border-white/[0.06]">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-slate-800">
             <Store className="w-4 h-4 text-orange-400" />
             <h3 className="font-bold text-sm text-white">Restaurant Identity & Receipt Header</h3>
           </div>
@@ -89,7 +85,7 @@ export const SettingsView: React.FC = () => {
                 required
                 value={formData.name}
                 onChange={(e) => handleChange('name', e.target.value)}
-                className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-orange-500 shadow-inner transition-colors"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-orange-500"
               />
             </div>
 
@@ -99,38 +95,38 @@ export const SettingsView: React.FC = () => {
                 type="text"
                 value={formData.tagline}
                 onChange={(e) => handleChange('tagline', e.target.value)}
-                className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-orange-500 shadow-inner transition-colors"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-orange-500"
               />
             </div>
 
             <div>
-              <label className="text-slate-300 font-medium block mb-1">Contact Phone</label>
+              <label className="text-slate-300 font-medium block mb-1">Phone Number</label>
               <input
                 type="text"
                 value={formData.phone}
                 onChange={(e) => handleChange('phone', e.target.value)}
-                className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-white font-mono focus:outline-none focus:border-orange-500 shadow-inner transition-colors"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-orange-500"
               />
             </div>
 
             <div className="sm:col-span-2">
-              <label className="text-slate-300 font-medium block mb-1">Full Address (Printed on Thermal Receipt)</label>
+              <label className="text-slate-300 font-medium block mb-1">Full Address (Printed on Receipt)</label>
               <input
                 type="text"
                 value={formData.address}
                 onChange={(e) => handleChange('address', e.target.value)}
-                className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-orange-500 shadow-inner transition-colors"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-orange-500"
               />
             </div>
 
             <div>
-              <label className="text-slate-300 font-medium block mb-1">GSTIN Registration #</label>
+              <label className="text-slate-300 font-medium block mb-1">GSTIN Number</label>
               <input
                 type="text"
                 value={formData.gstin}
                 onChange={(e) => handleChange('gstin', e.target.value)}
-                placeholder="27AAEFK1234F1Z5"
-                className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 font-mono text-white focus:outline-none focus:border-orange-500 shadow-inner transition-colors uppercase"
+                placeholder="29AABCU9603R1ZM"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 font-mono text-white focus:outline-none focus:border-orange-500"
               />
             </div>
 
@@ -140,8 +136,8 @@ export const SettingsView: React.FC = () => {
                 type="text"
                 value={formData.fssai}
                 onChange={(e) => handleChange('fssai', e.target.value)}
-                placeholder="11521018000345"
-                className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 font-mono text-white focus:outline-none focus:border-orange-500 shadow-inner transition-colors"
+                placeholder="11223344556677"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 font-mono text-white focus:outline-none focus:border-orange-500"
               />
             </div>
 
@@ -151,17 +147,17 @@ export const SettingsView: React.FC = () => {
                 type="text"
                 value={formData.cashierName}
                 onChange={(e) => handleChange('cashierName', e.target.value)}
-                className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-orange-500 shadow-inner transition-colors"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-orange-500"
               />
             </div>
           </div>
         </div>
 
         {/* SECTION 2: Billing & Tax Settings */}
-        <div className="bg-dark-900 border border-white/[0.08] rounded-2xl p-5 space-y-4 shadow-surface">
-          <div className="flex items-center gap-2 pb-3 border-b border-white/[0.06]">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-slate-800">
             <Receipt className="w-4 h-4 text-orange-400" />
-            <h3 className="font-bold text-sm text-white">Taxes, Currency & Payment Gateway</h3>
+            <h3 className="font-bold text-sm text-white">Taxes, Currency & Payment</h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
@@ -173,7 +169,7 @@ export const SettingsView: React.FC = () => {
                 step={0.5}
                 value={formData.taxRate}
                 onChange={(e) => handleChange('taxRate', Number(e.target.value))}
-                className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 font-mono text-white focus:outline-none focus:border-orange-500 shadow-inner transition-colors"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 font-mono text-white focus:outline-none focus:border-orange-500"
               />
             </div>
 
@@ -184,7 +180,7 @@ export const SettingsView: React.FC = () => {
                 value={formData.taxName}
                 onChange={(e) => handleChange('taxName', e.target.value)}
                 placeholder="GST (CGST 2.5% + SGST 2.5%)"
-                className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-orange-500 shadow-inner transition-colors"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-orange-500"
               />
             </div>
 
@@ -195,42 +191,42 @@ export const SettingsView: React.FC = () => {
                 value={formData.currencySymbol}
                 onChange={(e) => handleChange('currencySymbol', e.target.value)}
                 placeholder="₹"
-                className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 font-mono text-white focus:outline-none focus:border-orange-500 shadow-inner transition-colors"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 font-mono text-white focus:outline-none focus:border-orange-500"
               />
             </div>
 
             <div>
-              <label className="text-slate-300 font-medium block mb-1">Merchant UPI VPA ID (For Dynamic QR)</label>
+              <label className="text-slate-300 font-medium block mb-1">Merchant UPI VPA ID (For QR Code)</label>
               <input
                 type="text"
                 value={formData.upiVpa}
                 onChange={(e) => handleChange('upiVpa', e.target.value)}
-                placeholder="krunchy@icici"
-                className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 font-mono text-white focus:outline-none focus:border-orange-500 shadow-inner transition-colors"
+                placeholder="krunchy.pos@upi"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 font-mono text-white focus:outline-none focus:border-orange-500"
               />
             </div>
           </div>
         </div>
 
         {/* SECTION 3: Automated Loyalty Rules */}
-        <div className="bg-dark-900 border border-white/[0.08] rounded-2xl p-5 space-y-4 shadow-surface">
-          <div className="flex items-center gap-2 pb-3 border-b border-white/[0.06]">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-slate-800">
             <Award className="w-4 h-4 text-orange-400" />
             <h3 className="font-bold text-sm text-white">Automated Loyalty & Rewards Rules Engine</h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
             <div>
-              <label className="text-slate-300 font-medium block mb-1">Earn 1 Point for every (₹) spent</label>
+              <label className="text-slate-300 font-medium block mb-1">Earn 1 Point for every Spend of (₹)</label>
               <input
                 type="number"
                 min={1}
                 value={formData.loyaltyEarnRate}
                 onChange={(e) => handleChange('loyaltyEarnRate', Number(e.target.value))}
                 placeholder="10"
-                className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 font-mono text-white focus:outline-none focus:border-orange-500 shadow-inner transition-colors"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 font-mono text-white focus:outline-none focus:border-orange-500"
               />
-              <span className="text-[10px] text-slate-500 mt-1 block">e.g. ₹10 spent = 1 Point (10% rebate)</span>
+              <span className="text-[10px] text-slate-500 mt-0.5 block">e.g. ₹10 spent = 1 Point (10% return)</span>
             </div>
 
             <div>
@@ -242,9 +238,9 @@ export const SettingsView: React.FC = () => {
                 value={formData.loyaltyPointValue}
                 onChange={(e) => handleChange('loyaltyPointValue', Number(e.target.value))}
                 placeholder="1"
-                className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 font-mono text-white focus:outline-none focus:border-orange-500 shadow-inner transition-colors"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 font-mono text-white focus:outline-none focus:border-orange-500"
               />
-              <span className="text-[10px] text-slate-500 mt-1 block">e.g. 1 Point = ₹1 discount credit</span>
+              <span className="text-[10px] text-slate-500 mt-0.5 block">e.g. 1 Point = ₹1 discount</span>
             </div>
 
             <div>
@@ -256,29 +252,29 @@ export const SettingsView: React.FC = () => {
                 value={formData.maxRedemptionPercent}
                 onChange={(e) => handleChange('maxRedemptionPercent', Number(e.target.value))}
                 placeholder="50"
-                className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 font-mono text-white focus:outline-none focus:border-orange-500 shadow-inner transition-colors"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 font-mono text-white focus:outline-none focus:border-orange-500"
               />
-              <span className="text-[10px] text-slate-500 mt-1 block">Limits max point discount per bill</span>
+              <span className="text-[10px] text-slate-500 mt-0.5 block">Prevents 100% free bills if desired</span>
             </div>
 
             <div>
-              <label className="text-slate-300 font-medium block mb-1">Min Order to Earn Points (₹)</label>
+              <label className="text-slate-300 font-medium block mb-1">Minimum Order to Earn Points (₹)</label>
               <input
                 type="number"
                 min={0}
                 value={formData.minOrderToEarn}
                 onChange={(e) => handleChange('minOrderToEarn', Number(e.target.value))}
                 placeholder="50"
-                className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 font-mono text-white focus:outline-none focus:border-orange-500 shadow-inner transition-colors"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 font-mono text-white focus:outline-none focus:border-orange-500"
               />
-              <span className="text-[10px] text-slate-500 mt-1 block">Minimum ticket qualification threshold</span>
+              <span className="text-[10px] text-slate-500 mt-0.5 block">Subtotal qualification threshold</span>
             </div>
           </div>
         </div>
 
-        {/* SECTION 4: Thermal Receipt Printer */}
-        <div className="bg-dark-900 border border-white/[0.08] rounded-2xl p-5 space-y-4 shadow-surface">
-          <div className="flex items-center gap-2 pb-3 border-b border-white/[0.06]">
+        {/* SECTION 4: Thermal Printer Settings */}
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-slate-800">
             <Printer className="w-4 h-4 text-orange-400" />
             <h3 className="font-bold text-sm text-white">Thermal Receipt Printer Configuration</h3>
           </div>
@@ -289,23 +285,23 @@ export const SettingsView: React.FC = () => {
               <select
                 value={formData.printerWidth}
                 onChange={(e) => handleChange('printerWidth', e.target.value as '80mm' | '58mm')}
-                className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-orange-500 shadow-inner transition-colors"
+                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-orange-500"
               >
                 <option value="80mm">80mm (Standard Desktop Thermal Roll - Recommended)</option>
                 <option value="58mm">58mm (Compact / Handheld Thermal Roll)</option>
               </select>
             </div>
 
-            <div className="flex items-center justify-between p-3.5 rounded-xl bg-dark-950/70 border border-white/[0.06] shadow-inner">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950 border border-slate-800">
               <div>
                 <span className="font-medium text-white block">Auto-Open Receipt after Checkout</span>
-                <span className="text-[10px] text-slate-400">Instantly triggers receipt preview dialog upon payment</span>
+                <span className="text-[10px] text-slate-400">Instantly triggers receipt preview dialog</span>
               </div>
               <button
                 type="button"
                 onClick={() => handleChange('autoPrintReceipt', !formData.autoPrintReceipt)}
-                className={`w-11 h-6 flex items-center rounded-full p-1 transition-all ${
-                  formData.autoPrintReceipt ? 'bg-orange-500 justify-end' : 'bg-dark-800 justify-start'
+                className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${
+                  formData.autoPrintReceipt ? 'bg-orange-500 justify-end' : 'bg-slate-700 justify-start'
                 }`}
               >
                 <div className="w-4 h-4 rounded-full bg-white shadow-md"></div>
@@ -314,16 +310,16 @@ export const SettingsView: React.FC = () => {
           </div>
         </div>
 
-        {/* Action / Save Bar */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-4 bg-dark-900 border border-white/[0.08] rounded-2xl shadow-surface">
-          <div className="flex items-center gap-2.5">
+        {/* Save Bar */}
+        <div className="flex items-center justify-between p-4 bg-slate-900 border border-slate-800 rounded-2xl">
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handleBackupJSON}
-              className="flex items-center gap-1.5 px-3.5 py-2.5 bg-dark-800 hover:bg-dark-750 text-slate-200 text-xs font-semibold rounded-xl border border-white/[0.08] transition-colors shadow-sm"
+              className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition-colors"
             >
-              <Download className="w-4 h-4 text-slate-400" />
-              <span>Export JSON Backup</span>
+              <Download className="w-4 h-4" />
+              <span>Export Settings JSON</span>
             </button>
 
             <button
@@ -333,19 +329,19 @@ export const SettingsView: React.FC = () => {
                   resetAndSeedDemoData();
                 }
               }}
-              className="flex items-center gap-1.5 px-3.5 py-2.5 bg-dark-800 hover:bg-dark-750 text-slate-200 text-xs font-semibold rounded-xl border border-white/[0.08] transition-colors shadow-sm"
+              className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition-colors"
             >
-              <RotateCcw className="w-4 h-4 text-slate-400" />
+              <RotateCcw className="w-4 h-4" />
               <span>Reload Demo Data</span>
             </button>
           </div>
 
           <button
             type="submit"
-            className="flex items-center justify-center gap-2 px-7 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-xs rounded-xl shadow-glow-orange transition-all active:scale-[0.98]"
+            className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-orange-500/25 transition-all"
           >
-            {isSaved ? <Check className="w-4 h-4 text-emerald-300" /> : <Sparkles className="w-4 h-4" />}
-            <span>{isSaved ? 'Settings Saved Successfully!' : 'Save System Configuration'}</span>
+            {isSaved ? <Check className="w-4 h-4 text-emerald-300" /> : <Check className="w-4 h-4" />}
+            <span>{isSaved ? 'Settings Saved!' : 'Save Configuration'}</span>
           </button>
         </div>
 
@@ -354,3 +350,4 @@ export const SettingsView: React.FC = () => {
     </div>
   );
 };
+

@@ -10,6 +10,7 @@ import {
   Boxes, 
   Sparkles 
 } from 'lucide-react';
+import { Category } from '../../types';
 
 interface CategorySelectorProps {
   selectedCategory: string;
@@ -49,16 +50,16 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
             key={cat.name}
             type="button"
             onClick={() => onSelectCategory(cat.name)}
-            className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition-all duration-200 active:scale-95 ${
+            className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-semibold text-xs whitespace-nowrap transition-all shadow-sm ${
               isSelected 
-                ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-glow-orange ring-1 ring-orange-400/40' 
-                : 'bg-dark-900 hover:bg-dark-850 text-slate-300 hover:text-white border border-white/[0.06] hover:border-white/[0.12]'
+                ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-orange-500/25 ring-2 ring-orange-500/50 scale-102' 
+                : 'bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800'
             }`}
           >
             <span className={isSelected ? 'text-white' : 'text-orange-400'}>{cat.icon}</span>
             <span>{cat.name}</span>
-            <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold font-mono ${
-              isSelected ? 'bg-black/30 text-white' : 'bg-dark-950 text-slate-400 border border-white/[0.06]'
+            <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+              isSelected ? 'bg-black/30 text-white' : 'bg-slate-800 text-slate-400'
             }`}>
               {count}
             </span>
@@ -68,3 +69,4 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
     </div>
   );
 };
+
