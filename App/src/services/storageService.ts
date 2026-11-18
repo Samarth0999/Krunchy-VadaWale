@@ -17,13 +17,17 @@ import {
   Order, 
   LoyaltyLedgerEntry, 
   RestaurantSettings, 
-  CustomerTier 
+  CustomerTier,
+  RestaurantTable,
+  TableStatus,
+  CartItem
 } from '../types';
 import { 
   defaultSettings, 
   defaultProducts, 
   defaultCustomers, 
-  generateSeedOrdersAndLedger 
+  generateSeedOrdersAndLedger,
+  defaultTables
 } from '../data/seedData';
 
 const LOCAL_STORAGE_KEYS = {
@@ -32,6 +36,7 @@ const LOCAL_STORAGE_KEYS = {
   CUSTOMERS: 'krunchy_customers_v1',
   ORDERS: 'krunchy_orders_v1',
   LEDGER: 'krunchy_ledger_v1',
+  TABLES: 'krunchy_tables_v1',
   SEEDED: 'krunchy_seeded_v1'
 };
 
@@ -70,7 +75,14 @@ class StorageService {
     }
   }
 
-  public seedInitialData(): { products: Product[], customers: Customer[], orders: Order[], ledger: LoyaltyLedgerEntry[], settings: RestaurantSettings } {
+  public seedInitialData(): { 
+    products: Product[], 
+    customers: Customer[], 
+    orders: Order[], 
+    ledger: LoyaltyLedgerEntry[], 
+    settings: RestaurantSettings,
+    tables: RestaurantTable[]
+  } {
     const { orders, ledger } = generateSeedOrdersAndLedger();
     
     localStorage.setItem(LOCAL_STORAGE_KEYS.SETTINGS, JSON.stringify(defaultSettings));
@@ -78,10 +90,11 @@ class StorageService {
     localStorage.setItem(LOCAL_STORAGE_KEYS.CUSTOMERS, JSON.stringify(defaultCustomers));
     localStorage.setItem(LOCAL_STORAGE_KEYS.ORDERS, JSON.stringify(orders));
     localStorage.setItem(LOCAL_STORAGE_KEYS.LEDGER, JSON.stringify(ledger));
+    localStorage.setItem(LOCAL_STORAGE_KEYS.TABLES, JSON.stringify(defaultTables));
     localStorage.setItem(LOCAL_STORAGE_KEYS.SEEDED, 'true');
 
     // Attempt to sync to Firebase in background if online
-    this.syncAllToFirebase(defaultProducts, defaultCustomers, orders, ledger, defaultSettings).catch(() => {
+    this.syncAllToFirebase(defaultProducts, defaultCustomers, orders, ledger, defaultSettings, defaultTables).catch(() => {
       // Local fallback is ready
     });
 
@@ -92,7 +105,8 @@ class StorageService {
       customers: defaultCustomers,
       orders,
       ledger,
-      settings: defaultSettings
+      settings: defaultSettings,
+      tables: defaultTables
     };
   }
 
@@ -102,7 +116,8 @@ class StorageService {
     customers: Customer[], 
     orders: Order[], 
     ledger: LoyaltyLedgerEntry[], 
-    settings: RestaurantSettings
+    settings: RestaurantSettings,
+    tables: RestaurantTable[]
   ) {
     try {
       // Settings
@@ -126,6 +141,11 @@ class StorageService {
       // Batch write ledger
       for (const leg of ledger) {
         await setDoc(doc(db, 'loyalty_ledger', leg.id), leg);
+      }
+
+      // Batch write tables
+      for (const tbl of tables) {
+        await setDoc(doc(db, 'tables', tbl.id), tbl);
       }
 
       this.isFirebaseAccessible = true;
@@ -255,6 +275,125 @@ class StorageService {
     return customer;
   }
 
+  // --- TABLES & FLOOR MANAGEMENT ---
+  public getTables(): RestaurantTable[] {
+    const local = localStorage.getItem(LOCAL_STORAGE_KEYS.TABLES);
+    return local ? JSON.parse(local) : defaultTables;
+  }
+
+  public getTableById(id: string): RestaurantTable | null {
+    const tables = this.getTables();
+    return tables.find(t => t.id === id || t.name === id) || null;
+  }
+
+  public async saveTable(table: RestaurantTable): Promise<void> {
+    const tables = this.getTables();
+    const existingIndex = tables.findIndex(t => t.id === table.id);
+    if (existingIndex >= 0) {
+      tables[existingIndex] = table;
+    } else {
+      tables.push(table);
+    }
+    localStorage.setItem(LOCAL_STORAGE_KEYS.TABLES, JSON.stringify(tables));
+    this.notify();
+
+    try {
+      await setDoc(doc(db, 'tables', table.id), table);
+    } catch (err) {
+      console.warn("Could not sync table to Firebase:", err);
+    }
+  }
+
+  public async updateTableStatus(tableId: string, status: TableStatus): Promise<void> {
+    const tables = this.getTables();
+    const table = tables.find(t => t.id === tableId || t.name === tableId);
+    if (!table) return;
+
+    table.status = status;
+    if (status === 'AVAILABLE') {
+      table.activeCart = [];
+      table.customer = null;
+      table.guestCount = undefined;
+      table.seatedAt = null;
+    } else if (status === 'OCCUPIED' && !table.seatedAt) {
+      table.seatedAt = new Date().toISOString();
+    }
+
+    await this.saveTable(table);
+  }
+
+  public async updateTableOrder(
+    tableId: string, 
+    cart: CartItem[], 
+    customer?: Customer | null, 
+    guestCount?: number,
+    notes?: string
+  ): Promise<void> {
+    const tables = this.getTables();
+    const table = tables.find(t => t.id === tableId || t.name === tableId);
+    if (!table) return;
+
+    table.activeCart = cart;
+    if (customer !== undefined) table.customer = customer;
+    if (guestCount !== undefined) table.guestCount = guestCount;
+    if (notes !== undefined) table.notes = notes;
+
+    if (cart.length > 0) {
+      table.status = 'OCCUPIED';
+      if (!table.seatedAt) {
+        table.seatedAt = new Date().toISOString();
+      }
+    } else if (table.status === 'OCCUPIED') {
+      table.status = 'AVAILABLE';
+      table.seatedAt = null;
+    }
+
+    await this.saveTable(table);
+  }
+
+  public async transferTable(fromTableId: string, toTableId: string): Promise<boolean> {
+    const tables = this.getTables();
+    const fromTable = tables.find(t => t.id === fromTableId || t.name === fromTableId);
+    const toTable = tables.find(t => t.id === toTableId || t.name === toTableId);
+
+    if (!fromTable || !toTable) return false;
+
+    toTable.activeCart = [...fromTable.activeCart];
+    toTable.customer = fromTable.customer;
+    toTable.guestCount = fromTable.guestCount;
+    toTable.seatedAt = fromTable.seatedAt;
+    toTable.notes = fromTable.notes ? `${fromTable.notes} (Shifted from ${fromTable.name})` : `Shifted from ${fromTable.name}`;
+    toTable.status = fromTable.status;
+
+    // Reset old table
+    fromTable.activeCart = [];
+    fromTable.customer = null;
+    fromTable.guestCount = undefined;
+    fromTable.seatedAt = null;
+    fromTable.notes = undefined;
+    fromTable.status = 'AVAILABLE';
+
+    await this.saveTable(fromTable);
+    await this.saveTable(toTable);
+    return true;
+  }
+
+  public async clearTable(tableId: string): Promise<void> {
+    await this.updateTableStatus(tableId, 'AVAILABLE');
+  }
+
+  public async deleteTable(tableId: string): Promise<void> {
+    const tables = this.getTables().filter(t => t.id !== tableId);
+    localStorage.setItem(LOCAL_STORAGE_KEYS.TABLES, JSON.stringify(tables));
+    this.notify();
+
+    try {
+      await deleteDoc(doc(db, 'tables', tableId));
+    } catch (err) {
+      console.warn("Could not delete table from Firebase:", err);
+    }
+  }
+
   // --- ORDERS ---
   public getOrders(): Order[] {
     const local = localStorage.getItem(LOCAL_STORAGE_KEYS.ORDERS);
@@ -265,6 +404,14 @@ class StorageService {
     const orders = this.getOrders();
     orders.unshift(order);
     localStorage.setItem(LOCAL_STORAGE_KEYS.ORDERS, JSON.stringify(orders));
+
+    // Release table if this order was for a dine-in table
+    if (order.diningType === 'DINE_IN' && (order.tableId || order.tableNumber)) {
+      const targetTableId = order.tableId || order.tableNumber;
+      if (targetTableId) {
+        this.clearTable(targetTableId).catch(() => {});
+      }
+    }
 
     // Handle Customer Loyalty Updates
     if (order.customerId || order.customerPhone) {
@@ -383,4 +530,3 @@ class StorageService {
 }
 
 export const storageService = new StorageService();
-

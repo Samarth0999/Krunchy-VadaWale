@@ -79,6 +79,7 @@ export interface Order {
   customerPhone?: string;
   diningType: DiningType;
   tableNumber?: string;
+  tableId?: string;
   items: OrderItemRecord[];
   subtotal: number;
   taxRate: number; // e.g. 5%
@@ -112,6 +113,21 @@ export interface LoyaltyLedgerEntry {
   createdAt: string;
 }
 
+export type TableStatus = 'AVAILABLE' | 'OCCUPIED' | 'BILLED' | 'RESERVED' | 'DIRTY';
+
+export interface RestaurantTable {
+  id: string;
+  name: string; // e.g. "Table 1", "T2", "Booth 1"
+  section: string; // e.g. "Main Dining", "AC Lounge", "Outdoor Patio"
+  capacity: number; // e.g. 2, 4, 6, 8
+  status: TableStatus;
+  guestCount?: number;
+  seatedAt?: string | null; // ISO timestamp
+  activeCart: CartItem[]; // Running items ordered
+  customer?: Customer | null;
+  notes?: string;
+}
+
 export interface RestaurantSettings {
   name: string;
   tagline: string;
@@ -133,5 +149,4 @@ export interface RestaurantSettings {
   cashierName: string;
 }
 
-export type ActiveTab = 'pos' | 'orders' | 'menu' | 'customers' | 'loyalty' | 'reports' | 'settings';
-
+export type ActiveTab = 'pos' | 'tables' | 'orders' | 'menu' | 'customers' | 'loyalty' | 'reports' | 'settings';

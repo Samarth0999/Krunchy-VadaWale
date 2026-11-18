@@ -102,6 +102,20 @@ rules_version = '2';
 //   - autoPrintReceipt: bool (required)
 //   - cashierName: string (required, 1-100 chars)
 //
+// Collection: /tables/{tableId}
+// Document ID: string (e.g. 'tbl_1')
+// Fields:
+//   - id: string (required, 1-64 chars, immutable on update)
+//   - name: string (required, 1-60 chars)
+//   - section: string (required, 1-60 chars)
+//   - capacity: number (required, >= 1, <= 50)
+//   - status: string (required, one of ['AVAILABLE', 'OCCUPIED', 'BILLED', 'RESERVED', 'DIRTY'])
+//   - guestCount: number (optional, >= 1, <= 50)
+//   - seatedAt: string | null (optional, ISO 8601 string or null)
+//   - activeCart: list (required, items with product details and quantity, 0-100 items)
+//   - customer: map | null (optional, max 30 keys)
+//   - notes: string (optional, <= 500 chars)
+//
 // ===============================================================
 
 service cloud.firestore {
@@ -346,6 +360,30 @@ service cloud.firestore {
         data.cashierName is string && data.cashierName.size() >= 1 && data.cashierName.size() <= 100;
     }
 
+    // Validate Restaurant Dining Table Document
+    function isValidRestaurantTable(data) {
+      let allowedFields = [
+        'id', 'name', 'section', 'capacity', 'status', 
+        'guestCount', 'seatedAt', 'activeCart', 'customer', 'notes'
+      ];
+      let requiredFields = [
+        'id', 'name', 'section', 'capacity', 'status', 'activeCart'
+      ];
+
+      return data.keys().hasAll(requiredFields) &&
+        data.keys().hasOnly(allowedFields) &&
+        data.id is string && data.id.size() >= 1 && data.id.size() <= 64 &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 60 &&
+        data.section is string && data.section.size() >= 1 && data.section.size() <= 60 &&
+        data.capacity is number && data.capacity >= 1 && data.capacity <= 50 &&
+        data.status in ['AVAILABLE', 'OCCUPIED', 'BILLED', 'RESERVED', 'DIRTY'] &&
+        (!('guestCount' in data) || data.guestCount == null || (data.guestCount is number && data.guestCount >= 1 && data.guestCount <= 50)) &&
+        (!('seatedAt' in data) || data.seatedAt == null || isValidIsoDate(data.seatedAt)) &&
+        data.activeCart is list && data.activeCart.size() >= 0 && data.activeCart.size() <= 100 &&
+        (!('customer' in data) || data.customer == null || (data.customer is map && data.customer.keys().size() <= 30)) &&
+        (!('notes' in data) || data.notes == null || (data.notes is string && data.notes.size() <= 500));
+    }
+
     // ===============================================================
     // DEFAULT DENY ROOT RULE
     // ===============================================================
@@ -456,6 +494,28 @@ service cloud.firestore {
 
       // Configuration documents cannot be deleted
       allow delete: if false;
+    }
+
+    // ===============================================================
+    // COLLECTION: tables
+    // Restaurant Dining Tables, Floor Layout & Live Seating
+    // ===============================================================
+    match /tables/{tableId} {
+      // Authenticated POS staff can inspect floor layout and table statuses
+      allow read: if isAuthenticated();
+
+      // Creating a table requires authentication, document ID matching, and full schema validation
+      allow create: if isAuthenticated() && 
+        isValidRestaurantTable(request.resource.data) &&
+        request.resource.data.id == tableId;
+
+      // Updating a table preserves immutable id and validates data structure
+      allow update: if isAuthenticated() && 
+        isValidRestaurantTable(request.resource.data) &&
+        areImmutableFieldsUnchanged(['id']);
+
+      // Authenticated POS staff can delete tables from floor plan
+      allow delete: if isAuthenticated();
     }
 
   }

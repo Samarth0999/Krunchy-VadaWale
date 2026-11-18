@@ -4,6 +4,7 @@ import { Header } from './components/common/Header';
 import { ToastContainer } from './components/common/ToastContainer';
 import { ReceiptModal } from './components/common/ReceiptModal';
 import { POSLayout } from './components/pos/POSLayout';
+import { TableManagementView } from './components/tables/TableManagementView';
 import { OrdersHistory } from './components/orders/OrdersHistory';
 import { MenuManagement } from './components/menu/MenuManagement';
 import { CustomerDirectory } from './components/customers/CustomerDirectory';
@@ -17,6 +18,7 @@ const MainContent: React.FC = () => {
   return (
     <main className="flex-1 flex flex-col min-h-0 overflow-hidden">
       {activeTab === 'pos' && <POSLayout />}
+      {activeTab === 'tables' && <TableManagementView />}
       {activeTab === 'orders' && <OrdersHistory />}
       {activeTab === 'menu' && <MenuManagement />}
       {activeTab === 'customers' && <CustomerDirectory />}

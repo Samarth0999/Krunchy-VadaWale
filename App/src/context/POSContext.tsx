@@ -8,7 +8,9 @@ import {
   CartItem, 
   DiningType, 
   PaymentSplit, 
-  ActiveTab 
+  ActiveTab,
+  RestaurantTable,
+  TableStatus
 } from '../types';
 import { storageService } from '../services/storageService';
 import confetti from 'canvas-confetti';
@@ -31,7 +33,21 @@ interface POSContextType {
   orders: Order[];
   ledger: LoyaltyLedgerEntry[];
   settings: RestaurantSettings;
+  tables: RestaurantTable[];
   isCloudConnected: boolean;
+
+  // Tables Management
+  activeTableId: string | null;
+  activeTable: RestaurantTable | null;
+  selectTable: (tableId: string | null) => void;
+  saveActiveTableOrder: (guestCount?: number, notes?: string) => Promise<void>;
+  transferActiveTable: (toTableId: string) => Promise<boolean>;
+  releaseTable: (tableId: string) => Promise<void>;
+  updateTableStatus: (tableId: string, status: TableStatus) => Promise<void>;
+  saveTable: (table: RestaurantTable) => Promise<void>;
+  deleteTable: (tableId: string) => Promise<void>;
+  occupiedTablesCount: number;
+  availableTablesCount: number;
 
   // Cart & Active Sale
   cart: CartItem[];
@@ -99,8 +115,12 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [ledger, setLedger] = useState<LoyaltyLedgerEntry[]>([]);
+  const [tables, setTables] = useState<RestaurantTable[]>([]);
   const [settings, setSettings] = useState<RestaurantSettings>(storageService.getSettings());
   const [isCloudConnected, setIsCloudConnected] = useState<boolean>(true);
+
+  // Active Table state
+  const [activeTableId, setActiveTableId] = useState<string | null>(null);
 
   // Cart & Active Sale state
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -137,6 +157,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCustomers(storageService.getCustomers());
     setOrders(storageService.getOrders());
     setLedger(storageService.getLedger());
+    setTables(storageService.getTables());
     setSettings(storageService.getSettings());
     setIsCloudConnected(storageService.isCloudConnected());
   }, []);
@@ -148,6 +169,104 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
     return () => unsubscribe();
   }, [refreshData]);
+
+  // Keep activeTable synchronized
+  const activeTable = useMemo(() => {
+    if (!activeTableId) return null;
+    return tables.find(t => t.id === activeTableId || t.name === activeTableId) || null;
+  }, [tables, activeTableId]);
+
+  // Table status counts
+  const occupiedTablesCount = useMemo(() => {
+    return tables.filter(t => t.status === 'OCCUPIED' || t.status === 'BILLED').length;
+  }, [tables]);
+
+  const availableTablesCount = useMemo(() => {
+    return tables.filter(t => t.status === 'AVAILABLE').length;
+  }, [tables]);
+
+  // Table selection & loading into POS
+  const selectTable = useCallback((tableId: string | null) => {
+    if (!tableId) {
+      setActiveTableId(null);
+      return;
+    }
+
+    const target = storageService.getTableById(tableId);
+    if (!target) return;
+
+    setActiveTableId(target.id);
+    setDiningTypeState('DINE_IN');
+    setTableNumber(target.name);
+    setCart(target.activeCart ? [...target.activeCart] : []);
+    setSelectedCustomer(target.customer || null);
+    setPointsToRedeemState(0);
+
+    if (target.status === 'OCCUPIED') {
+      addToast(`Table ${target.name} Selected`, `Active order loaded (${target.activeCart?.length || 0} items).`, 'info');
+    } else if (target.status === 'BILLED') {
+      addToast(`Table ${target.name} Selected`, `Bill presented (${target.activeCart?.length || 0} items). Ready for payment.`, 'warning');
+    } else {
+      addToast(`Table ${target.name} Selected`, `Table is available. Tap menu to start order.`, 'info');
+    }
+  }, [addToast]);
+
+  // Save current cart and customer to active table (running KOT / order)
+  const saveActiveTableOrder = useCallback(async (guestCount?: number, notes?: string) => {
+    if (!activeTableId) {
+      addToast('No Table Selected', 'Please select a table to save order.', 'warning');
+      return;
+    }
+
+    await storageService.updateTableOrder(activeTableId, cart, selectedCustomer, guestCount, notes);
+    addToast('Table Order Saved', `Order updated for ${tableNumber}.`, 'success');
+  }, [activeTableId, cart, selectedCustomer, tableNumber, addToast]);
+
+  // Transfer running order to another table
+  const transferActiveTable = useCallback(async (toTableId: string): Promise<boolean> => {
+    if (!activeTableId) return false;
+
+    const success = await storageService.transferTable(activeTableId, toTableId);
+    if (success) {
+      const newTable = storageService.getTableById(toTableId);
+      if (newTable) {
+        setActiveTableId(newTable.id);
+        setTableNumber(newTable.name);
+        addToast('Table Shifted', `Order transferred from ${tableNumber} to ${newTable.name}.`, 'success');
+      }
+    }
+    return success;
+  }, [activeTableId, tableNumber, addToast]);
+
+  // Release / Clear table
+  const releaseTable = useCallback(async (tableId: string) => {
+    await storageService.clearTable(tableId);
+    if (activeTableId === tableId) {
+      setActiveTableId(null);
+      setCart([]);
+      setSelectedCustomer(null);
+    }
+    addToast('Table Released', 'Table marked Available.', 'info');
+  }, [activeTableId, addToast]);
+
+  // Update table status
+  const updateTableStatus = useCallback(async (tableId: string, status: TableStatus) => {
+    await storageService.updateTableStatus(tableId, status);
+    addToast('Table Status Updated', `Status changed to ${status}.`, 'info');
+  }, [addToast]);
+
+  // Save / Add table
+  const saveTable = useCallback(async (table: RestaurantTable) => {
+    await storageService.saveTable(table);
+    addToast('Table Saved', `${table.name} configured.`, 'success');
+  }, [addToast]);
+
+  // Delete table
+  const deleteTable = useCallback(async (tableId: string) => {
+    await storageService.deleteTable(tableId);
+    if (activeTableId === tableId) setActiveTableId(null);
+    addToast('Table Removed', 'Table deleted from layout.', 'info');
+  }, [activeTableId, addToast]);
 
   // Keep selectedCustomer updated if customer records mutate
   useEffect(() => {
@@ -172,7 +291,6 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [cart]);
 
   // Maximum points the customer can redeem on this specific cart
-  // (e.g. up to maxRedemptionPercent of subtotal, and cannot exceed customer's current points)
   const maxRedeemablePoints = useMemo(() => {
     if (!selectedCustomer || selectedCustomer.currentPoints <= 0) return 0;
     const maxDiscountAllowed = Math.floor((subtotal * settings.maxRedemptionPercent) / 100);
@@ -210,7 +328,6 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Potential points customer will earn from this checkout
   const potentialPointsEarned = useMemo(() => {
     if (subtotal < settings.minOrderToEarn) return 0;
-    // Earn rate: e.g. ₹10 spent = 1 pt
     const earnRate = settings.loyaltyEarnRate > 0 ? settings.loyaltyEarnRate : 10;
     return Math.floor(grandTotal / earnRate);
   }, [grandTotal, subtotal, settings]);
@@ -280,7 +397,6 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const safePoints = Math.max(0, Math.min(points, maxRedeemablePoints));
     setPointsToRedeemState(safePoints);
     if (safePoints > 0) {
-      // Small celebratory confetti for points redemption!
       try {
         confetti({
           particleCount: 30,
@@ -288,7 +404,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           origin: { y: 0.8 }
         });
       } catch {
-        // Confetti optional
+        // Optional
       }
     }
   }, [maxRedeemablePoints]);
@@ -327,6 +443,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       customerPhone: selectedCustomer ? selectedCustomer.phone : '',
       diningType,
       tableNumber: diningType === 'DINE_IN' ? tableNumber : undefined,
+      tableId: diningType === 'DINE_IN' ? (activeTableId || undefined) : undefined,
       items: orderItems,
       subtotal,
       taxRate: settings.taxRate,
@@ -345,6 +462,12 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     const savedOrder = await storageService.createOrder(newOrder);
+
+    // Release table if active
+    if (activeTableId) {
+      await storageService.clearTable(activeTableId);
+      setActiveTableId(null);
+    }
 
     // Trigger celebration confetti
     try {
@@ -374,6 +497,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     selectedCustomer, 
     diningType, 
     tableNumber, 
+    activeTableId,
     subtotal, 
     settings, 
     taxAmount, 
@@ -431,9 +555,11 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCustomers(data.customers);
     setOrders(data.orders);
     setLedger(data.ledger);
+    setTables(data.tables);
     setSettings(data.settings);
+    setActiveTableId(null);
     clearCart();
-    addToast('Demo Data Reset', 'Menu, sample customers, and reports populated.', 'info');
+    addToast('Demo Data Reset', 'Menu, tables, sample customers, and reports populated.', 'info');
   }, [clearCart, addToast]);
 
   return (
@@ -445,8 +571,20 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         customers,
         orders,
         ledger,
+        tables,
         settings,
         isCloudConnected,
+        activeTableId,
+        activeTable,
+        selectTable,
+        saveActiveTableOrder,
+        transferActiveTable,
+        releaseTable,
+        updateTableStatus,
+        saveTable,
+        deleteTable,
+        occupiedTablesCount,
+        availableTablesCount,
         cart,
         diningType,
         tableNumber,
@@ -504,4 +642,3 @@ export const usePOS = (): POSContextType => {
   }
   return context;
 };
-

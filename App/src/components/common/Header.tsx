@@ -12,7 +12,9 @@ import {
   CloudCheck, 
   CloudOff,
   Flame,
-  RotateCcw
+  RotateCcw,
+  LayoutGrid,
+  BookOpen
 } from 'lucide-react';
 import { usePOS } from '../../context/POSContext';
 import { ActiveTab } from '../../types';
@@ -25,6 +27,8 @@ export const Header: React.FC = () => {
     settings, 
     isCloudConnected,
     orders,
+    tables,
+    occupiedTablesCount,
     resetAndSeedDemoData
   } = usePOS();
 
@@ -56,6 +60,12 @@ export const Header: React.FC = () => {
       badge: cartTotalQuantity > 0 ? cartTotalQuantity : undefined
     },
     { 
+      id: 'tables', 
+      label: 'Tables & Floor', 
+      icon: <LayoutGrid className="w-4 h-4" />,
+      badge: `${occupiedTablesCount}/${tables.length}`
+    },
+    { 
       id: 'orders', 
       label: 'Orders', 
       icon: <ClipboardList className="w-4 h-4" />,
@@ -64,7 +74,7 @@ export const Header: React.FC = () => {
     { 
       id: 'menu', 
       label: 'Menu Catalog', 
-      icon: <UtensilsCrossed className="w-4 h-4" /> 
+      icon: <BookOpen className="w-4 h-4" /> 
     },
     { 
       id: 'customers', 
@@ -214,4 +224,3 @@ export const Header: React.FC = () => {
     </header>
   );
 };
-

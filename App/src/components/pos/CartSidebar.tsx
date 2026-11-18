@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { usePOS } from '../../context/POSContext';
 import { CustomerLookupBanner } from './CustomerLookupBanner';
+import { TablePickerModal } from '../tables/TablePickerModal';
 import { 
   Trash2, 
   Plus, 
@@ -10,10 +11,12 @@ import {
   Truck, 
   Sparkles, 
   MessageSquare, 
-  ChevronRight,
-  ArrowRight
+  ArrowRight,
+  Clock,
+  Layers,
+  Save,
+  RotateCcw
 } from 'lucide-react';
-import { DiningType } from '../../types';
 
 export const CartSidebar: React.FC = () => {
   const { 
@@ -22,6 +25,11 @@ export const CartSidebar: React.FC = () => {
     setDiningType, 
     tableNumber, 
     setTableNumber, 
+    activeTableId,
+    activeTable,
+    selectTable,
+    saveActiveTableOrder,
+    releaseTable,
     updateQuantity, 
     removeFromCart, 
     updateItemNotes,
@@ -39,8 +47,8 @@ export const CartSidebar: React.FC = () => {
 
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [noteText, setNoteText] = useState('');
-
-  const tables = ['Table 1', 'Table 2', 'Table 3', 'Table 4', 'Table 5', 'Table 6', 'Table 7', 'Table 8', 'Bar 1', 'Takeout Counter'];
+  const [isTablePickerOpen, setIsTablePickerOpen] = useState(false);
+  const [guestCountInput, setGuestCountInput] = useState<number>(2);
 
   const handleOpenNote = (productId: string, currentNote = '') => {
     setEditingNoteId(productId);
@@ -53,13 +61,26 @@ export const CartSidebar: React.FC = () => {
     setNoteText('');
   };
 
+  const handleSaveRunningOrder = async () => {
+    if (!activeTableId) {
+      setIsTablePickerOpen(true);
+      return;
+    }
+    await saveActiveTableOrder(guestCountInput);
+  };
+
   const currency = settings.currencySymbol || '₹';
+
+  // Compute seated minutes
+  const seatedMins = activeTable?.seatedAt 
+    ? Math.floor((Date.now() - new Date(activeTable.seatedAt).getTime()) / 60000)
+    : null;
 
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-2xl flex flex-col h-full shadow-xl overflow-hidden">
       
       {/* Top: Dining Type Switcher */}
-      <div className="p-3 border-b border-slate-800 bg-slate-950/70">
+      <div className="p-3 border-b border-slate-800 bg-slate-950/70 space-y-2">
         <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-900 rounded-xl border border-slate-800">
           <button
             type="button"
@@ -76,7 +97,10 @@ export const CartSidebar: React.FC = () => {
 
           <button
             type="button"
-            onClick={() => setDiningType('TAKEAWAY')}
+            onClick={() => {
+              setDiningType('TAKEAWAY');
+              selectTable(null);
+            }}
             className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-semibold transition-all ${
               diningType === 'TAKEAWAY' 
                 ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow' 
@@ -89,7 +113,10 @@ export const CartSidebar: React.FC = () => {
 
           <button
             type="button"
-            onClick={() => setDiningType('DELIVERY')}
+            onClick={() => {
+              setDiningType('DELIVERY');
+              selectTable(null);
+            }}
             className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-semibold transition-all ${
               diningType === 'DELIVERY' 
                 ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow' 
@@ -101,19 +128,52 @@ export const CartSidebar: React.FC = () => {
           </button>
         </div>
 
-        {/* Table Selector if Dine-In */}
+        {/* Table Selector & Status Badge if Dine-In */}
         {diningType === 'DINE_IN' && (
-          <div className="mt-2 flex items-center justify-between text-xs px-1">
-            <span className="text-slate-400">Select Table:</span>
-            <select
-              value={tableNumber}
-              onChange={(e) => setTableNumber(e.target.value)}
-              className="bg-slate-800 text-white font-medium text-xs rounded-lg px-2 py-1 border border-slate-700 focus:outline-none focus:border-orange-500"
-            >
-              {tables.map(t => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
+          <div className="bg-slate-900 p-2 rounded-xl border border-slate-800 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 rounded-lg bg-orange-500/10 text-orange-400 flex items-center justify-center font-bold text-xs shrink-0">
+                🪑
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-xs text-white truncate">{tableNumber || 'No Table'}</span>
+                  {activeTable && (
+                    <span className={`text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded ${
+                      activeTable.status === 'AVAILABLE' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
+                    }`}>
+                      {activeTable.status}
+                    </span>
+                  )}
+                </div>
+                {seatedMins !== null && (
+                  <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-amber-400" />
+                    Seated {seatedMins}m ago
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsTablePickerOpen(true)}
+                className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-semibold rounded-lg border border-slate-700 transition-colors"
+              >
+                Change Table
+              </button>
+              {activeTableId && (
+                <button
+                  type="button"
+                  onClick={() => releaseTable(activeTableId)}
+                  title="Clear / Release Table"
+                  className="p-1 text-slate-500 hover:text-rose-400 rounded-lg hover:bg-slate-800"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -265,34 +325,55 @@ export const CartSidebar: React.FC = () => {
         </div>
 
         {/* Action Buttons */}
-        <div className="grid grid-cols-4 gap-2 pt-2">
-          <button
-            type="button"
-            disabled={cart.length === 0}
-            onClick={() => {
-              if (window.confirm("Clear all items from the current cart?")) {
-                clearCart();
-              }
-            }}
-            className="col-span-1 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-300 font-semibold py-2.5 rounded-xl text-xs transition-colors"
-          >
-            Clear
-          </button>
+        <div className="space-y-1.5 pt-2">
+          
+          {/* Quick Save Table Order button if Dine-In */}
+          {diningType === 'DINE_IN' && cart.length > 0 && (
+            <button
+              type="button"
+              onClick={handleSaveRunningOrder}
+              className="w-full bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors"
+            >
+              <Save className="w-3.5 h-3.5" />
+              <span>Save Table Order / KOT ({tableNumber})</span>
+            </button>
+          )}
 
-          <button
-            type="button"
-            disabled={cart.length === 0}
-            onClick={() => setIsCheckoutModalOpen(true)}
-            className="col-span-3 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 text-white font-extrabold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 transition-all hover:scale-101"
-          >
-            <span>Proceed to Pay</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+          <div className="grid grid-cols-4 gap-2">
+            <button
+              type="button"
+              disabled={cart.length === 0}
+              onClick={() => {
+                if (window.confirm("Clear all items from the current cart?")) {
+                  clearCart();
+                }
+              }}
+              className="col-span-1 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-300 font-semibold py-2.5 rounded-xl text-xs transition-colors"
+            >
+              Clear
+            </button>
+
+            <button
+              type="button"
+              disabled={cart.length === 0}
+              onClick={() => setIsCheckoutModalOpen(true)}
+              className="col-span-3 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 text-white font-extrabold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 transition-all hover:scale-101"
+            >
+              <span>Proceed to Pay</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
       </div>
 
+      {/* Table Picker Floor Modal */}
+      <TablePickerModal
+        isOpen={isTablePickerOpen}
+        onClose={() => setIsTablePickerOpen(false)}
+        onSelectTable={(id) => selectTable(id)}
+      />
+
     </div>
   );
 };
-

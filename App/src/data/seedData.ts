@@ -1,4 +1,4 @@
-import { Product, Customer, Order, LoyaltyLedgerEntry, RestaurantSettings } from '../types';
+import { Product, Customer, Order, LoyaltyLedgerEntry, RestaurantSettings, RestaurantTable } from '../types';
 
 export const defaultSettings: RestaurantSettings = {
   name: "KRUNCHY Fried Chicken & Burgers",
@@ -581,4 +581,143 @@ export const generateSeedOrdersAndLedger = (): { orders: Order[], ledger: Loyalt
 
   return { orders, ledger };
 };
+
+export const defaultTables: RestaurantTable[] = [
+  // Main Dining
+  {
+    id: 'tbl_1',
+    name: 'Table 1',
+    section: 'Main Dining',
+    capacity: 4,
+    status: 'AVAILABLE',
+    activeCart: []
+  },
+  {
+    id: 'tbl_2',
+    name: 'Table 2',
+    section: 'Main Dining',
+    capacity: 2,
+    status: 'OCCUPIED',
+    guestCount: 2,
+    seatedAt: new Date(Date.now() - 32 * 60 * 1000).toISOString(),
+    customer: defaultCustomers[1], // Priya Patel
+    activeCart: [
+      { product: defaultProducts[4], quantity: 2 }, // Krunchy Double Smash Cheeseburger
+      { product: defaultProducts[8], quantity: 1 }  // Peri-Peri Fries
+    ]
+  },
+  {
+    id: 'tbl_3',
+    name: 'Table 3',
+    section: 'Main Dining',
+    capacity: 4,
+    status: 'AVAILABLE',
+    activeCart: []
+  },
+  {
+    id: 'tbl_4',
+    name: 'Table 4',
+    section: 'Main Dining',
+    capacity: 6,
+    status: 'OCCUPIED',
+    guestCount: 4,
+    seatedAt: new Date(Date.now() - 18 * 60 * 1000).toISOString(),
+    customer: defaultCustomers[0], // Amit Sharma
+    activeCart: [
+      { product: defaultProducts[0], quantity: 1 }, // Krunchy Signature Bucket
+      { product: defaultProducts[14], quantity: 2 }, // Belgian Chocolate Shake
+      { product: defaultProducts[8], quantity: 1 } // Peri-Peri Fries
+    ]
+  },
+  {
+    id: 'tbl_5',
+    name: 'Table 5',
+    section: 'Main Dining',
+    capacity: 4,
+    status: 'BILLED',
+    guestCount: 3,
+    seatedAt: new Date(Date.now() - 50 * 60 * 1000).toISOString(),
+    activeCart: [
+      { product: defaultProducts[5], quantity: 2 },
+      { product: defaultProducts[17], quantity: 2 }
+    ]
+  },
+  {
+    id: 'tbl_6',
+    name: 'Table 6',
+    section: 'Main Dining',
+    capacity: 2,
+    status: 'AVAILABLE',
+    activeCart: []
+  },
+
+  // AC Lounge
+  {
+    id: 'tbl_7',
+    name: 'Table 7',
+    section: 'AC Lounge',
+    capacity: 4,
+    status: 'AVAILABLE',
+    activeCart: []
+  },
+  {
+    id: 'tbl_8',
+    name: 'Table 8',
+    section: 'AC Lounge',
+    capacity: 6,
+    status: 'RESERVED',
+    notes: 'Reserved for Mr. Kapoor (Party of 5) at 7:30 PM',
+    activeCart: []
+  },
+  {
+    id: 'tbl_b1',
+    name: 'Booth 1',
+    section: 'AC Lounge',
+    capacity: 6,
+    status: 'OCCUPIED',
+    guestCount: 5,
+    seatedAt: new Date(Date.now() - 42 * 60 * 1000).toISOString(),
+    customer: defaultCustomers[2], // Rohan Verma
+    activeCart: [
+      { product: defaultProducts[11], quantity: 1 }, // Mega Feast Bucket
+      { product: defaultProducts[15], quantity: 3 }  // Virgin Mojito
+    ]
+  },
+  {
+    id: 'tbl_b2',
+    name: 'Booth 2',
+    section: 'AC Lounge',
+    capacity: 4,
+    status: 'AVAILABLE',
+    activeCart: []
+  },
+
+  // Outdoor Patio
+  {
+    id: 'tbl_p1',
+    name: 'Patio 1',
+    section: 'Outdoor Patio',
+    capacity: 4,
+    status: 'AVAILABLE',
+    activeCart: []
+  },
+  {
+    id: 'tbl_p2',
+    name: 'Patio 2',
+    section: 'Outdoor Patio',
+    capacity: 4,
+    status: 'DIRTY',
+    notes: 'Guests departed. Table needs clearing & sanitizing.',
+    activeCart: []
+  },
+  {
+    id: 'tbl_p3',
+    name: 'Patio 3',
+    section: 'Outdoor Patio',
+    capacity: 2,
+    status: 'AVAILABLE',
+    activeCart: []
+  }
+];
+
 
