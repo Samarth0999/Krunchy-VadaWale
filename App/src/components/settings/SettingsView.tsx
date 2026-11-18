@@ -15,7 +15,10 @@ import {
   Users,
   UserPlus,
   Trash2,
-  Key
+  Key,
+  AlertTriangle,
+  ShieldAlert,
+  RotateCcw
 } from 'lucide-react';
 
 export const SettingsView: React.FC = () => {
@@ -27,13 +30,20 @@ export const SettingsView: React.FC = () => {
     addStaffMember,
     removeStaffMember,
     updateStaffPermissions,
-    currentStaff
+    currentStaff,
+    purgeOrders,
+    purgeCustomers,
+    purgeProducts,
+    purgeTables,
+    factoryResetDatabase
   } = usePOS();
   
+  const isAdmin = currentStaff?.role === 'Admin';
   const canManageStaff = currentStaff?.permissions?.canManageStaff !== false;
 
   const [formData, setFormData] = useState<RestaurantSettings>({ ...settings });
   const [isSaved, setIsSaved] = useState(false);
+  const [isPurging, setIsPurging] = useState(false);
 
   // Keep form data synchronized whenever settings update
   React.useEffect(() => {
@@ -87,6 +97,53 @@ export const SettingsView: React.FC = () => {
       setNewStaffEmail('');
       setNewStaffName('');
       setNewStaffRole('Cashier');
+    }
+  };
+
+  // Admin Danger Zone Handlers
+  const handlePurgeOrders = async () => {
+    if (!isAdmin) return;
+    if (window.confirm("⚠️ DANGER: PURGE ALL ORDERS?\n\nThis will permanently delete all completed sales orders and item transactions from local storage and Supabase.\n\nClick OK to confirm.")) {
+      setIsPurging(true);
+      await purgeOrders();
+      setIsPurging(false);
+    }
+  };
+
+  const handlePurgeCustomers = async () => {
+    if (!isAdmin) return;
+    if (window.confirm("⚠️ DANGER: CLEAR ALL CUSTOMERS & LOYALTY?\n\nThis will permanently delete all customer profiles and loyalty point ledgers.\n\nClick OK to confirm.")) {
+      setIsPurging(true);
+      await purgeCustomers();
+      setIsPurging(false);
+    }
+  };
+
+  const handlePurgeProducts = async () => {
+    if (!isAdmin) return;
+    if (window.confirm("⚠️ DANGER: PURGE ALL MENU PRODUCTS?\n\nThis will remove all menu items from your catalog.\n\nClick OK to confirm.")) {
+      setIsPurging(true);
+      await purgeProducts();
+      setIsPurging(false);
+    }
+  };
+
+  const handlePurgeTables = async () => {
+    if (!isAdmin) return;
+    if (window.confirm("⚠️ DANGER: RESET ALL TABLES?\n\nThis will delete all restaurant floor tables and cancel open table tabs.\n\nClick OK to confirm.")) {
+      setIsPurging(true);
+      await purgeTables();
+      setIsPurging(false);
+    }
+  };
+
+  const handleFactoryReset = async () => {
+    if (!isAdmin) return;
+    const confirmPrompt = window.prompt("🚨 CRITICAL: MASTER FACTORY RESET\n\nThis will wipe all orders, ledger, customers, and restore the database to clean default pure veg seed data.\n\nType 'RESET' to confirm:");
+    if (confirmPrompt === 'RESET') {
+      setIsPurging(true);
+      await factoryResetDatabase();
+      setIsPurging(false);
     }
   };
 
@@ -575,6 +632,125 @@ export const SettingsView: React.FC = () => {
           </div>
 
         </div>
+
+        {/* Admin Danger Zone & Data Purge Center (Admin Only) */}
+        {isAdmin && (
+          <div className="bg-red-950/20 border border-red-500/30 rounded-2xl p-5 space-y-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-red-500/20">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400">
+                  <ShieldAlert className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-red-300 flex items-center gap-2">
+                    <span>Admin Danger Zone & Data Purge Center</span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/30">
+                      ADMIN ONLY
+                    </span>
+                  </h3>
+                  <p className="text-xs text-red-400/80 mt-0.5">
+                    Permanent deletion options for database tables, sales receipts, customer records, and system reset
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+              
+              {/* Purge Orders */}
+              <div className="p-3.5 bg-zinc-900/80 border border-red-500/20 rounded-xl flex items-center justify-between gap-3">
+                <div>
+                  <h4 className="text-xs font-semibold text-zinc-100">Purge Sales Orders History</h4>
+                  <p className="text-[11px] text-zinc-400 mt-0.5">Delete all completed receipts & sales records</p>
+                </div>
+                <button
+                  type="button"
+                  disabled={isPurging}
+                  onClick={handlePurgeOrders}
+                  className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-300 hover:text-red-200 border border-red-500/30 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer disabled:opacity-50"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Purge Orders</span>
+                </button>
+              </div>
+
+              {/* Purge Customers */}
+              <div className="p-3.5 bg-zinc-900/80 border border-red-500/20 rounded-xl flex items-center justify-between gap-3">
+                <div>
+                  <h4 className="text-xs font-semibold text-zinc-100">Clear Customer Directory</h4>
+                  <p className="text-[11px] text-zinc-400 mt-0.5">Delete all customer profiles & loyalty ledgers</p>
+                </div>
+                <button
+                  type="button"
+                  disabled={isPurging}
+                  onClick={handlePurgeCustomers}
+                  className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-300 hover:text-red-200 border border-red-500/30 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer disabled:opacity-50"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Clear Customers</span>
+                </button>
+              </div>
+
+              {/* Purge Menu Products */}
+              <div className="p-3.5 bg-zinc-900/80 border border-red-500/20 rounded-xl flex items-center justify-between gap-3">
+                <div>
+                  <h4 className="text-xs font-semibold text-zinc-100">Purge Menu Catalog</h4>
+                  <p className="text-[11px] text-zinc-400 mt-0.5">Remove all food products & menu items</p>
+                </div>
+                <button
+                  type="button"
+                  disabled={isPurging}
+                  onClick={handlePurgeProducts}
+                  className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-300 hover:text-red-200 border border-red-500/30 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer disabled:opacity-50"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Purge Menu</span>
+                </button>
+              </div>
+
+              {/* Reset Floor Tables */}
+              <div className="p-3.5 bg-zinc-900/80 border border-red-500/20 rounded-xl flex items-center justify-between gap-3">
+                <div>
+                  <h4 className="text-xs font-semibold text-zinc-100">Reset Floor Tables</h4>
+                  <p className="text-[11px] text-zinc-400 mt-0.5">Delete all tables and clear active table sessions</p>
+                </div>
+                <button
+                  type="button"
+                  disabled={isPurging}
+                  onClick={handlePurgeTables}
+                  className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-300 hover:text-red-200 border border-red-500/30 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer disabled:opacity-50"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Reset Tables</span>
+                </button>
+              </div>
+
+            </div>
+
+            {/* Master Factory Reset Banner */}
+            <div className="p-4 bg-red-950/40 border border-red-500/40 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-2">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="text-xs font-bold text-red-200">Master Factory Reset</h4>
+                  <p className="text-[11px] text-red-400/90 mt-0.5">
+                    Wipes all operational data and restores the application to default pure veg seed configuration.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                disabled={isPurging}
+                onClick={handleFactoryReset}
+                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-semibold transition-colors flex items-center gap-2 shrink-0 cursor-pointer shadow-md disabled:opacity-50"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Factory Reset</span>
+              </button>
+            </div>
+
+          </div>
+        )}
 
         {/* Bottom Save Bar */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3.5 bg-zinc-900/60 border border-zinc-800/80 rounded-xl">

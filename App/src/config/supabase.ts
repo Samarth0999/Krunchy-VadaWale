@@ -2,16 +2,26 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 /**
  * Sanitizes the Supabase Project URL.
- * Automatically strips accidental `/rest/v1`, `/auth/v1`, and trailing slashes.
+ * Automatically strips accidental `/rest/v1`, `/auth/v1`, trailing slashes,
+ * or full endpoint subpaths to always preserve only the base origin (e.g. `https://xxxx.supabase.co`).
  */
 export const cleanSupabaseUrl = (rawUrl?: string): string => {
   if (!rawUrl) return '';
   let url = rawUrl.trim();
-  // Strip trailing slashes
+  try {
+    const parsed = new URL(url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`);
+    if (parsed.hostname.includes('supabase.co')) {
+      return `${parsed.protocol}//${parsed.host}`;
+    }
+    // Generic fallback for custom domains: return protocol and host
+    if (parsed.protocol && parsed.host) {
+      return `${parsed.protocol}//${parsed.host}`;
+    }
+  } catch (e) {}
+
+  // Regex fallback
   url = url.replace(/\/+$/, '');
-  // Strip /rest/v1 or /auth/v1 or /v1 accidentally pasted from REST endpoint docs
-  url = url.replace(/\/rest\/v1\/?$/i, '');
-  url = url.replace(/\/auth\/v1\/?$/i, '');
+  url = url.replace(/\/(rest|auth)\/v[0-9]+(\/.*)?$/i, '');
   return url.replace(/\/+$/, '');
 };
 

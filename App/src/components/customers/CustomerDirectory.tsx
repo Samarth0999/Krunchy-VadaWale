@@ -7,6 +7,7 @@ import {
   UserPlus, 
   ShoppingBag, 
   Smartphone,
+  Trash2,
   X 
 } from 'lucide-react';
 import { Customer } from '../../types';
@@ -15,11 +16,15 @@ export const CustomerDirectory: React.FC = () => {
   const { 
     customers, 
     saveCustomer, 
+    deleteCustomer,
     selectCustomer, 
     setActiveTab, 
     settings,
-    sendWhatsAppLoyaltyReminder 
+    sendWhatsAppLoyaltyReminder,
+    currentStaff
   } = usePOS();
+
+  const isAdmin = currentStaff?.role === 'Admin';
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filterTier, setFilterTier] = useState<string>('ALL');
@@ -89,6 +94,14 @@ export const CustomerDirectory: React.FC = () => {
     setNewName('');
     setNewPhone('');
     setNewEmail('');
+  };
+
+  const handleDeleteCustomer = async (e: React.MouseEvent, customer: Customer) => {
+    e.stopPropagation();
+    if (!isAdmin) return;
+    if (window.confirm(`Delete customer profile "${customer.name}" (${customer.phone})?\n\nThis will permanently remove their loyalty points and visit history.`)) {
+      await deleteCustomer(customer.id);
+    }
   };
 
   const getTierBadge = (tier: string) => {
@@ -296,6 +309,16 @@ export const CustomerDirectory: React.FC = () => {
                           <ShoppingBag className="w-3 h-3" />
                           <span>Order</span>
                         </button>
+                        {isAdmin && (
+                          <button
+                            type="button"
+                            onClick={(e) => handleDeleteCustomer(e, customer)}
+                            title="Admin: Delete Customer Profile"
+                            className="p-1 bg-zinc-800/80 hover:bg-rose-950/40 text-zinc-500 hover:text-rose-400 rounded text-xs transition-colors border border-zinc-700/60"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        )}
                       </div>
                     </td>
 
@@ -365,6 +388,16 @@ export const CustomerDirectory: React.FC = () => {
                       <ShoppingBag className="w-3 h-3" />
                       <span>Bill</span>
                     </button>
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={(e) => handleDeleteCustomer(e, customer)}
+                        title="Delete Profile"
+                        className="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg text-xs border border-rose-500/20"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

@@ -125,6 +125,15 @@ interface POSContextType {
   addStaffMember: (email: string, name: string, role: StaffRole) => Promise<{ success: boolean; message: string }>;
   removeStaffMember: (staffId: string) => Promise<{ success: boolean; message: string }>;
   updateStaffPermissions: (staffId: string, permissions: StaffPermissions) => Promise<{ success: boolean; message: string }>;
+
+  // Admin-Only Deletion & Purge Operations
+  deleteCustomer: (customerId: string) => Promise<boolean>;
+  deleteOrder: (orderId: string) => Promise<boolean>;
+  purgeOrders: () => Promise<boolean>;
+  purgeCustomers: () => Promise<boolean>;
+  purgeProducts: () => Promise<boolean>;
+  purgeTables: () => Promise<boolean>;
+  factoryResetDatabase: () => Promise<boolean>;
 }
 
 const POSContext = createContext<POSContextType | undefined>(undefined);
@@ -338,12 +347,26 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     addToast('Table Saved', `${table.name} configured.`, 'success');
   }, [addToast]);
 
-  // Delete table
+  // Check if current user is Admin
+  const assertAdmin = useCallback((actionName: string): boolean => {
+    if (currentStaff?.role !== 'Admin') {
+      addToast(
+        'Admin Access Required', 
+        `Only Admin accounts have permission to ${actionName}. Current role: ${currentStaff?.role || 'Staff'}.`, 
+        'error'
+      );
+      return false;
+    }
+    return true;
+  }, [currentStaff, addToast]);
+
+  // Delete table (Admin only)
   const deleteTable = useCallback(async (tableId: string) => {
+    if (!assertAdmin('delete floor tables')) return;
     await storageService.deleteTable(tableId);
     if (activeTableId === tableId) setActiveTableId(null);
     addToast('Table Removed', 'Table deleted from layout.', 'info');
-  }, [activeTableId, addToast]);
+  }, [assertAdmin, activeTableId, addToast]);
 
   // Keep selectedCustomer updated if customer records mutate
   useEffect(() => {
@@ -633,9 +656,10 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [addToast]);
 
   const deleteProduct = useCallback(async (productId: string) => {
+    if (!assertAdmin('delete menu items')) return;
     await storageService.deleteProduct(productId);
     addToast('Product Deleted', 'Item removed from menu catalog.', 'info');
-  }, [addToast]);
+  }, [assertAdmin, addToast]);
 
   const saveCustomer = useCallback(async (customer: Customer): Promise<Customer> => {
     const saved = await storageService.saveCustomer(customer);
@@ -715,6 +739,66 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return res;
   }, [addToast]);
 
+  // Admin-Only Deletions & Purge Operations
+  const deleteCustomer = useCallback(async (customerId: string): Promise<boolean> => {
+    if (!assertAdmin('delete customer records')) return false;
+    await storageService.deleteCustomer(customerId);
+    if (selectedCustomer?.id === customerId) setSelectedCustomer(null);
+    addToast('Customer Removed', 'Customer record and loyalty history deleted.', 'info');
+    return true;
+  }, [assertAdmin, selectedCustomer, addToast]);
+
+  const deleteOrder = useCallback(async (orderId: string): Promise<boolean> => {
+    if (!assertAdmin('void or delete sales orders')) return false;
+    await storageService.deleteOrder(orderId);
+    if (activeReceiptOrder?.id === orderId) closeReceiptModal();
+    addToast('Order Deleted', 'Order receipt removed from sales history.', 'info');
+    return true;
+  }, [assertAdmin, activeReceiptOrder, closeReceiptModal, addToast]);
+
+  const purgeOrders = useCallback(async (): Promise<boolean> => {
+    if (!assertAdmin('purge order transactions')) return false;
+    await storageService.purgeOrders();
+    closeReceiptModal();
+    addToast('Orders Purged', 'All order history has been cleared.', 'info');
+    return true;
+  }, [assertAdmin, closeReceiptModal, addToast]);
+
+  const purgeCustomers = useCallback(async (): Promise<boolean> => {
+    if (!assertAdmin('purge customer directory')) return false;
+    await storageService.purgeCustomers();
+    setSelectedCustomer(null);
+    addToast('Customers Purged', 'Customer directory and loyalty ledgers cleared.', 'info');
+    return true;
+  }, [assertAdmin, addToast]);
+
+  const purgeProducts = useCallback(async (): Promise<boolean> => {
+    if (!assertAdmin('purge menu products')) return false;
+    await storageService.purgeProducts();
+    clearCart();
+    addToast('Menu Purged', 'All products removed from catalog.', 'info');
+    return true;
+  }, [assertAdmin, clearCart, addToast]);
+
+  const purgeTables = useCallback(async (): Promise<boolean> => {
+    if (!assertAdmin('reset tables')) return false;
+    await storageService.purgeTables();
+    setActiveTableId(null);
+    addToast('Tables Cleared', 'All restaurant tables removed.', 'info');
+    return true;
+  }, [assertAdmin, addToast]);
+
+  const factoryResetDatabase = useCallback(async (): Promise<boolean> => {
+    if (!assertAdmin('perform a factory reset')) return false;
+    await storageService.factoryResetDatabase();
+    clearCart();
+    setSelectedCustomer(null);
+    setActiveTableId(null);
+    closeReceiptModal();
+    addToast('Factory Reset Complete', 'Database restored to clean default seed state.', 'success');
+    return true;
+  }, [assertAdmin, clearCart, closeReceiptModal, addToast]);
+
   return (
     <POSContext.Provider
       value={{
@@ -792,7 +876,14 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         signOutStaff,
         addStaffMember,
         removeStaffMember,
-        updateStaffPermissions
+        updateStaffPermissions,
+        deleteCustomer,
+        deleteOrder,
+        purgeOrders,
+        purgeCustomers,
+        purgeProducts,
+        purgeTables,
+        factoryResetDatabase
       }}
     >
       {children}

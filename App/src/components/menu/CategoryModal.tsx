@@ -21,7 +21,8 @@ interface CategoryModalProps {
 }
 
 export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onClose }) => {
-  const { categories, addCategory, deleteCategory, products } = usePOS();
+  const { categories, addCategory, deleteCategory, products, currentStaff } = usePOS();
+  const isAdmin = currentStaff?.role === 'Admin';
   const [newCategoryName, setNewCategoryName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmDeleteCat, setConfirmDeleteCat] = useState<string | null>(null);
@@ -59,6 +60,10 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onClose })
   };
 
   const handleDeleteClick = (categoryName: string) => {
+    if (!isAdmin) {
+      alert('Only Admin accounts can delete menu categories.');
+      return;
+    }
     const count = getProductCount(categoryName);
     if (count > 0) {
       setConfirmDeleteCat(categoryName);
@@ -157,14 +162,18 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onClose })
                         {count} {count === 1 ? 'item' : 'items'}
                       </span>
 
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteClick(cat)}
-                        title={`Delete ${cat}`}
-                        className="p-1.5 text-zinc-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      {isAdmin ? (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteClick(cat)}
+                          title={`Delete ${cat}`}
+                          className="p-1.5 text-zinc-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      ) : (
+                        <span className="text-[10px] text-zinc-500 italic">Admin only</span>
+                      )}
                     </div>
                   </div>
 

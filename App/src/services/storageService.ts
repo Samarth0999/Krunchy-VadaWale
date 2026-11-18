@@ -661,6 +661,24 @@ class StorageService {
     } catch (e) {}
   }
 
+  public async deleteCustomer(customerId: string): Promise<void> {
+    const custs = this.getCustomers().filter(c => c.id !== customerId);
+    localStorage.setItem(LOCAL_STORAGE_KEYS.CUSTOMERS, JSON.stringify(custs));
+    
+    // Also clean local ledger for this customer
+    const ledgers = this.getLedger().filter(l => l.customerId !== customerId);
+    localStorage.setItem(LOCAL_STORAGE_KEYS.LEDGER, JSON.stringify(ledgers));
+
+    this.notify();
+
+    try {
+      await supabase.from('loyalty_ledger').delete().eq('customer_id', customerId);
+      await supabase.from('customers').delete().eq('id', customerId);
+    } catch (e) {
+      console.warn('Failed to delete customer in Supabase:', e);
+    }
+  }
+
   // --- TABLES ---
   public getTables(): RestaurantTable[] {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEYS.TABLES);
@@ -889,6 +907,92 @@ class StorageService {
     } catch (e) {}
 
     return order;
+  }
+
+  public async deleteOrder(orderId: string): Promise<void> {
+    const orders = this.getOrders().filter(o => o.id !== orderId);
+    localStorage.setItem(LOCAL_STORAGE_KEYS.ORDERS, JSON.stringify(orders));
+    this.notify();
+
+    try {
+      await supabase.from('order_items').delete().eq('order_id', orderId);
+      await supabase.from('orders').delete().eq('id', orderId);
+    } catch (e) {
+      console.warn('Failed to delete order in Supabase:', e);
+    }
+  }
+
+  public async purgeOrders(): Promise<void> {
+    localStorage.setItem(LOCAL_STORAGE_KEYS.ORDERS, JSON.stringify([]));
+    this.notify();
+
+    try {
+      await supabase.from('order_items').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await supabase.from('orders').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    } catch (e) {
+      console.warn('Failed to purge orders in Supabase:', e);
+    }
+  }
+
+  public async purgeCustomers(): Promise<void> {
+    localStorage.setItem(LOCAL_STORAGE_KEYS.CUSTOMERS, JSON.stringify([]));
+    localStorage.setItem(LOCAL_STORAGE_KEYS.LEDGER, JSON.stringify([]));
+    this.notify();
+
+    try {
+      await supabase.from('loyalty_ledger').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await supabase.from('customers').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    } catch (e) {
+      console.warn('Failed to purge customers in Supabase:', e);
+    }
+  }
+
+  public async purgeProducts(): Promise<void> {
+    localStorage.setItem(LOCAL_STORAGE_KEYS.PRODUCTS, JSON.stringify([]));
+    this.notify();
+
+    try {
+      await supabase.from('products').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    } catch (e) {
+      console.warn('Failed to purge products in Supabase:', e);
+    }
+  }
+
+  public async purgeTables(): Promise<void> {
+    localStorage.setItem(LOCAL_STORAGE_KEYS.TABLES, JSON.stringify([]));
+    this.notify();
+
+    try {
+      await supabase.from('restaurant_tables').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    } catch (e) {
+      console.warn('Failed to purge tables in Supabase:', e);
+    }
+  }
+
+  public async factoryResetDatabase(): Promise<void> {
+    // Reset local storage keys to clean default state
+    localStorage.setItem(LOCAL_STORAGE_KEYS.ORDERS, JSON.stringify([]));
+    localStorage.setItem(LOCAL_STORAGE_KEYS.CUSTOMERS, JSON.stringify(defaultCustomers));
+    localStorage.setItem(LOCAL_STORAGE_KEYS.LEDGER, JSON.stringify([]));
+    localStorage.setItem(LOCAL_STORAGE_KEYS.PRODUCTS, JSON.stringify(defaultProducts));
+    localStorage.setItem(LOCAL_STORAGE_KEYS.TABLES, JSON.stringify(defaultTables));
+    localStorage.setItem(LOCAL_STORAGE_KEYS.SETTINGS, JSON.stringify(defaultSettings));
+    this.notify();
+
+    try {
+      // Clear Supabase tables
+      await supabase.from('order_items').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await supabase.from('orders').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await supabase.from('loyalty_ledger').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await supabase.from('customers').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await supabase.from('products').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await supabase.from('restaurant_tables').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+
+      // Re-seed default pure-veg products, customers, and tables
+      await this.syncAllToSupabase(defaultProducts, defaultCustomers, [], [], defaultSettings, defaultTables);
+    } catch (e) {
+      console.warn('Failed to factory reset in Supabase:', e);
+    }
   }
 
   // --- LEDGER ---

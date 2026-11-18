@@ -6,7 +6,8 @@ import {
   ShoppingBag, 
   Receipt, 
   Heart,
-  Smartphone
+  Smartphone,
+  Trash2
 } from 'lucide-react';
 
 interface CustomerDetailModalProps {
@@ -26,6 +27,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
     ledger, 
     settings, 
     adjustCustomerPoints, 
+    deleteCustomer,
     selectCustomer, 
     setActiveTab, 
     openReceiptModal,
@@ -33,6 +35,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
     currentStaff
   } = usePOS();
 
+  const isAdmin = currentStaff?.role === 'Admin';
   const canAdjustPoints = currentStaff?.permissions?.canAdjustLoyaltyPoints !== false;
 
   const [activeTab, setActiveTabLocal] = useState<'overview' | 'orders' | 'loyalty' | 'adjust'>('overview');
@@ -68,6 +71,14 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
     selectCustomer(customer);
     setActiveTab('pos');
     onClose();
+  };
+
+  const handleDeleteCustomer = async () => {
+    if (!isAdmin) return;
+    if (window.confirm(`Delete customer profile "${customer.name}" (${customer.phone})?\n\nThis will permanently delete their profile and loyalty balance.`)) {
+      await deleteCustomer(customer.id);
+      onClose();
+    }
   };
 
   const handleAdjustPointsSubmit = async (e: React.FormEvent) => {
@@ -128,6 +139,16 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
               <ShoppingBag className="w-3.5 h-3.5" />
               <span>New Order</span>
             </button>
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={handleDeleteCustomer}
+                className="p-1.5 text-zinc-500 hover:text-rose-400 hover:bg-rose-950/30 rounded-lg transition-colors border border-zinc-800"
+                title="Admin: Delete Customer Profile"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
             <button
               onClick={onClose}
               className="p-1.5 text-zinc-500 hover:text-zinc-300"

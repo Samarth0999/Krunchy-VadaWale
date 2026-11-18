@@ -15,7 +15,7 @@ export const defaultSettings: RestaurantSettings = {
   currencySymbol: "₹",
   upiVpa: "9370107031-1@okbizaxis",
   merchantName: "KRUNCHY RESTAURANT",
-  loyaltyEarnRate: 10, // ₹10 spent = 1 Point
+  loyaltyEarnRate: 20, // ₹10 spent = 1 Point
   loyaltyPointValue: 1, // 1 Point = ₹1
   minOrderToEarn: 50,
   maxRedemptionPercent: 50,

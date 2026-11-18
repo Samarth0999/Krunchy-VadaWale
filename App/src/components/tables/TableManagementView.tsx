@@ -9,7 +9,8 @@ import {
   CheckCircle2, 
   ShoppingBag, 
   X, 
-  RotateCcw
+  RotateCcw,
+  Trash2
 } from 'lucide-react';
 import { RestaurantTable, TableStatus } from '../../types';
 
@@ -21,9 +22,13 @@ export const TableManagementView: React.FC = () => {
     transferActiveTable, 
     releaseTable, 
     saveTable, 
+    deleteTable,
+    currentStaff,
     setActiveTab, 
     settings 
   } = usePOS();
+
+  const isAdmin = currentStaff?.role === 'Admin';
 
   const [selectedSection, setSelectedSection] = useState<string>('All');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('ALL');
@@ -136,6 +141,13 @@ export const TableManagementView: React.FC = () => {
     await saveTable(newTable);
     setIsAddTableOpen(false);
     setNewTableName('');
+  };
+
+  const handleDeleteTable = async (table: RestaurantTable) => {
+    if (!isAdmin) return;
+    if (window.confirm(`Delete table "${table.name}" (${table.section})?\n\nThis will remove it permanently from your floor layout.`)) {
+      await deleteTable(table.id);
+    }
   };
 
   const handleTransferSubmit = async (e: React.FormEvent) => {
@@ -259,10 +271,22 @@ export const TableManagementView: React.FC = () => {
                     </div>
                   </div>
 
-                  <span className={`text-[10px] font-medium px-2 py-0.5 rounded border flex items-center gap-1.5 ${statusInfo.badgeClass}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${statusInfo.dotClass}`}></span>
-                    <span>{statusInfo.label}</span>
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded border flex items-center gap-1.5 ${statusInfo.badgeClass}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${statusInfo.dotClass}`}></span>
+                      <span>{statusInfo.label}</span>
+                    </span>
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteTable(table)}
+                        title="Admin: Delete Table"
+                        className="p-1 text-zinc-500 hover:text-rose-400 hover:bg-rose-950/30 rounded transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Seating / Customer Details if Occupied or Billed */}

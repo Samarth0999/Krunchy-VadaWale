@@ -17,6 +17,7 @@ import { Product } from '../../types';
 export const MenuManagement: React.FC = () => {
   const { products, deleteProduct, saveProduct, categories, settings, currentStaff } = usePOS();
 
+  const isAdmin = currentStaff?.role === 'Admin';
   const canEdit = currentStaff?.permissions?.canEditProducts !== false;
   const canCategories = currentStaff?.permissions?.canManageCategories !== false;
 
@@ -65,6 +66,10 @@ export const MenuManagement: React.FC = () => {
   };
 
   const handleDelete = async (p: Product) => {
+    if (!isAdmin) {
+      alert('Only Admin users can delete items from catalog.');
+      return;
+    }
     if (window.confirm(`Remove "${p.name}" from catalog?`)) {
       await deleteProduct(p.id);
     }
@@ -294,13 +299,16 @@ export const MenuManagement: React.FC = () => {
                           >
                             <Edit3 className="w-3.5 h-3.5" />
                           </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(product)}
-                            className="p-1 text-zinc-500 hover:text-rose-400 hover:bg-zinc-800 rounded transition-colors"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          {isAdmin && (
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(product)}
+                              className="p-1 text-zinc-500 hover:text-rose-400 hover:bg-zinc-800 rounded transition-colors"
+                              title="Admin: Delete Item"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
                         </div>
                       ) : (
                         <span className="text-[10px] text-zinc-500 font-mono italic">View Only</span>
@@ -360,8 +368,19 @@ export const MenuManagement: React.FC = () => {
                       type="button"
                       onClick={() => handleOpenEdit(product)}
                       className="p-1.5 text-zinc-400 hover:text-zinc-200 bg-zinc-800/80 rounded-lg"
+                      title="Edit Item"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  {isAdmin && (
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(product)}
+                      className="p-1.5 text-zinc-500 hover:text-rose-400 bg-zinc-800/80 rounded-lg"
+                      title="Admin: Delete Item"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   )}
                 </div>

@@ -11,3 +11,4 @@ SET
     enable_fssai = COALESCE(enable_fssai, TRUE),
     enable_tax = COALESCE(enable_tax, TRUE)
 WHERE id = 'default';
+

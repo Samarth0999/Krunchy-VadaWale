@@ -4,17 +4,26 @@ import {
   ClipboardList, 
   Search, 
   Printer, 
+  Trash2,
   X 
 } from 'lucide-react';
 
 export const OrdersHistory: React.FC = () => {
-  const { orders, openReceiptModal, settings } = usePOS();
+  const { orders, openReceiptModal, deleteOrder, currentStaff, settings } = usePOS();
+  const isAdmin = currentStaff?.role === 'Admin';
 
   const [searchQuery, setSearchQuery] = useState('');
   const [diningFilter, setDiningFilter] = useState<string>('ALL');
   const [paymentFilter, setPaymentFilter] = useState<string>('ALL');
 
   const currency = settings.currencySymbol || '₹';
+
+  const handleDeleteOrder = async (orderId: string, orderNumber: string) => {
+    if (!isAdmin) return;
+    if (window.confirm(`Void / Delete Order #${orderNumber}?\n\nThis will remove it permanently from local and cloud sales records.`)) {
+      await deleteOrder(orderId);
+    }
+  };
 
   const filteredOrders = useMemo(() => {
     return orders.filter(o => {
@@ -197,16 +206,28 @@ export const OrdersHistory: React.FC = () => {
                       {currency}{order.totalAmount.toFixed(2)}
                     </td>
 
-                    {/* Print Action */}
+                    {/* Actions */}
                     <td className="py-2.5 px-3.5 text-right font-sans">
-                      <button
-                        type="button"
-                        onClick={() => openReceiptModal(order)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded text-xs transition-colors border border-zinc-700/60"
-                      >
-                        <Printer className="w-3 h-3" />
-                        <span>Print</span>
-                      </button>
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => openReceiptModal(order)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded text-xs transition-colors border border-zinc-700/60"
+                        >
+                          <Printer className="w-3 h-3" />
+                          <span>Print</span>
+                        </button>
+                        {isAdmin && (
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteOrder(order.id, order.orderNumber)}
+                            title="Admin: Void / Delete Order"
+                            className="p-1 bg-zinc-800 hover:bg-rose-950/40 text-zinc-500 hover:text-rose-400 rounded text-xs transition-colors border border-zinc-700/60"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        )}
+                      </div>
                     </td>
 
                   </tr>
@@ -257,15 +278,25 @@ export const OrdersHistory: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="pt-1 flex items-center justify-end">
+                <div className="pt-1 flex items-center justify-end gap-2">
                   <button
                     type="button"
                     onClick={() => openReceiptModal(order)}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-lg text-xs font-medium transition-colors border border-zinc-700/60"
                   >
                     <Printer className="w-3.5 h-3.5" />
-                    <span>View / Print Receipt</span>
+                    <span>View / Print</span>
                   </button>
+                  {isAdmin && (
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteOrder(order.id, order.orderNumber)}
+                      title="Admin: Delete Order"
+                      className="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg text-xs border border-rose-500/20"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
               </div>
             ))
