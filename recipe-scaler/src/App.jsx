@@ -43,9 +43,9 @@ export default function App() {
   const [favorites, setFavorites] = useState(() => {
     try {
       const saved = localStorage.getItem('chav_favorites');
-      return saved ? JSON.parse(saved) : ['kanda-poha', 'masala-chai'];
+      return saved ? JSON.parse(saved) : ['vadapav-masala'];
     } catch {
-      return ['kanda-poha', 'masala-chai'];
+      return ['vadapav-masala'];
     }
   });
 

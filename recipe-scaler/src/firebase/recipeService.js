@@ -15,6 +15,15 @@ import { defaultRecipes } from "../data/defaultRecipes";
 const LOCAL_RECIPES_KEY = "chav_local_recipes_cache";
 const COLLECTION_NAME = "recipes";
 
+const LEGACY_DEFAULT_IDS = new Set([
+  "kanda-poha",
+  "masala-chai",
+  "misal-pav",
+  "puran-poli",
+  "batata-vada",
+  "sabudana-khichdi"
+]);
+
 /**
  * Get cached local recipes from LocalStorage
  */
@@ -24,15 +33,14 @@ export function getLocalCachedRecipes() {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        // Ensure newly added default recipes appear even if local cache exists
-        const existingIds = new Set(parsed.map((r) => r.id));
+        // Filter out old removed default recipes
+        const activeRecipes = parsed.filter((r) => !LEGACY_DEFAULT_IDS.has(r.id));
+        const existingIds = new Set(activeRecipes.map((r) => r.id));
         const missingDefaults = defaultRecipes.filter((dr) => !existingIds.has(dr.id));
-        if (missingDefaults.length > 0) {
-          const merged = [...parsed, ...missingDefaults];
-          saveLocalCachedRecipes(merged);
-          return merged;
-        }
-        return parsed;
+        
+        const merged = [...activeRecipes, ...missingDefaults];
+        saveLocalCachedRecipes(merged);
+        return merged;
       }
     }
   } catch (e) {
@@ -174,7 +182,7 @@ export async function deleteRecipe(recipeId) {
     db = getDb();
   } catch (e) {}
 
-  if (db && !recipeId.startsWith("kanda-") && !recipeId.startsWith("masala-")) {
+  if (db && recipeId !== "vadapav-masala") {
     try {
       await deleteDoc(doc(db, COLLECTION_NAME, recipeId));
     } catch (e) {
