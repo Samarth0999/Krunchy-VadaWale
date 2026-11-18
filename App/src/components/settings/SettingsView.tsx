@@ -35,6 +35,11 @@ export const SettingsView: React.FC = () => {
   const [formData, setFormData] = useState<RestaurantSettings>({ ...settings });
   const [isSaved, setIsSaved] = useState(false);
 
+  // Keep form data synchronized whenever settings update
+  React.useEffect(() => {
+    setFormData({ ...settings });
+  }, [settings]);
+
   // New staff form state
   const [newStaffEmail, setNewStaffEmail] = useState('');
   const [newStaffName, setNewStaffName] = useState('');
@@ -156,26 +161,72 @@ export const SettingsView: React.FC = () => {
               />
             </div>
 
-            <div>
-              <label className="text-[11px] text-zinc-400 font-medium block mb-1">GSTIN Number</label>
-              <input
-                type="text"
-                value={formData.gstin}
-                onChange={(e) => handleChange('gstin', e.target.value)}
-                placeholder="29AABCU9603R1ZM"
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 font-mono text-zinc-100 focus:outline-none focus:border-zinc-700 transition-colors"
-              />
+            {/* GSTIN Field with Enable / Disable Toggle */}
+            <div className="bg-zinc-950 p-3 rounded-lg border border-zinc-800 space-y-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-[11px] text-zinc-300 font-semibold block">GSTIN Number</span>
+                  <span className="text-[10px] text-zinc-500">Print tax ID on receipts</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleChange('enableGstin', !(formData.enableGstin !== false))}
+                  className={`w-8 h-4.5 flex items-center rounded-full p-0.5 transition-colors cursor-pointer ${
+                    formData.enableGstin !== false ? 'bg-orange-600 justify-end' : 'bg-zinc-800 justify-start'
+                  }`}
+                  aria-label="Toggle GSTIN"
+                >
+                  <div className="w-3.5 h-3.5 rounded-full bg-white shadow-xs"></div>
+                </button>
+              </div>
+
+              {formData.enableGstin !== false ? (
+                <input
+                  type="text"
+                  value={formData.gstin}
+                  onChange={(e) => handleChange('gstin', e.target.value.toUpperCase())}
+                  placeholder="27AABCU9603R1ZM"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 font-mono text-zinc-100 focus:outline-none focus:border-orange-500 transition-colors uppercase text-xs"
+                />
+              ) : (
+                <div className="text-[11px] text-zinc-500 italic bg-zinc-900/50 p-2 rounded border border-zinc-900">
+                  Disabled — GSTIN is hidden from receipts
+                </div>
+              )}
             </div>
 
-            <div>
-              <label className="text-[11px] text-zinc-400 font-medium block mb-1">FSSAI License #</label>
-              <input
-                type="text"
-                value={formData.fssai}
-                onChange={(e) => handleChange('fssai', e.target.value)}
-                placeholder="11223344556677"
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 font-mono text-zinc-100 focus:outline-none focus:border-zinc-700 transition-colors"
-              />
+            {/* FSSAI Field with Enable / Disable Toggle */}
+            <div className="bg-zinc-950 p-3 rounded-lg border border-zinc-800 space-y-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-[11px] text-zinc-300 font-semibold block">FSSAI License #</span>
+                  <span className="text-[10px] text-zinc-500">Food safety license code</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleChange('enableFssai', !(formData.enableFssai !== false))}
+                  className={`w-8 h-4.5 flex items-center rounded-full p-0.5 transition-colors cursor-pointer ${
+                    formData.enableFssai !== false ? 'bg-orange-600 justify-end' : 'bg-zinc-800 justify-start'
+                  }`}
+                  aria-label="Toggle FSSAI"
+                >
+                  <div className="w-3.5 h-3.5 rounded-full bg-white shadow-xs"></div>
+                </button>
+              </div>
+
+              {formData.enableFssai !== false ? (
+                <input
+                  type="text"
+                  value={formData.fssai}
+                  onChange={(e) => handleChange('fssai', e.target.value)}
+                  placeholder="11522036000123"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 font-mono text-zinc-100 focus:outline-none focus:border-orange-500 transition-colors text-xs"
+                />
+              ) : (
+                <div className="text-[11px] text-zinc-500 italic bg-zinc-900/50 p-2 rounded border border-zinc-900">
+                  Disabled — FSSAI is hidden from receipts
+                </div>
+              )}
             </div>
 
             <div>
@@ -198,26 +249,53 @@ export const SettingsView: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 text-xs">
-            <div>
-              <label className="text-[11px] text-zinc-400 font-medium block mb-1">GST Tax Rate (%)</label>
-              <input
-                type="number"
-                min={0}
-                step={0.5}
-                value={formData.taxRate}
-                onChange={(e) => handleChange('taxRate', Number(e.target.value))}
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 font-mono text-zinc-100 focus:outline-none focus:border-zinc-700"
-              />
+            {/* GST Tax Rate with Enable / Disable toggle */}
+            <div className="bg-zinc-950 p-3 rounded-lg border border-zinc-800 space-y-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-[11px] text-zinc-300 font-semibold block">GST Tax Rate (%)</span>
+                  <span className="text-[10px] text-zinc-500">Apply GST on billing</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleChange('enableTax', !(formData.enableTax !== false))}
+                  className={`w-8 h-4.5 flex items-center rounded-full p-0.5 transition-colors cursor-pointer ${
+                    formData.enableTax !== false ? 'bg-orange-600 justify-end' : 'bg-zinc-800 justify-start'
+                  }`}
+                  aria-label="Toggle GST Tax"
+                >
+                  <div className="w-3.5 h-3.5 rounded-full bg-white shadow-xs"></div>
+                </button>
+              </div>
+
+              {formData.enableTax !== false ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={0}
+                    step={0.5}
+                    value={formData.taxRate}
+                    onChange={(e) => handleChange('taxRate', Number(e.target.value))}
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1.5 font-mono text-zinc-100 focus:outline-none focus:border-orange-500 text-xs"
+                  />
+                  <span className="text-zinc-400 font-mono text-xs">%</span>
+                </div>
+              ) : (
+                <div className="text-[11px] text-zinc-500 italic bg-zinc-900/50 p-2 rounded border border-zinc-900">
+                  Tax Disabled (0% applied)
+                </div>
+              )}
             </div>
 
             <div>
               <label className="text-[11px] text-zinc-400 font-medium block mb-1">Tax Label on Receipt</label>
               <input
                 type="text"
+                disabled={formData.enableTax === false}
                 value={formData.taxName}
                 onChange={(e) => handleChange('taxName', e.target.value)}
                 placeholder="GST (CGST 2.5% + SGST 2.5%)"
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-zinc-700"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-zinc-100 focus:outline-none focus:border-zinc-700 disabled:opacity-40"
               />
             </div>
 

@@ -281,10 +281,12 @@ export const CartSidebar: React.FC = () => {
           </div>
         )}
 
-        <div className="flex justify-between text-zinc-400">
-          <span>{settings.taxName || 'GST'} ({settings.taxRate}%)</span>
-          <span className="font-mono text-zinc-200">{currency}{taxAmount.toFixed(2)}</span>
-        </div>
+        {settings.enableTax !== false && settings.taxRate > 0 && (
+          <div className="flex justify-between text-zinc-400">
+            <span>{settings.taxName || 'GST'} ({settings.taxRate}%)</span>
+            <span className="font-mono text-zinc-200">{currency}{taxAmount.toFixed(2)}</span>
+          </div>
+        )}
 
         {selectedCustomer && potentialPointsEarned > 0 && (
           <div className="flex justify-between text-zinc-400 text-[11px]">

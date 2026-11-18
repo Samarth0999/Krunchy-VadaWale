@@ -39,8 +39,8 @@ export const ReceiptView: React.FC<ReceiptViewProps> = ({ order, settings, width
         <p className="text-[10px] text-gray-700 italic">{settings.tagline}</p>
         <p className="text-[10px] mt-1 text-gray-800">{settings.address}</p>
         <p className="text-[10px] text-gray-800">Phone: {settings.phone}</p>
-        {settings.gstin && <p className="text-[10px] font-bold">GSTIN: {settings.gstin}</p>}
-        {settings.fssai && <p className="text-[10px]">FSSAI: {settings.fssai}</p>}
+        {settings.enableGstin !== false && settings.gstin && <p className="text-[10px] font-bold">GSTIN: {settings.gstin}</p>}
+        {settings.enableFssai !== false && settings.fssai && <p className="text-[10px]">FSSAI: {settings.fssai}</p>}
       </div>
 
       {/* Invoice Meta */}
@@ -119,7 +119,7 @@ export const ReceiptView: React.FC<ReceiptViewProps> = ({ order, settings, width
           </div>
         )}
 
-        {order.taxAmount > 0 && (
+        {order.taxAmount > 0 && settings.enableTax !== false && (
           <>
             <div className="flex justify-between text-gray-700">
               <span>CGST ({((order.taxRate || 5) / 2).toFixed(1)}%):</span>

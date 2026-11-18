@@ -214,8 +214,11 @@ export interface RestaurantSettings {
   address: string;
   phone: string;
   gstin: string;
+  enableGstin?: boolean;
   fssai: string;
+  enableFssai?: boolean;
   taxRate: number; // default 5% GST
+  enableTax?: boolean;
   taxName: string; // e.g., GST
   currencySymbol: string; // e.g., ₹
   upiVpa: string; // e.g., krunchy@upi

@@ -2,15 +2,18 @@ import { Product, Customer, Order, LoyaltyLedgerEntry, RestaurantSettings, Resta
 
 export const defaultSettings: RestaurantSettings = {
   name: "KRUNCHY - Hot & Crispy",
-  tagline: "Authentic Vada Pav, Crispy Burgers & Refreshing Coolers",
-  address: "Shop 4, Market Complex, FC Road, Pune, Maharashtra 411004",
-  phone: "+91 98230 12345",
-  gstin: "27AABCU9603R1ZM",
-  fssai: "11522036000123",
+  tagline: "Authentic Vada Pav",
+  address: "Satyabhama Complex, opp. of Rashtrwadi Bhavan, Swaraj Nagar, Beed, Maharashtra 431122",
+  phone: "+91 93701 07031",
+  gstin: "",
+  enableGstin: false,
+  fssai: "",
+  enableFssai: false,
   taxRate: 5, // 5% GST
+  enableTax: true,
   taxName: "GST (CGST 2.5% + SGST 2.5%)",
   currencySymbol: "₹",
-  upiVpa: "krunchy.pos@upi",
+  upiVpa: "9370107031-1@okbizaxis",
   merchantName: "KRUNCHY RESTAURANT",
   loyaltyEarnRate: 10, // ₹10 spent = 1 Point
   loyaltyPointValue: 1, // 1 Point = ₹1

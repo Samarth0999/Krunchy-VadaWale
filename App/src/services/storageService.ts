@@ -204,42 +204,49 @@ const rowToLedger = (row: any): LoyaltyLedgerEntry => ({
 const settingsToRow = (s: RestaurantSettings) => ({
   id: 'default',
   name: s.name,
-  tagline: s.tagline || null,
-  address: s.address || null,
-  phone: s.phone || null,
-  gstin: s.gstin || null,
-  fssai: s.fssai || null,
-  tax_rate: s.taxRate || 5,
+  tagline: s.tagline ?? '',
+  address: s.address ?? '',
+  phone: s.phone ?? '',
+  gstin: s.gstin ?? '',
+  enable_gstin: s.enableGstin !== false,
+  fssai: s.fssai ?? '',
+  enable_fssai: s.enableFssai !== false,
+  tax_rate: typeof s.taxRate === 'number' ? s.taxRate : 5,
+  enable_tax: s.enableTax !== false,
   tax_name: s.taxName || 'GST (CGST 2.5% + SGST 2.5%)',
   currency_symbol: s.currencySymbol || '₹',
-  upi_vpa: s.upiVpa || 'krunchy.pos@upi',
-  loyalty_earn_rate: s.loyaltyEarnRate || 10,
-  loyalty_point_value: s.loyaltyPointValue || 1,
-  max_redemption_percent: s.maxRedemptionPercent || 50,
-  min_order_to_earn: s.minOrderToEarn || 50,
+  upi_vpa: s.upiVpa ?? '',
+  loyalty_earn_rate: typeof s.loyaltyEarnRate === 'number' ? s.loyaltyEarnRate : 10,
+  loyalty_point_value: typeof s.loyaltyPointValue === 'number' ? s.loyaltyPointValue : 1,
+  max_redemption_percent: typeof s.maxRedemptionPercent === 'number' ? s.maxRedemptionPercent : 50,
+  min_order_to_earn: typeof s.minOrderToEarn === 'number' ? s.minOrderToEarn : 0,
   printer_width: s.printerWidth || '80mm',
-  auto_print_receipt: s.autoPrintReceipt || false,
-  cashier_name: s.cashierName || 'Counter 1'
+  auto_print_receipt: Boolean(s.autoPrintReceipt),
+  cashier_name: s.cashierName || 'Counter 1',
+  updated_at: new Date().toISOString()
 });
 
 const rowToSettings = (row: any): RestaurantSettings => ({
-  name: row.name || defaultSettings.name,
-  tagline: row.tagline || defaultSettings.tagline,
-  address: row.address || defaultSettings.address,
-  phone: row.phone || defaultSettings.phone,
-  gstin: row.gstin || defaultSettings.gstin,
-  fssai: row.fssai || defaultSettings.fssai,
-  taxRate: Number(row.tax_rate ?? defaultSettings.taxRate),
+  name: row.name ?? defaultSettings.name,
+  tagline: row.tagline ?? '',
+  address: row.address ?? '',
+  phone: row.phone ?? '',
+  gstin: row.gstin ?? '',
+  enableGstin: row.enable_gstin !== undefined ? Boolean(row.enable_gstin) : (row.gstin ? true : false),
+  fssai: row.fssai ?? '',
+  enableFssai: row.enable_fssai !== undefined ? Boolean(row.enable_fssai) : (row.fssai ? true : false),
+  taxRate: row.tax_rate !== undefined && row.tax_rate !== null ? Number(row.tax_rate) : defaultSettings.taxRate,
+  enableTax: row.enable_tax !== undefined ? Boolean(row.enable_tax) : true,
   taxName: row.tax_name || defaultSettings.taxName,
   currencySymbol: row.currency_symbol || defaultSettings.currencySymbol,
-  upiVpa: row.upi_vpa || defaultSettings.upiVpa,
-  merchantName: defaultSettings.merchantName,
-  loyaltyEarnRate: Number(row.loyalty_earn_rate ?? defaultSettings.loyaltyEarnRate),
-  loyaltyPointValue: Number(row.loyalty_point_value ?? defaultSettings.loyaltyPointValue),
-  maxRedemptionPercent: Number(row.max_redemption_percent ?? defaultSettings.maxRedemptionPercent),
-  minOrderToEarn: Number(row.min_order_to_earn ?? defaultSettings.minOrderToEarn),
+  upiVpa: row.upi_vpa ?? '',
+  merchantName: row.name || defaultSettings.merchantName,
+  loyaltyEarnRate: row.loyalty_earn_rate !== undefined && row.loyalty_earn_rate !== null ? Number(row.loyalty_earn_rate) : defaultSettings.loyaltyEarnRate,
+  loyaltyPointValue: row.loyalty_point_value !== undefined && row.loyalty_point_value !== null ? Number(row.loyalty_point_value) : defaultSettings.loyaltyPointValue,
+  maxRedemptionPercent: row.max_redemption_percent !== undefined && row.max_redemption_percent !== null ? Number(row.max_redemption_percent) : defaultSettings.maxRedemptionPercent,
+  minOrderToEarn: row.min_order_to_earn !== undefined && row.min_order_to_earn !== null ? Number(row.min_order_to_earn) : defaultSettings.minOrderToEarn,
   printerWidth: (row.printer_width as '80mm' | '58mm') || defaultSettings.printerWidth,
-  autoPrintReceipt: Boolean(row.auto_print_receipt ?? defaultSettings.autoPrintReceipt),
+  autoPrintReceipt: Boolean(row.auto_print_receipt),
   cashierName: row.cashier_name || defaultSettings.cashierName
 });
 
@@ -901,8 +908,36 @@ class StorageService {
     this.notify();
 
     try {
-      await supabase.from('restaurant_settings').upsert(settingsToRow(settings));
-    } catch (e) {}
+      const row = settingsToRow(settings);
+      const { error } = await supabase.from('restaurant_settings').upsert(row, { onConflict: 'id' });
+      if (error) {
+        // Fallback to core columns if custom toggle columns are not yet in Supabase schema
+        const fallbackRow = {
+          id: 'default',
+          name: row.name,
+          tagline: row.tagline,
+          address: row.address,
+          phone: row.phone,
+          gstin: settings.enableGstin !== false ? (row.gstin || null) : null,
+          fssai: settings.enableFssai !== false ? (row.fssai || null) : null,
+          tax_rate: settings.enableTax !== false ? row.tax_rate : 0,
+          tax_name: row.tax_name,
+          currency_symbol: row.currency_symbol,
+          upi_vpa: row.upi_vpa,
+          loyalty_earn_rate: row.loyalty_earn_rate,
+          loyalty_point_value: row.loyalty_point_value,
+          max_redemption_percent: row.max_redemption_percent,
+          min_order_to_earn: row.min_order_to_earn,
+          printer_width: row.printer_width,
+          auto_print_receipt: row.auto_print_receipt,
+          cashier_name: row.cashier_name,
+          updated_at: new Date().toISOString()
+        };
+        await supabase.from('restaurant_settings').upsert(fallbackRow, { onConflict: 'id' });
+      }
+    } catch (e) {
+      console.warn('Could not sync settings to Supabase:', e);
+    }
   }
 }
 

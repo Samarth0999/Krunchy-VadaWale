@@ -395,8 +395,11 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [subtotal, totalDiscount]);
 
   const taxAmount = useMemo(() => {
+    if (settings.enableTax === false || !settings.taxRate || settings.taxRate <= 0) {
+      return 0;
+    }
     return Math.round(taxableAmount * (settings.taxRate / 100));
-  }, [taxableAmount, settings.taxRate]);
+  }, [taxableAmount, settings.taxRate, settings.enableTax]);
 
   const grandTotal = useMemo(() => {
     return taxableAmount + taxAmount;
@@ -523,7 +526,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       tableId: diningType === 'DINE_IN' ? (activeTableId || undefined) : undefined,
       items: orderItems,
       subtotal,
-      taxRate: settings.taxRate,
+      taxRate: settings.enableTax !== false ? settings.taxRate : 0,
       taxAmount,
       discountAmount: totalDiscount,
       discountReason: pointsToRedeem > 0 ? `Loyalty Points (${pointsToRedeem} pts)` : discountReason,

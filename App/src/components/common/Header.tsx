@@ -119,7 +119,9 @@ export const Header: React.FC = () => {
             <Flame className="w-4 h-4 fill-orange-500/20" />
           </div>
           <div className="flex items-baseline gap-1.5">
-            <span className="font-bold text-sm tracking-tight text-zinc-100">KRUNCHY</span>
+            <span className="font-bold text-sm tracking-tight text-zinc-100 uppercase truncate max-w-[160px] sm:max-w-[220px]">
+              {settings.name || 'KRUNCHY'}
+            </span>
             <span className="text-[10px] text-zinc-500 font-mono tracking-wider">POS</span>
           </div>
         </div>
