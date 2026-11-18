@@ -11,7 +11,11 @@ export const ReceiptModal: React.FC = () => {
   if (!isReceiptModalOpen || !activeReceiptOrder) return null;
 
   const handlePrint = () => {
-    window.print();
+    if ((window as any).electronAPI?.isElectron) {
+      (window as any).electronAPI.printReceipt();
+    } else {
+      window.print();
+    }
   };
 
   const shareViaWhatsApp = () => {

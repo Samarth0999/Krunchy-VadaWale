@@ -150,11 +150,11 @@ export const Header: React.FC = () => {
           
           {/* Cloud Sync Status Indicator */}
           <div 
-            title={isCloudConnected ? "Cloud Synced (Firestore)" : "Local Storage Mode"}
+            title={isCloudConnected ? "Cloud Synced (Supabase PostgreSQL)" : "Local Storage Mode"}
             className="hidden sm:flex items-center gap-1.5 text-xs text-zinc-400 font-medium"
           >
             <span className={`w-1.5 h-1.5 rounded-full ${isCloudConnected ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
-            <span className="text-[11px]">{isCloudConnected ? 'Cloud' : 'Offline'}</span>
+            <span className="text-[11px]">{isCloudConnected ? 'Supabase' : 'Offline'}</span>
           </div>
 
           <div className="hidden xl:block h-3 w-px bg-zinc-800"></div>
