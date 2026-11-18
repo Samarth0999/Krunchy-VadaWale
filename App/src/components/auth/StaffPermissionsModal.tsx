@@ -337,3 +337,4 @@ export const StaffPermissionsModal: React.FC<StaffPermissionsModalProps> = ({
     </div>
   );
 };
+
