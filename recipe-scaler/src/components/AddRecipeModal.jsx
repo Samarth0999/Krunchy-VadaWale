@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Plus, Trash2, Sparkles, ChefHat, CloudUpload } from 'lucide-react';
+import { X, Plus, Trash2, Sparkles, ChefHat, Check } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { translations } from '../data/translations';
 
@@ -163,7 +163,7 @@ export default function AddRecipeModal({
                 {t.newRecipeTitle}
               </h2>
               <p className="text-[11px] text-stone-500 font-medium">
-                {lang === 'mr' ? 'क्लाउड फायरबेसवर त्वरित जतन होईल' : 'Directly saves to Cloud Firestore'}
+                {lang === 'mr' ? 'तुमची खास पाककृती जतन करा' : 'Save your custom recipe'}
               </p>
             </div>
           </div>
@@ -468,7 +468,7 @@ export default function AddRecipeModal({
                 </>
               ) : (
                 <>
-                  <CloudUpload className="w-4 h-4" />
+                  <Check className="w-4 h-4" />
                   <span>{t.saveRecipeBtn}</span>
                 </>
               )}

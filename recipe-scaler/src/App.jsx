@@ -5,7 +5,6 @@ import CategoryChips from './components/CategoryChips';
 import RecipeCard from './components/RecipeCard';
 import RecipeDetailView from './components/RecipeDetailView';
 import AddRecipeModal from './components/AddRecipeModal';
-import FirebaseSettingsModal from './components/FirebaseSettingsModal';
 import BottomNav from './components/BottomNav';
 import { translations } from './data/translations';
 import { defaultRecipes } from './data/defaultRecipes';
@@ -14,13 +13,12 @@ import {
   addRecipe,
   deleteRecipe,
 } from './firebase/recipeService';
-import { initFirebase } from './firebase/config';
-import { Smartphone, Monitor, Sparkles, BookOpen, Heart } from 'lucide-react';
+import { Smartphone, Monitor, Sparkles } from 'lucide-react';
 
 export default function App() {
   // 1. Language state (en / mr)
   const [lang, setLang] = useState(() => {
-    return localStorage.getItem('chav_lang') || 'mr'; // Default to Marathi for authentic Maharashtrian experience, easily toggled!
+    return localStorage.getItem('chav_lang') || 'mr';
   });
 
   useEffect(() => {
@@ -29,19 +27,13 @@ export default function App() {
 
   const t = translations[lang];
 
-  // 2. Recipes & Firestore connection state
+  // 2. Recipes state
   const [recipes, setRecipes] = useState(defaultRecipes);
-  const [cloudStatus, setCloudStatus] = useState({
-    connected: false,
-    mode: 'local',
-    message: 'Local Offline Ready',
-  });
 
-  // 3. Modals and Navigation tabs
-  const [activeTab, setActiveTab] = useState('all'); // 'all', 'favorites', 'cloud'
+  // 3. Navigation tabs and Modals
+  const [activeTab, setActiveTab] = useState('all'); // 'all', 'favorites'
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isFirebaseModalOpen, setIsFirebaseModalOpen] = useState(false);
 
   // 4. Search and Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -67,14 +59,13 @@ export default function App() {
     );
   };
 
-  // 6. Mobile Frame Container Toggle (for viewing in desktop vs simulated phone frame)
+  // 6. Mobile Frame Container Toggle
   const [isMobileFrame, setIsMobileFrame] = useState(true);
 
-  // 7. Subscribe to recipes (Firestore + Local fallback)
+  // 7. Subscribe to recipes from Firestore
   const loadData = () => {
-    const unsub = subscribeToRecipes((updatedRecipes, status) => {
+    const unsub = subscribeToRecipes((updatedRecipes) => {
       setRecipes(updatedRecipes);
-      setCloudStatus(status);
     });
     return unsub;
   };
@@ -87,17 +78,14 @@ export default function App() {
   // 8. Filtered Recipes computation
   const filteredRecipes = useMemo(() => {
     return recipes.filter((recipe) => {
-      // Favorites filter
       if (activeTab === 'favorites' && !favorites.includes(recipe.id)) {
         return false;
       }
 
-      // Category filter
       if (selectedCategory !== 'all' && recipe.category !== selectedCategory) {
         return false;
       }
 
-      // Search Query filter (matches English or Marathi titles/ingredients)
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
         const titleEn = (recipe.title_en || '').toLowerCase();
@@ -125,7 +113,6 @@ export default function App() {
   // Handlers
   const handleSaveRecipe = async (newRecipe) => {
     const res = await addRecipe(newRecipe);
-    // Refresh list
     loadData();
     return res;
   };
@@ -138,17 +125,9 @@ export default function App() {
     }
   };
 
-  // When Cloud tab is clicked in bottom bar, open Firebase modal
-  useEffect(() => {
-    if (activeTab === 'cloud') {
-      setIsFirebaseModalOpen(true);
-      setActiveTab('all');
-    }
-  }, [activeTab]);
-
   return (
     <div className="min-h-screen bg-stone-100 flex flex-col items-center justify-start sm:py-6 selection:bg-orange-500 selection:text-white">
-      {/* Desktop Helper Bar: Allows toggling between simulated Mobile Phone Frame & Full Responsive Width */}
+      {/* Desktop Helper Bar */}
       <aside aria-label="Device view toggle" className="hidden sm:flex items-center justify-between w-full max-w-md mb-2 px-2 text-xs text-stone-500 font-medium">
         <span className="flex items-center gap-1.5">
           <Sparkles className="w-3.5 h-3.5 text-orange-500" />
@@ -191,17 +170,13 @@ export default function App() {
           </div>
         )}
 
-        {/* Top Navbar with Instant Bilingual Switcher & Firestore Status */}
+        {/* Clean Top Navbar with Instant Bilingual Switcher */}
         <Navbar
           lang={lang}
           setLang={setLang}
-          cloudStatus={cloudStatus}
-          openFirebaseModal={() => setIsFirebaseModalOpen(true)}
-          isMobileFrame={isMobileFrame}
-          setIsMobileFrame={setIsMobileFrame}
         />
 
-        {/* Screen Content: Either Recipe Details or Recipe Catalog */}
+        {/* Screen Content */}
         <main className="flex-1 overflow-y-auto no-scrollbar">
           {selectedRecipe ? (
             <RecipeDetailView
@@ -300,25 +275,15 @@ export default function App() {
             setCurrentTab={setActiveTab}
             onOpenAddModal={() => setIsAddModalOpen(true)}
             favoritesCount={favorites.length}
-            cloudConnected={cloudStatus.connected}
           />
         )}
 
-        {/* Add Recipe Modal (Key Requirement #3) */}
+        {/* Add Recipe Modal */}
         <AddRecipeModal
           lang={lang}
           isOpen={isAddModalOpen}
           onClose={() => setIsAddModalOpen(false)}
           onSaveRecipe={handleSaveRecipe}
-        />
-
-        {/* Firebase Cloud Firestore Settings Modal */}
-        <FirebaseSettingsModal
-          lang={lang}
-          isOpen={isFirebaseModalOpen}
-          onClose={() => setIsFirebaseModalOpen(false)}
-          cloudStatus={cloudStatus}
-          onConfigUpdated={loadData}
         />
       </div>
     </div>

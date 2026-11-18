@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, Plus, Cloud, Heart } from 'lucide-react';
+import { BookOpen, Plus, Heart } from 'lucide-react';
 import { translations } from '../data/translations';
 
 export default function BottomNav({
@@ -8,7 +8,6 @@ export default function BottomNav({
   setCurrentTab,
   onOpenAddModal,
   favoritesCount,
-  cloudConnected,
 }) {
   const t = translations[lang];
 
@@ -25,8 +24,8 @@ export default function BottomNav({
                 : 'text-stone-500 hover:text-stone-800'
             }`}
           >
-            <BookOpen className="w-4 h-4" />
-            <span className="text-[10px]">{t.recipes}</span>
+            <BookOpen className="w-5 h-5" />
+            <span className="text-[11px] font-semibold">{t.recipes}</span>
           </button>
 
           {/* Center Floating Action Button: Add Recipe */}
@@ -48,33 +47,13 @@ export default function BottomNav({
                 : 'text-stone-500 hover:text-stone-800'
             }`}
           >
-            <Heart className="w-4 h-4" />
-            <span className="text-[10px]">{t.favorites}</span>
+            <Heart className="w-5 h-5" />
+            <span className="text-[11px] font-semibold">{t.favorites}</span>
             {favoritesCount > 0 && (
-              <span className="absolute top-1 right-5 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-black flex items-center justify-center">
+              <span className="absolute top-1 right-8 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-black flex items-center justify-center">
                 {favoritesCount}
               </span>
             )}
-          </button>
-
-          {/* Tab 3: Cloud Firestore Setup */}
-          <button
-            onClick={() => setCurrentTab('cloud')}
-            className={`flex-1 py-1.5 flex flex-col items-center gap-0.5 rounded-2xl transition-all ${
-              currentTab === 'cloud'
-                ? 'text-orange-600 font-bold bg-orange-50'
-                : 'text-stone-500 hover:text-stone-800'
-            }`}
-          >
-            <div className="relative">
-              <Cloud className="w-4 h-4" />
-              <span
-                className={`absolute -top-0.5 -right-1 w-2 h-2 rounded-full ${
-                  cloudConnected ? 'bg-emerald-500' : 'bg-amber-400'
-                }`}
-              />
-            </div>
-            <span className="text-[10px]">{t.settings}</span>
           </button>
         </div>
       </div>
