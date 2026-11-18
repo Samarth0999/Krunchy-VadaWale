@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePOS } from '../../context/POSContext';
 import { Product } from '../../types';
-import { X, Check, Image as ImageIcon, Flame } from 'lucide-react';
+import { X, Check, Flame } from 'lucide-react';
 
 interface ProductModalProps {
   isOpen: boolean;
@@ -102,17 +102,17 @@ export const ProductModal: React.FC<ProductModalProps> = ({
   const currency = settings.currencySymbol || '₹';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-xl overflow-hidden flex flex-col max-h-[92vh] shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in select-none">
+      <div className="bg-dark-900 border border-white/[0.1] rounded-3xl w-full max-w-xl overflow-hidden flex flex-col max-h-[92vh] shadow-2xl">
         
         {/* Header */}
-        <div className="px-6 py-4 bg-slate-800/80 border-b border-slate-700 flex items-center justify-between">
-          <h3 className="font-bold text-base text-white">
+        <div className="px-6 py-4 bg-dark-950/80 border-b border-white/[0.08] flex items-center justify-between">
+          <h3 className="font-extrabold text-base text-white">
             {productToEdit ? 'Edit Menu Item' : 'Add New Menu Item'}
           </h3>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-700"
+            className="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-white/[0.06]"
           >
             <X className="w-5 h-5" />
           </button>
@@ -124,7 +124,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Item Name */}
             <div className="sm:col-span-2">
-              <label className="text-xs font-semibold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-slate-300 block mb-1.5">
                 Item Name *
               </label>
               <input
@@ -133,19 +133,19 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Krunchy Double Smash Cheeseburger"
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
+                className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500"
               />
             </div>
 
             {/* Category */}
             <div>
-              <label className="text-xs font-semibold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-slate-300 block mb-1.5">
                 Category *
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
+                className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500"
               >
                 {defaultCategories.map(cat => (
                   <option key={cat} value={cat}>{cat}</option>
@@ -153,10 +153,25 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               </select>
             </div>
 
-            {/* Custom Category if selected */}
-            {category === 'Custom' ? (
-              <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
+            {/* Price */}
+            <div>
+              <label className="text-xs font-bold text-slate-300 block mb-1.5">
+                Selling Price ({currency}) *
+              </label>
+              <input
+                type="number"
+                required
+                min={0}
+                value={price || ''}
+                onChange={(e) => setPrice(Number(e.target.value))}
+                placeholder="199"
+                className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs font-mono text-white focus:outline-none focus:border-orange-500 tabular-nums"
+              />
+            </div>
+
+            {category === 'Custom' && (
+              <div className="sm:col-span-2">
+                <label className="text-xs font-bold text-slate-300 block mb-1.5">
                   Custom Category Name *
                 </label>
                 <input
@@ -165,47 +180,14 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                   value={customCategory}
                   onChange={(e) => setCustomCategory(e.target.value)}
                   placeholder="e.g. Rice Bowls"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
-                />
-              </div>
-            ) : (
-              /* Price */
-              <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
-                  Selling Price ({currency}) *
-                </label>
-                <input
-                  type="number"
-                  required
-                  min={0}
-                  value={price || ''}
-                  onChange={(e) => setPrice(Number(e.target.value))}
-                  placeholder="199"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-orange-500"
-                />
-              </div>
-            )}
-
-            {category === 'Custom' && (
-              <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">
-                  Selling Price ({currency}) *
-                </label>
-                <input
-                  type="number"
-                  required
-                  min={0}
-                  value={price || ''}
-                  onChange={(e) => setPrice(Number(e.target.value))}
-                  placeholder="199"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-orange-500"
+                  className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500"
                 />
               </div>
             )}
 
             {/* SKU / Code */}
             <div>
-              <label className="text-xs font-semibold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-slate-300 block mb-1.5">
                 Item Code / SKU
               </label>
               <input
@@ -213,13 +195,13 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 value={sku}
                 onChange={(e) => setSku(e.target.value)}
                 placeholder="e.g. KRN-BG-01"
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-orange-500"
+                className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs font-mono text-white focus:outline-none focus:border-orange-500"
               />
             </div>
 
             {/* Image URL */}
             <div className="sm:col-span-2">
-              <label className="text-xs font-semibold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-slate-300 block mb-1.5">
                 Image URL (Unsplash or direct image link)
               </label>
               <div className="flex gap-3 items-center">
@@ -228,13 +210,13 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                   value={image}
                   onChange={(e) => setImage(e.target.value)}
                   placeholder="https://images.unsplash.com/..."
-                  className="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
+                  className="flex-1 bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500"
                 />
                 {image && (
                   <img
                     src={image}
                     alt="Preview"
-                    className="w-10 h-10 rounded-lg object-cover border border-slate-700"
+                    className="w-10 h-10 rounded-xl object-cover border border-white/[0.1] bg-dark-950 shrink-0"
                     onError={(e) => (e.currentTarget.style.display = 'none')}
                   />
                 )}
@@ -243,30 +225,30 @@ export const ProductModal: React.FC<ProductModalProps> = ({
 
             {/* Description */}
             <div className="sm:col-span-2">
-              <label className="text-xs font-semibold text-slate-300 block mb-1">
+              <label className="text-xs font-bold text-slate-300 block mb-1.5">
                 Description / Ingredients
               </label>
               <textarea
                 rows={2}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Crispy fried fillet, smoky chipotle mayo, lettuce, brioche..."
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
+                placeholder="Crispy fried fillet, smoky chipotle mayo, lettuce, brioche bun..."
+                className="w-full bg-dark-950 border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-orange-500"
               />
             </div>
           </div>
 
           {/* Dietary & Status Toggles */}
-          <div className="pt-2 border-t border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="pt-2 border-t border-white/[0.08] grid grid-cols-2 sm:grid-cols-4 gap-3">
             
             {/* Veg / Non-Veg */}
-            <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800">
-              <span className="text-xs text-slate-300 font-medium">Vegetarian?</span>
+            <div className="flex items-center justify-between p-3 rounded-2xl bg-dark-950 border border-white/[0.06]">
+              <span className="text-xs text-slate-300 font-bold">Pure Veg?</span>
               <button
                 type="button"
                 onClick={() => setIsVeg(!isVeg)}
                 className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${
-                  isVeg ? 'bg-emerald-600 justify-end' : 'bg-slate-700 justify-start'
+                  isVeg ? 'bg-emerald-600 justify-end' : 'bg-dark-800 justify-start'
                 }`}
               >
                 <div className="w-4 h-4 rounded-full bg-white shadow-md"></div>
@@ -274,8 +256,8 @@ export const ProductModal: React.FC<ProductModalProps> = ({
             </div>
 
             {/* Spicy */}
-            <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800">
-              <span className="text-xs text-slate-300 font-medium flex items-center gap-1">
+            <div className="flex items-center justify-between p-3 rounded-2xl bg-dark-950 border border-white/[0.06]">
+              <span className="text-xs text-slate-300 font-bold flex items-center gap-1">
                 <Flame className="w-3.5 h-3.5 text-rose-500" />
                 Spicy?
               </span>
@@ -283,7 +265,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({
                 type="button"
                 onClick={() => setIsSpicy(!isSpicy)}
                 className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${
-                  isSpicy ? 'bg-rose-600 justify-end' : 'bg-slate-700 justify-start'
+                  isSpicy ? 'bg-rose-600 justify-end' : 'bg-dark-800 justify-start'
                 }`}
               >
                 <div className="w-4 h-4 rounded-full bg-white shadow-md"></div>
@@ -291,13 +273,13 @@ export const ProductModal: React.FC<ProductModalProps> = ({
             </div>
 
             {/* In Stock */}
-            <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800">
-              <span className="text-xs text-slate-300 font-medium">In Stock</span>
+            <div className="flex items-center justify-between p-3 rounded-2xl bg-dark-950 border border-white/[0.06]">
+              <span className="text-xs text-slate-300 font-bold">In Stock</span>
               <button
                 type="button"
                 onClick={() => setInStock(!inStock)}
                 className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${
-                  inStock ? 'bg-orange-500 justify-end' : 'bg-slate-700 justify-start'
+                  inStock ? 'bg-orange-500 justify-end' : 'bg-dark-800 justify-start'
                 }`}
               >
                 <div className="w-4 h-4 rounded-full bg-white shadow-md"></div>
@@ -305,13 +287,13 @@ export const ProductModal: React.FC<ProductModalProps> = ({
             </div>
 
             {/* Active on POS */}
-            <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800">
-              <span className="text-xs text-slate-300 font-medium">Active</span>
+            <div className="flex items-center justify-between p-3 rounded-2xl bg-dark-950 border border-white/[0.06]">
+              <span className="text-xs text-slate-300 font-bold">Active</span>
               <button
                 type="button"
                 onClick={() => setIsActive(!isActive)}
                 className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${
-                  isActive ? 'bg-orange-500 justify-end' : 'bg-slate-700 justify-start'
+                  isActive ? 'bg-orange-500 justify-end' : 'bg-dark-800 justify-start'
                 }`}
               >
                 <div className="w-4 h-4 rounded-full bg-white shadow-md"></div>
@@ -321,20 +303,20 @@ export const ProductModal: React.FC<ProductModalProps> = ({
           </div>
 
           {/* Submit Buttons */}
-          <div className="pt-4 border-t border-slate-800 flex justify-end gap-3">
+          <div className="pt-4 border-t border-white/[0.08] flex justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl"
+              className="px-5 py-2.5 bg-dark-850 hover:bg-dark-800 text-slate-300 text-xs font-bold rounded-xl border border-white/[0.06]"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex items-center gap-1.5 px-5 py-2 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white text-xs font-bold rounded-xl shadow-lg shadow-orange-500/25"
+              className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white text-xs font-extrabold rounded-xl shadow-glow-orange"
             >
               <Check className="w-4 h-4" />
-              <span>{productToEdit ? 'Save Changes' : 'Add to Menu'}</span>
+              <span>{productToEdit ? 'Save Changes' : 'Add to Catalog'}</span>
             </button>
           </div>
 
@@ -344,4 +326,3 @@ export const ProductModal: React.FC<ProductModalProps> = ({
     </div>
   );
 };
-
